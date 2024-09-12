@@ -1,0 +1,45 @@
+.topnav {
+  background-color: var(--component-dark);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  gap: 10px;
+  position: fixed;
+  top: 0; 
+  left: 0;
+  right: 0;
+  height: 7vh; 
+  z-index: 1000; 
+  padding: 0 10px; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
+}
+
+.profileLink,
+.navbarLink {
+  display: flex;
+  align-items: center;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.profileLink {
+  padding: 0; 
+}
+
+.profileImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover; 
+}
+
+.navbarLink {
+  padding: 10px 12px; 
+  border-radius: 5px; 
+}
+
+.navbarLink:hover {
+  background-color: var(--secundary-color); 
+  color: var(--text-color);
+  transition: background-color 0.3s; 
+}

@@ -1,0 +1,66 @@
+.user-profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+.user-profile-container form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 50vw;
+}
+
+.user-profile-container form div {
+    margin-bottom: 10px;
+}
+
+/* Estilos para alinear la imagen, el label y el input */
+.profile-image-section {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espacio entre la imagen y la sección de carga */
+    height: 1;
+    margin-bottom: 10px;
+}
+
+/* Contenedor para la imagen */
+.profile-image-container {
+    justify-content: center;
+    align-items: center;
+    width: 60px; /* Tamaño del contenedor de la imagen */
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+/* Imagen de perfil */
+.profile-image-input {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ajusta la imagen al contenedor sin distorsionar */
+    border-radius: 50%;
+}
+
+/* Contenedor para el label y el input */
+.profile-image-upload {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el label y el input */
+}
+
+/* Estilo del input de selección de archivo */
+.profile-input {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+/* Estilo del label */
+.profile-label {
+    min-width: 120px; /* Ancho mínimo del label para alinear correctamente */
+    text-align: right; /* Alinea el texto del label a la derecha */
+}
+
