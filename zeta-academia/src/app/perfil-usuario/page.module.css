@@ -1,0 +1,76 @@
+/* src/app/perfil-usuario/page.module.css */
+.userProfileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 50vw;
+}
+
+.formGroup {
+    margin-bottom: 10px;
+}
+
+.profileImageSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.profileImageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profileImageInput {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profileImageUpload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profileInput {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.profileLabel {
+    min-width: 120px;
+    text-align: right;
+}
+
+.submitButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.logoutButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}

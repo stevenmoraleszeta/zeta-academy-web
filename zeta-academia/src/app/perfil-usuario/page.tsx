@@ -1,9 +1,11 @@
-// src/pages/UserProfile.js
-import './UserProfile.css';
+// src/app/perfil-usuario/page.tsx
+"use client"; // Indica que este es un Client Component para Next.js
+
+import styles from './page.module.css'; // Importa los estilos modulares
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getAuth, updateProfile, updateEmail, signOut } from 'firebase/auth';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation'; // Para manejar la navegación en Next.js
 import RequireAuth from '../../components/RequireAuth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -11,7 +13,7 @@ function UserProfile() {
     const { currentUser, updateCurrentUser } = useAuth();
     const auth = getAuth();
     const storage = getStorage();
-    const navigate = useNavigate();
+    const router = useRouter(); // Reemplaza useNavigate de react-router-dom
     const [userInfo, setUserInfo] = useState({
         displayName: '',
         email: '',
@@ -34,6 +36,7 @@ function UserProfile() {
     const handleLogout = async () => {
         try {
             await signOut(auth);
+            router.push('/home'); // Redirige usando el enrutador de Next.js
         } catch (error) {
             console.error('Failed to log out', error);
         }
@@ -47,14 +50,12 @@ function UserProfile() {
         }));
     };
 
-    // Manejar el cambio de archivo de imagen
     const handleFileChange = (e) => {
         if (e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     };
 
-    // Subir la imagen a Firebase Storage y actualizar el perfil
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -64,7 +65,7 @@ function UserProfile() {
             if (imageFile) {
                 const storageRef = ref(storage, `profileImages/${currentUser.uid}/${imageFile.name}`);
                 await uploadBytes(storageRef, imageFile);
-                photoURL = await getDownloadURL(storageRef); // Obtener la URL de descarga de la imagen subida
+                photoURL = await getDownloadURL(storageRef);
             }
 
             if (auth.currentUser) {
@@ -75,9 +76,8 @@ function UserProfile() {
                 if (userInfo.email !== auth.currentUser.email) {
                     await updateEmail(auth.currentUser, userInfo.email);
                 }
-                // Actualiza el estado de currentUser en el contexto
                 updateCurrentUser({ ...auth.currentUser, photoURL });
-                navigate('/platform');
+                router.push('/platform'); // Redirige a la plataforma después de la actualización
             }
         } catch (error) {
             console.error('Error updating profile', error);
@@ -85,19 +85,20 @@ function UserProfile() {
     };
 
     if (!currentUser) {
-        return <Navigate to="/home" />;
+        router.push('/login'); // Redirige al login si no hay usuario autenticado
+        return null; // No renderiza nada mientras redirige
     }
 
     if (loading) {
-        return <div>Cargando</div>;
+        return <div>Cargando...</div>;
     }
 
     return (
         <RequireAuth>
-            <div className="user-profile-container">
+            <div className={styles.userProfileContainer}>
                 <h1>Perfil de Usuario</h1>
-                <form onSubmit={handleSubmit}>
-                    <div>
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    <div className={styles.formGroup}>
                         <label>Nombre:</label>
                         <input
                             type="text"
@@ -107,7 +108,7 @@ function UserProfile() {
                             required
                         />
                     </div>
-                    <div>
+                    <div className={styles.formGroup}>
                         <label>Email:</label>
                         <input
                             type="email"
@@ -117,25 +118,27 @@ function UserProfile() {
                             required
                         />
                     </div>
-                    <div className="profile-image-section">
+                    <div className={styles.profileImageSection}>
                         {userInfo.photoURL && (
-                            <div className="profile-image-container">
-                                <img src={userInfo.photoURL} alt="Perfil" className="profile-image-input" />
+                            <div className={styles.profileImageContainer}>
+                                <img src={userInfo.photoURL} alt="Perfil" className={styles.profileImageInput} />
                             </div>
                         )}
-                        <div className="profile-image-upload">
-                            <label className="profile-label">Imagen de Perfil:</label>
-                            <input type="file" onChange={handleFileChange} accept="image/*" className="profile-input" />
+                        <div className={styles.profileImageUpload}>
+                            <label className={styles.profileLabel}>Imagen de Perfil:</label>
+                            <input
+                                type="file"
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                className={styles.profileInput}
+                            />
                         </div>
                     </div>
-
-
-                    <button type="submit">Guardar Cambios</button>
-                    <button type="button" onClick={handleLogout}>
+                    <button type="submit" className={styles.submitButton}>Guardar Cambios</button>
+                    <button type="button" onClick={handleLogout} className={styles.logoutButton}>
                         Cerrar Sesión
                     </button>
                 </form>
-
             </div>
         </RequireAuth>
     );
