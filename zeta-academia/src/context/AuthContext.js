@@ -1,12 +1,14 @@
-"use client"; // Esto indica que el componente es un Client Component
+// src/context/AuthContext.js
+"use client"; // Indica que este componente se ejecuta en el cliente
 
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
+// Crear el contexto de autenticación
 const AuthContext = createContext();
 
-// Hook personalizado para consumir el contexto
+// Hook personalizado para consumir el contexto de autenticación
 export function useAuth() {
     return useContext(AuthContext);
 }
@@ -23,6 +25,7 @@ export function AuthProvider({ children }) {
             setLoading(false);
         });
 
+        // Cleanup para dejar de escuchar los cambios de autenticación
         return unsubscribe;
     }, []);
 

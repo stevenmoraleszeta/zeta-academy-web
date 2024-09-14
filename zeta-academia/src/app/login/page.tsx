@@ -1,5 +1,8 @@
+// src/app/login/page.tsx
+"use client";
+
 import React from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "@/context/AuthContext"; // Asegúrate de que la ruta sea correcta
 
 function Login() {
     const { loginWithGoogle, currentUser } = useAuth();

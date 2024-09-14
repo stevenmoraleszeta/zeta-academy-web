@@ -1,7 +1,8 @@
+// src/firebase/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage"; 
+import { getStorage } from "firebase/storage";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -27,4 +28,5 @@ const db = getFirestore(app);
 // Inicializa Firebase Storage
 const storage = getStorage(app);
 
+// Exporta los servicios necesarios
 export { auth, db, storage, googleProvider, signInWithPopup };

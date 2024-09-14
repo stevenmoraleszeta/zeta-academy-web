@@ -1,0 +1,46 @@
+/* File: src/pages/admin/AdminMenu.module.css */
+
+.adminMenuContainer {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.buttonContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    max-width: 1200px; /* Controla el ancho máximo del contenedor */
+}
+
+.adminButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 140px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.adminButton:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.buttonIcon {
+    font-size: 40px;
+    color: #4b4b4b;
+    margin-bottom: 8px;
+}
+
+.adminButton span {
+    font-size: 14px;
+    color: #4b4b4b;
+    text-align: center;
+}
