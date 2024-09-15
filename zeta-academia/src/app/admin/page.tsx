@@ -29,55 +29,11 @@ const AdminMenu: React.FC = () => {
                 <div className={styles.buttonContainer}>
                     <button
                         className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/dashboard')}
-                    >
-                        <AiOutlineDashboard className={styles.buttonIcon} />
-                        <span>Dashboard</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/usuarios')}
-                    >
-                        <AiOutlineUser className={styles.buttonIcon} />
-                        <span>Usuarios</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
                         onClick={() => handleNavigation('/admin/cursos')}
                     >
                         <AiOutlineBook className={styles.buttonIcon} />
-                        <span>Cursos</span>
+                        <span>Cursos Sincrónicos</span>
                     </button>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/reports')}
-                    >
-                        <AiOutlineBarChart className={styles.buttonIcon} />
-                        <span>Reportes</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/finances')}
-                    >
-                        <AiOutlineBarChart className={styles.buttonIcon} />
-                        <span>Finanzas</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/settings')}
-                    >
-                        <AiOutlineSetting className={styles.buttonIcon} />
-                        <span>Configuración</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/notifications')}
-                    >
-                        <AiOutlineBell className={styles.buttonIcon} />
-                        <span>Notificaciones</span>
-                    </button>
-
-                    
                 </div>
             </div>
         </RequireAuth>

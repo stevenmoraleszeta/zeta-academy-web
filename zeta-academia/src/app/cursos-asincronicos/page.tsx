@@ -1,10 +1,11 @@
 // File: src/app/platform/page.tsx
-"use client"; // Indica que este es un Client Component para Next.js
+"use client";
 
 import styles from './page.module.css';
 import React, { useState } from 'react';
-import RequireAuth from '@/components/RequireAuth'; // Ajusta la ruta según tu estructura
-import useFetchData from '@/app/hooks/useFetchData'; // Ajusta la ruta según tu estructura
+import RequireAuth from '@/components/RequireAuth';
+import useFetchData from '@/app/hooks/useFetchData';
+import { useRouter } from 'next/navigation';
 
 interface Course {
     id: string;
@@ -12,13 +13,18 @@ interface Course {
     description: string;
     category: string;
     price: number;
+    scheduleDay: string;
+    startTime: string;
+    endTime: string;
+    imageUrl?: string;
 }
 
-function VirtualCourses() {
-    const courses: Course[] = useFetchData('courses'); // Consulta a la colección 'courses'
+const AsynchronousCourses: React.FC = () => {
+    const { data: courses, loading, error } = useFetchData('courses'); // Asegúrate de usar el destructuring correcto
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [maxPrice, setMaxPrice] = useState<number>(100000); // Precio máximo seleccionado
+    const [maxPrice, setMaxPrice] = useState<number>(100000);
+    const router = useRouter();
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -36,18 +42,24 @@ function VirtualCourses() {
         setMaxPrice(Number(e.target.value));
     };
 
-    const filteredCourses = courses.filter((course) => {
-        const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory =
-            selectedCategories.length === 0 || selectedCategories.includes(course.category);
-        const matchesPrice = course.price <= maxPrice;
-        return matchesSearch && matchesCategory && matchesPrice;
-    });
+    // Asegurarse de que courses es un array antes de filtrar
+    const filteredCourses = Array.isArray(courses)
+        ? courses.filter((course) => {
+              const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
+              const matchesCategory =
+                  selectedCategories.length === 0 || selectedCategories.includes(course.category);
+              const matchesPrice = course.price <= maxPrice;
+              return matchesSearch && matchesCategory && matchesPrice;
+          })
+        : [];
 
-    //TODO debe de mostrarse más información y una imagen en la ficha del curso, además de ser más grande. 
-    //TODO Deben poderse filtrar por dificultad
-    //TODO Al tocarse un curso debe abrirse una página con más información del curso
-    //TODO Debe de añadirse un botón de contactar.
+    const handleCourseClick = (courseId: string) => {
+        router.push(`/platform/courses/${courseId}`);
+    };
+
+    if (loading) return <p>Cargando cursos...</p>;
+    if (error) return <p>Error: {error}</p>;
+
     return (
         <RequireAuth>
             <div className={styles.platformContainer}>
@@ -91,11 +103,27 @@ function VirtualCourses() {
                     <section className={styles.coursesSection}>
                         {filteredCourses.length > 0 ? (
                             filteredCourses.map((course) => (
-                                <div key={course.id} className={styles.courseCard}>
-                                    <h4>{course.title}</h4>
-                                    <p>{course.description}</p>
+                                <div
+                                    key={course.id}
+                                    className={styles.courseCard}
+                                    onClick={() => handleCourseClick(course.id)}
+                                >
+                                    {course.imageUrl && (
+                                        <img
+                                            src={course.imageUrl}
+                                            alt={course.title}
+                                            className={styles.courseImage}
+                                        />
+                                    )}
+                                    <h4 className={styles.courseTitle}>{course.title}</h4>
+                                    <p className={styles.courseDescription}>{course.description}</p>
                                     <span className={styles.categoryLabel}>{course.category}</span>
-                                    <p className={styles.priceLabel}>Precio: {course.price.toLocaleString()} CRC</p>
+                                    <p className={styles.priceLabel}>
+                                        Precio: {course.price.toLocaleString()} CRC
+                                    </p>
+                                    <p className={styles.scheduleLabel}>
+                                        {course.scheduleDay}, {course.startTime} - {course.endTime}
+                                    </p>
                                 </div>
                             ))
                         ) : (
@@ -106,6 +134,6 @@ function VirtualCourses() {
             </div>
         </RequireAuth>
     );
-}
+};
 
-export default VirtualCourses;
+export default AsynchronousCourses;

@@ -1,45 +1,50 @@
-// File: src/app/admin/page.tsx
-"use client"; // Indica que este componente se ejecuta en el cliente
+// File: src/app/admin/cursos/page.tsx
+"use client";
 
 import { db } from '@/firebase/firebase';
 import { collection, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import styles from './page.module.css';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import RequireAuth from '@/components/RequireAuth';
 import useFetchData from '@/app/hooks/useFetchData';
 
 interface Course {
-    id: string;
+    id?: string; // El id es opcional para no manejarlo como parte del formulario
     title: string;
     description: string;
     category: string;
     price: number;
     duration: string;
     paymentInfo: string;
-    learningResources: string;
     certificate: boolean;
     additionalInfo: string;
     scheduleDay: string;
-    scheduleTime: string;
+    startTime: string;
+    endTime: string;
 }
 
 const AdminCourses: React.FC = () => {
-    const courses: Course[] = useFetchData('courses'); // Consulta a la colección 'courses'
+    const { data: fetchedCourses, loading, error } = useFetchData('courses');
+    const [courses, setCourses] = useState<Course[]>([]);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-    const [form, setForm] = useState<Course>({
-        id: '',
+    const [form, setForm] = useState<Omit<Course, 'id'>>({
         title: '',
         description: '',
         category: '',
         price: 0,
         duration: '',
         paymentInfo: '',
-        learningResources: '',
         certificate: false,
         additionalInfo: '',
         scheduleDay: '',
-        scheduleTime: '',
+        startTime: '',
+        endTime: '',
     });
+
+    // Actualizar el estado de los cursos cuando se cargan los datos
+    useEffect(() => {
+        setCourses(fetchedCourses);
+    }, [fetchedCourses]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target as HTMLInputElement;
@@ -48,22 +53,28 @@ const AdminCourses: React.FC = () => {
 
     const handleEditCourse = (course: Course) => {
         setSelectedCourse(course);
-        setForm(course);
+        setForm({ ...course }); // No se incluye el id en el formulario
     };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         try {
-            if (selectedCourse) {
-                // Actualizar curso existente
+            if (selectedCourse?.id) {
+                // Actualizar un curso existente usando el id del curso seleccionado
                 const courseRef = doc(db, 'courses', selectedCourse.id);
                 await updateDoc(courseRef, form);
                 console.log('Curso actualizado:', form);
+
+                // Actualizar el curso en la lista local de cursos
+                setCourses(courses.map(c => c.id === selectedCourse.id ? { ...form, id: selectedCourse.id } : c));
             } else {
-                // Crear un nuevo curso
-                await addDoc(collection(db, 'courses'), form);
+                // Crear un nuevo curso, no incluye id ya que lo asigna Firebase
+                const docRef = await addDoc(collection(db, 'courses'), form);
                 console.log('Curso creado:', form);
+
+                // Agregar el nuevo curso a la lista local de cursos
+                setCourses([...courses, { ...form, id: docRef.id }]);
             }
             resetForm();
         } catch (error) {
@@ -72,10 +83,18 @@ const AdminCourses: React.FC = () => {
     };
 
     const handleDeleteCourse = async (courseId: string) => {
+        if (!courseId) {
+            console.error('ID del curso no válido');
+            return;
+        }
+
         try {
             const courseRef = doc(db, 'courses', courseId);
             await deleteDoc(courseRef);
             console.log('Curso eliminado:', courseId);
+
+            // Remover el curso eliminado de la lista local de cursos
+            setCourses(courses.filter(c => c.id !== courseId));
         } catch (error) {
             console.error('Error al eliminar el curso:', error);
         }
@@ -84,18 +103,17 @@ const AdminCourses: React.FC = () => {
     const resetForm = () => {
         setSelectedCourse(null);
         setForm({
-            id: '',
             title: '',
             description: '',
             category: '',
             price: 0,
             duration: '',
             paymentInfo: '',
-            learningResources: '',
             certificate: false,
             additionalInfo: '',
             scheduleDay: '',
-            scheduleTime: '',
+            startTime: '',
+            endTime: '',
         });
     };
 
@@ -103,9 +121,11 @@ const AdminCourses: React.FC = () => {
         <RequireAuth>
             <div className={styles.adminCoursesContainer}>
                 <h2>Gestión de Cursos</h2>
+                {loading && <p>Cargando cursos...</p>}
+                {error && <p>Error: {error}</p>}
 
-                {/* Formulario de Creación/Edición */}
                 <form className={styles.courseForm} onSubmit={handleSubmit}>
+                    {/* Campos del formulario */}
                     <label htmlFor="title">Título del curso</label>
                     <input
                         type="text"
@@ -113,7 +133,6 @@ const AdminCourses: React.FC = () => {
                         name="title"
                         value={form.title}
                         onChange={handleInputChange}
-                        required
                     />
 
                     <label htmlFor="description">Descripción del curso</label>
@@ -122,7 +141,6 @@ const AdminCourses: React.FC = () => {
                         name="description"
                         value={form.description}
                         onChange={handleInputChange}
-                        required
                     />
 
                     <label htmlFor="category">Categoría</label>
@@ -131,8 +149,7 @@ const AdminCourses: React.FC = () => {
                         id="category"
                         name="category"
                         value={form.category}
-                        onChange={handleInputChange}
-                        required
+                        onChange={handleInputChange}red
                     />
 
                     <label htmlFor="price">Precio</label>
@@ -142,7 +159,6 @@ const AdminCourses: React.FC = () => {
                         name="price"
                         value={form.price}
                         onChange={handleInputChange}
-                        required
                     />
 
                     <label htmlFor="duration">Duración</label>
@@ -163,24 +179,16 @@ const AdminCourses: React.FC = () => {
                         onChange={handleInputChange}
                     />
 
-                    <label htmlFor="learningResources">Recursos de Aprendizaje</label>
-                    <input
-                        type="text"
-                        id="learningResources"
-                        name="learningResources"
-                        value={form.learningResources}
-                        onChange={handleInputChange}
-                    />
-
                     <label htmlFor="certificate">Certificado</label>
-                    <input
-                        type="checkbox"
-                        id="certificate"
-                        name="certificate"
-                        checked={form.certificate}
-                        onChange={handleInputChange}
-                    />
-                    <span>{form.certificate ? 'Sí' : 'No'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <input
+                            type="checkbox"
+                            id="certificate"
+                            name="certificate"
+                            checked={form.certificate}
+                            onChange={handleInputChange}
+                        />
+                    </div>
 
                     <label htmlFor="additionalInfo">Información Adicional</label>
                     <textarea
@@ -196,7 +204,6 @@ const AdminCourses: React.FC = () => {
                         name="scheduleDay"
                         value={form.scheduleDay}
                         onChange={handleInputChange}
-                        required
                     >
                         <option value="">Seleccione un día</option>
                         <option value="Lunes">Lunes</option>
@@ -208,21 +215,23 @@ const AdminCourses: React.FC = () => {
                         <option value="Domingo">Domingo</option>
                     </select>
 
-                    <label htmlFor="scheduleTime">Hora del Horario</label>
-                    <select
-                        id="scheduleTime"
-                        name="scheduleTime"
-                        value={form.scheduleTime}
+                    <label htmlFor="startTime">Hora de Inicio</label>
+                    <input
+                        type="time"
+                        id="startTime"
+                        name="startTime"
+                        value={form.startTime}
                         onChange={handleInputChange}
-                        required
-                    >
-                        <option value="">Seleccione una hora</option>
-                        {[...Array(24).keys()].map((hour) => (
-                            <option key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                {`${hour.toString().padStart(2, '0')}:00`}
-                            </option>
-                        ))}
-                    </select>
+                    />
+
+                    <label htmlFor="endTime">Hora de Fin</label>
+                    <input
+                        type="time"
+                        id="endTime"
+                        name="endTime"
+                        value={form.endTime}
+                        onChange={handleInputChange}
+                    />
 
                     <button type="submit">
                         {selectedCourse ? 'Actualizar Curso' : 'Crear Curso'}
@@ -234,7 +243,6 @@ const AdminCourses: React.FC = () => {
                     )}
                 </form>
 
-                {/* Listado de Cursos */}
                 <section className={styles.coursesSection}>
                     {courses.length > 0 ? (
                         courses.map((course) => (
@@ -245,9 +253,12 @@ const AdminCourses: React.FC = () => {
                                 <p className={styles.priceLabel}>
                                     Precio: {course.price.toLocaleString()} CRC
                                 </p>
+                                <p className={styles.scheduleLabel}>
+                                    {course.scheduleDay}, {course.startTime} - {course.endTime}
+                                </p>
                                 <div className={styles.courseActions}>
                                     <button onClick={() => handleEditCourse(course)}>Editar</button>
-                                    <button onClick={() => handleDeleteCourse(course.id)}>Eliminar</button>
+                                    <button onClick={() => handleDeleteCourse(course.id!)}>Eliminar</button>
                                 </div>
                             </div>
                         ))

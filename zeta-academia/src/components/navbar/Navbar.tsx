@@ -28,8 +28,8 @@ function Navbar() {
             <Link href="/" className={styles.navbarLink}>
                 Inicio
             </Link>
-            <Link href="/cursos-virtuales" className={styles.navbarLink}>
-                Cursos Virtuales
+            <Link href="/cursos-asincronicos" className={styles.navbarLink}>
+                Aprende en Línea
             </Link>
             <Link href="/servicios" className={styles.navbarLink}>
                 Aprende Python
