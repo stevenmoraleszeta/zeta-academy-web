@@ -257,6 +257,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                             />
                                         )}
                                     </>
+
+
+                                //TODO no deja escoger combobox 
                                 ) : type === 'select' && selectType === 'combobox' ? (
                                     <Select
                                         classNamePrefix="react-select" 
