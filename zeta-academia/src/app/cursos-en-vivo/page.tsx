@@ -19,10 +19,11 @@ interface Course {
     imageUrl?: string;
 }
 
-const AsynchronousCourses: React.FC = () => {
-    const { data: courses, loading, error } = useFetchData('courses'); // Asegúrate de usar el destructuring correcto
+const LiveCourses: React.FC = () => {
+    const { data: courses, loading, error } = useFetchData('virtualCourses'); // Asegúrate de usar el destructuring correcto
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedDay, setSelectedDay] = useState<string>(''); // Cambiado a string para usar con select
     const [maxPrice, setMaxPrice] = useState<number>(100000);
     const router = useRouter();
 
@@ -38,6 +39,10 @@ const AsynchronousCourses: React.FC = () => {
         );
     };
 
+    const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedDay(e.target.value);
+    };
+
     const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMaxPrice(Number(e.target.value));
     };
@@ -45,12 +50,14 @@ const AsynchronousCourses: React.FC = () => {
     // Asegurarse de que courses es un array antes de filtrar
     const filteredCourses = Array.isArray(courses)
         ? courses.filter((course) => {
-              const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
-              const matchesCategory =
-                  selectedCategories.length === 0 || selectedCategories.includes(course.category);
-              const matchesPrice = course.price <= maxPrice;
-              return matchesSearch && matchesCategory && matchesPrice;
-          })
+            const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesCategory =
+                selectedCategories.length === 0 || selectedCategories.includes(course.category);
+            const matchesDay =
+                selectedDay === '' || course.scheduleDay === selectedDay;
+            const matchesPrice = course.price <= maxPrice;
+            return matchesSearch && matchesCategory && matchesDay && matchesPrice;
+        })
         : [];
 
     const handleCourseClick = (courseId: string) => {
@@ -77,6 +84,17 @@ const AsynchronousCourses: React.FC = () => {
                                 {category}
                             </label>
                         ))}
+                    </div>
+                    <div className={styles.filterDays}>
+                        <h4>Filtrar por Día</h4>
+                        <select value={selectedDay} onChange={handleDayChange}>
+                            <option value="">Todos los días</option>
+                            {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((day) => (
+                                <option key={day} value={day}>
+                                    {day}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     <div className={styles.filterPrice}>
                         <h4>Precio Máximo: {maxPrice.toLocaleString()} CRC</h4>
@@ -136,4 +154,4 @@ const AsynchronousCourses: React.FC = () => {
     );
 };
 
-export default AsynchronousCourses;
+export default LiveCourses;

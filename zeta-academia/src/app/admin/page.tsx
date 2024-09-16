@@ -29,10 +29,17 @@ const AdminMenu: React.FC = () => {
                 <div className={styles.buttonContainer}>
                     <button
                         className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/cursos')}
+                        onClick={() => handleNavigation('/admin/aprende-en-linea')}
                     >
                         <AiOutlineBook className={styles.buttonIcon} />
-                        <span>Cursos Sincrónicos</span>
+                        <span>Aprende en línea</span>
+                    </button>
+                    <button
+                        className={styles.adminButton}
+                        onClick={() => handleNavigation('/admin/cursos-en-vivo')}
+                    >
+                        <AiOutlineBook className={styles.buttonIcon} />
+                        <span>Cursos en Vivo</span>
                     </button>
                 </div>
             </div>
