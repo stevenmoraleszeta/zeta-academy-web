@@ -1,4 +1,3 @@
-// File: src/app/admin/AdminUsers.tsx
 "use client"; // Indica que este componente se ejecuta en el cliente
 
 import { db } from '@/firebase/firebase';

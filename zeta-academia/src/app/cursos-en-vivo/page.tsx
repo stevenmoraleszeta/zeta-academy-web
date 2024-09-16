@@ -20,7 +20,7 @@ interface Course {
 }
 
 const LiveCourses: React.FC = () => {
-    const { data: courses, loading, error } = useFetchData('virtualCourses'); // Asegúrate de usar el destructuring correcto
+    const { data: courses, loading, error } = useFetchData('liveCourses'); // Asegúrate de usar el destructuring correcto
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedDay, setSelectedDay] = useState<string>(''); // Cambiado a string para usar con select

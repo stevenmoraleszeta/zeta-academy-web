@@ -115,12 +115,11 @@ th {
 }
 
 .app {
-  padding-top: 7vh;
   background-color: var(--background-color);
   color: var(--text-color);
   width: 100vw;
   height: 100vh;
-  padding: 7vh 5vw;
+  padding-top: 7vh;
   box-sizing: border-box;
 }
 

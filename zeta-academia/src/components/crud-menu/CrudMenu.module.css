@@ -1,0 +1,166 @@
+.CRUDContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.topBar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.topBar button {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.topBar button:hover:enabled {
+    background-color: var(--primary-color-darker);
+}
+
+.topBar input {
+    background-color: var(--component-dark);
+    color: var(--text-color);
+    border: 1px solid var(--primary-color-darker);
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.itemsSection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: left;
+}
+
+.itemCard {
+    border: 1px solid var(--primary-color-darker);
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--component-dark);
+    flex: 1 1 calc(25% - 10px);
+    max-width: calc(25% - 10px);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.itemCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px var(--background-shadow);
+}
+
+.itemCard img {
+    max-width: 50%;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--background-color-low-opacity);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.modalContent {
+    background: var(--component-dark);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 700px;
+    width: 100%;
+    color: var(--text-color);
+    box-shadow: 0 4px 10px var(--background-shadow);
+    margin-top: 7vh;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.fieldRow {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.fieldRow label {
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.fieldRow input {
+    background-color: var(--component-dark);
+    color: var(--text-color);
+    border: 1px solid var(--primary-color-darker);
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.fieldRow input[type="checkbox"] {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+    transition: background-color 0.3s;
+}
+
+.fieldRow input[type="checkbox"]:checked {
+    background-color: var(--secundary-color);
+    border: 2px solid var(--primary-color);
+}
+
+/* Añade una clase específica para los botones deshabilitados */
+.disabledButton {
+    background-color: var(--light-gray);
+    color: var(--text-color);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* El resto del CSS sigue igual */
+.topBar button {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.topBar button:hover:enabled {
+    background-color: var(--primary-color-darker);
+}
+
+
+.deleteButton {
+    background-color: var(--red-color);
+    color: var(--text-color);
+    margin-top: 10px;
+}
+
+.deleteButton:hover {
+    background-color: var(--red-color-darker);
+}
+
+.closeButton {
+    background-color: var(--light-gray);
+    color: var(--text-color);
+    margin-top: 10px;
+}
+
+.closeButton:hover {
+    background-color: var(--primary-color-darker);
+}

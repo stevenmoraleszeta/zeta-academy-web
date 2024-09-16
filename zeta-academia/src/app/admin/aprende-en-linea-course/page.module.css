@@ -1,0 +1,19 @@
+.pageContainer {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.sideBar {
+    background-color: darkblue;
+    flex: 1;
+    width: 200px;
+    height: 100%;
+}
+
+.mainContent {
+    background-color: black;
+    flex: 3;
+    min-height: 100vh;
+    color: white; /* Añadido para que el texto sea visible en el fondo negro */
+}
