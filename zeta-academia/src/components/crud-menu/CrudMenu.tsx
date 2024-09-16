@@ -2,32 +2,61 @@
 
 import React, { useState, useEffect } from "react";
 import Select from "react-select"; // Importar react-select para el ComboBox
-import styles from './CrudMenu.module.css';
+import styles from "./CrudMenu.module.css";
 import useFetchData from "@/app/hooks/useFetchData";
-import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
+import {
+    collection,
+    addDoc,
+    doc,
+    updateDoc,
+    deleteDoc,
+    getDocs,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { v4 as uuidv4 } from 'uuid';
-import imageCompression from 'browser-image-compression';
+import {
+    getStorage,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL,
+} from "firebase/storage";
+import { v4 as uuidv4 } from "uuid";
+import imageCompression from "browser-image-compression";
 
 interface CrudMenuProps {
     collectionName: string;
-    displayFields: { label: string; field: string; type?: string; selectType?: string }[];
-    editFields: { label: string; field: string; type?: string; selectType?: string }[];
+    displayFields: {
+        label: string;
+        field: string;
+        type?: string;
+        selectType?: string;
+    }[];
+    editFields: {
+        label: string;
+        field: string;
+        type?: string;
+        selectType?: string;
+    }[];
     itemActions?: { label: string; handler: (item: any) => void }[]; // Añadir itemActions para botones personalizados
 }
 
-const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, itemActions = [] }) => {
+const CrudMenu: React.FC<CrudMenuProps> = ({
+    collectionName,
+    displayFields,
+    editFields,
+    itemActions = [],
+}) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
-    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>({}); // Almacenar opciones de select
+    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>(
+        {}
+    ); // Almacenar opciones de select
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
-    const [searchTerm, setSearchTerm] = useState<string>(''); // Estado para el término de búsqueda
+    const [searchTerm, setSearchTerm] = useState<string>(""); // Estado para el término de búsqueda
 
     useEffect(() => {
         setData(fetchedData);
@@ -41,9 +70,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         setSearchTerm(term);
 
         // Filtra los datos en base a los campos visibles
-        const filtered = data.filter(item =>
+        const filtered = data.filter((item) =>
             displayFields.some(({ field }) => {
-                const value = item[field]?.toString().toLowerCase() || '';
+                const value = item[field]?.toString().toLowerCase() || "";
                 return value.includes(term);
             })
         );
@@ -53,7 +82,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
 
     // Función para obtener todos los roles únicos de los usuarios y usarlos en el ComboBox
     const fetchRoles = async () => {
-        const colRef = collection(db, 'users'); // Suponiendo que 'users' es la colección donde se guardan los roles
+        const colRef = collection(db, "users"); // Suponiendo que 'users' es la colección donde se guardan los roles
         const snapshot = await getDocs(colRef);
 
         // Extraer todos los roles y eliminamos duplicados
@@ -81,7 +110,10 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     };
 
     const handleAddClick = () => {
-        const emptyItem = editFields.reduce((acc, { field }) => ({ ...acc, [field]: '' }), {});
+        const emptyItem = editFields.reduce(
+            (acc, { field }) => ({ ...acc, [field]: "" }),
+            {}
+        );
         setSelectedItem(emptyItem);
         setImagePreview(null);
         setIsEditMode(false);
@@ -94,9 +126,11 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         setIsModalOpen(false);
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement;
-        setSelectedItem({ ...selectedItem, [name]: type === 'checkbox' ? checked : value });
+    const handleInputChange = (value: any, field: string) => {
+        setSelectedItem((prevItem) => ({
+            ...prevItem,
+            [field]: value,
+        }));
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,11 +153,13 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
             const uploadTask = uploadBytesResumable(storageRef, compressedFile);
 
             uploadTask.on(
-                'state_changed',
+                "state_changed",
                 null,
                 (error) => {
                     console.error("Error al subir la imagen:", error);
-                    alert("Error al subir la imagen. Verifica los permisos de Firebase Storage.");
+                    alert(
+                        "Error al subir la imagen. Verifica los permisos de Firebase Storage."
+                    );
                     setIsUploadingImage(false);
                 },
                 () => {
@@ -154,18 +190,21 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
             if (isEditMode && selectedItem.id) {
                 const itemRef = doc(db, collectionName, selectedItem.id);
                 await updateDoc(itemRef, selectedItem);
-                setData((prevData) =>
-                    prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
-                );
                 alert("Elemento actualizado con éxito");
             } else {
-                const docRef = await addDoc(collection(db, collectionName), selectedItem);
-                setData((prevData) => [...prevData, { ...selectedItem, id: docRef.id }]);
+                const docRef = await addDoc(
+                    collection(db, collectionName),
+                    selectedItem
+                );
                 alert("Elemento agregado con éxito");
             }
+
+            await fetchData();
+
             handleModalClose();
         } catch (error) {
             console.error("Error al guardar el elemento:", error);
+            alert("Error al guardar el elemento.");
         }
     };
 
@@ -175,14 +214,29 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         try {
             const itemRef = doc(db, collectionName, selectedItem.id);
             await deleteDoc(itemRef);
-            setData((prevData) => prevData.filter((item) => item.id !== selectedItem.id));
+
             alert("Elemento eliminado con éxito");
+
+            await fetchData();
+
             handleModalClose();
         } catch (error) {
             console.error("Error al eliminar el elemento:", error);
+            alert("Error al eliminar el elemento.");
         }
     };
 
+    const fetchData = async () => {
+        try {
+            const colRef = collection(db, collectionName);
+            const snapshot = await getDocs(colRef);
+            const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            setData(data);
+            setFilteredData(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -190,23 +244,30 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         <div className={styles.CRUDContainer}>
             <section className={styles.topBar}>
                 <button onClick={handleAddClick}>Agregar</button>
-                <input 
-                    type="text" 
-                    placeholder="Buscar..." 
-                    value={searchTerm} 
-                    onChange={handleSearchChange} 
+                <input
+                    type="text"
+                    placeholder="Buscar..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                 />
             </section>
             <section className={styles.itemsSection}>
                 {filteredData.length > 0 ? (
                     filteredData.map((item) => (
                         <div key={item.id} className={styles.itemCard}>
-                            <div onClick={() => handleItemClick(item)} className={styles.cardContent}>
+                            <div
+                                onClick={() => handleItemClick(item)}
+                                className={styles.cardContent}
+                            >
                                 {displayFields.map(({ label, field, type }) => (
                                     <div key={field} className={styles.fieldRow}>
-                                        {type === 'image' ? (
-                                            <img src={item[field]} alt={label} className={styles.itemImage} />
-                                        ) : field === 'title' || field === 'name' ? (
+                                        {type === "image" ? (
+                                            <img
+                                                src={item[field]}
+                                                alt={label}
+                                                className={styles.itemImage}
+                                            />
+                                        ) : field === "title" || field === "name" ? (
                                             <strong className={styles.title}>{item[field]}</strong>
                                         ) : (
                                             <span>{item[field]}</span>
@@ -242,7 +303,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                         {editFields.map(({ label, field, type, selectType }) => (
                             <div key={field} className={styles.fieldRow}>
                                 <label>{label}:</label>
-                                {type === 'image' ? (
+                                {type === "image" ? (
                                     <>
                                         <input
                                             type="file"
@@ -257,17 +318,36 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                             />
                                         )}
                                     </>
-                                ) : type === 'select' && selectType === 'combobox' ? (
+                                ) : type === "select" && selectType === "combobox" ? (
                                     <Select
-                                        classNamePrefix="react-select" 
+                                        classNamePrefix="react-select"
                                         options={selectOptions[field]}
-                                        value={selectOptions[field]?.find(option => option.value === selectedItem[field]) || null}
-                                        onChange={(option) => handleInputChange(option?.value, field)}
+                                        value={
+                                            selectOptions[field]?.find(
+                                                (option) => option.value === selectedItem[field]
+                                            ) || null
+                                        }
+                                        onChange={(option) =>
+                                            handleInputChange(option?.value, field)
+                                        }
+                                        isClearable
+                                    />
+                                ) : type === "select" && selectType === "static" ? (
+                                    <Select
+                                        options={[
+                                            { value: "1", label: "Administrador" },
+                                            { value: "2", label: "Usuario" },
+                                            { value: "3", label: "Editor" },
+                                        ]}
+                                        value={selectedItem[field]}
+                                        onChange={(option) =>
+                                            handleInputChange(option?.value, field)
+                                        }
                                         isClearable
                                     />
                                 ) : (
                                     <input
-                                        type={type === 'number' ? 'number' : 'text'}
+                                        type={type === "number" ? "number" : "text"}
                                         value={selectedItem[field] || ""}
                                         onChange={(e) => handleInputChange(e.target.value, field)}
                                     />
@@ -277,13 +357,19 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                         <button
                             onClick={handleSave}
                             disabled={isUploadingImage}
-                            className={`${isUploadingImage ? styles.disabledButton : ''}`}
+                            className={`${isUploadingImage ? styles.disabledButton : ""}`}
                         >
                             {isEditMode ? "Actualizar" : "Guardar"}
                         </button>
 
-                        {isEditMode && <button onClick={handleDelete} className={styles.deleteButton}>Eliminar</button>}
-                        <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
+                        {isEditMode && (
+                            <button onClick={handleDelete} className={styles.deleteButton}>
+                                Eliminar
+                            </button>
+                        )}
+                        <button onClick={handleModalClose} className={styles.closeButton}>
+                            Cerrar
+                        </button>
                     </div>
                 </div>
             )}
