@@ -1,3 +1,4 @@
+// File: src/app/admin/learn-online-course/AdminLearnOnlineCourse.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -5,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import styles from './page.module.css';
-import { FaArrowUp, FaArrowDown, FaCopy, FaTrash, FaEdit } from 'react-icons/fa'; // Iconos para las acciones
+import { FaArrowUp, FaArrowDown, FaCopy, FaTrash, FaEdit } from 'react-icons/fa';
 
 interface Module {
     id: string;
@@ -99,91 +100,104 @@ const AdminLearnOnlineCourse: React.FC = () => {
         }
     };
 
-    const handleAddContent = (type: ContentItem['type']) => {
-        if (!selectedClass || !selectedModule) return;
+    const handleEditModuleTitle = (moduleId: string) => {
+        const newTitle = prompt("Edita el título del módulo:");
+        if (!newTitle) return;
 
-        const value = prompt(`Ingresa el ${type === 'video' ? 'URL del Video' : type === 'text' ? 'Texto' : 'URL de la Imagen/Archivo'}`);
-        if (!value) return;
-
-        const newContent: ContentItem = { type, value };
-        const updatedClass = { ...selectedClass, content: [...selectedClass.content, newContent] };
-
-        const updatedModules = modules.map((mod) =>
-            mod.id === selectedModule.id
-                ? {
-                    ...mod,
-                    classes: mod.classes.map((cls) =>
-                        cls.id === updatedClass.id ? updatedClass : cls
-                    ),
-                }
-                : mod
+        const updatedModules = modules.map(mod =>
+            mod.id === moduleId ? { ...mod, title: newTitle } : mod
         );
 
         setModules(updatedModules);
-        setSelectedClass(updatedClass);
         saveModulesToFirebase(updatedModules);
     };
 
-    // Función para mover el contenido hacia arriba
-    const handleMoveUp = (index: number) => {
-        if (!selectedClass || index === 0) return;
-        const updatedContent = [...selectedClass.content];
-        [updatedContent[index - 1], updatedContent[index]] = [updatedContent[index], updatedContent[index - 1]];
-        updateClassContent(updatedContent);
+    const handleEditClassTitle = (moduleId: string, classId: string) => {
+        const module = modules.find(mod => mod.id === moduleId);
+        if (!module) return;
+
+        const newTitle = prompt("Edita el título de la clase:");
+        if (!newTitle) return;
+
+        const updatedClasses = module.classes.map(cls =>
+            cls.id === classId ? { ...cls, title: newTitle } : cls
+        );
+
+        const updatedModules = modules.map(mod =>
+            mod.id === moduleId ? { ...mod, classes: updatedClasses } : mod
+        );
+
+        setModules(updatedModules);
+        saveModulesToFirebase(updatedModules);
     };
 
-    // Función para mover el contenido hacia abajo
-    const handleMoveDown = (index: number) => {
-        if (!selectedClass || index === selectedClass.content.length - 1) return;
-        const updatedContent = [...selectedClass.content];
-        [updatedContent[index + 1], updatedContent[index]] = [updatedContent[index], updatedContent[index + 1]];
-        updateClassContent(updatedContent);
+    const handleMoveModule = (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === modules.length - 1) return;
+
+        const newModules = [...modules];
+        const swapIndex = direction === 'up' ? index - 1 : index + 1;
+        [newModules[index], newModules[swapIndex]] = [newModules[swapIndex], newModules[index]];
+
+        setModules(newModules);
+        saveModulesToFirebase(newModules);
     };
 
-    // Función para duplicar el contenido
-    const handleDuplicate = (index: number) => {
-        if (!selectedClass) return;
-        const updatedContent = [...selectedClass.content, selectedClass.content[index]];
-        updateClassContent(updatedContent);
+    const handleDuplicateModule = (index: number) => {
+        const moduleToDuplicate = { ...modules[index], id: `module-${modules.length + 1}` };
+        const updatedModules = [...modules, moduleToDuplicate];
+        setModules(updatedModules);
+        saveModulesToFirebase(updatedModules);
     };
 
-    // Función para eliminar el contenido
-    const handleDelete = (index: number) => {
-        if (!selectedClass) return;
-        const updatedContent = selectedClass.content.filter((_, i) => i !== index);
-        updateClassContent(updatedContent);
+    const handleDeleteModule = (moduleId: string) => {
+        const updatedModules = modules.filter(mod => mod.id !== moduleId);
+        setModules(updatedModules);
+        saveModulesToFirebase(updatedModules);
     };
 
-    // Función para editar el contenido
-    const handleEdit = (index: number) => {
-        if (!selectedClass) return;
-        const content = selectedClass.content[index];
-        const newValue = prompt(`Edita el ${content.type}:`, content.value);
-        if (!newValue) return;
+    const handleMoveClass = (moduleId: string, classIndex: number, direction: 'up' | 'down') => {
+        const module = modules.find(mod => mod.id === moduleId);
+        if (!module) return;
 
-        const updatedContent = [...selectedClass.content];
-        updatedContent[index] = { ...content, value: newValue };
-        updateClassContent(updatedContent);
+        if (direction === 'up' && classIndex === 0) return;
+        if (direction === 'down' && classIndex === module.classes.length - 1) return;
+
+        const newClasses = [...module.classes];
+        const swapIndex = direction === 'up' ? classIndex - 1 : classIndex + 1;
+        [newClasses[classIndex], newClasses[swapIndex]] = [newClasses[swapIndex], newClasses[classIndex]];
+
+        const updatedModules = modules.map(mod =>
+            mod.id === moduleId ? { ...mod, classes: newClasses } : mod
+        );
+
+        setModules(updatedModules);
+        saveModulesToFirebase(updatedModules);
     };
 
-    // Actualiza el contenido de la clase seleccionada
-    const updateClassContent = (updatedContent: ContentItem[]) => {
-        if (!selectedClass || !selectedModule) return;
+    const handleDuplicateClass = (moduleId: string, classIndex: number) => {
+        const module = modules.find(mod => mod.id === moduleId);
+        if (!module) return;
 
-        const updatedClass = { ...selectedClass, content: updatedContent };
-        const updatedModules = modules.map((mod) =>
-            mod.id === selectedModule.id
-                ? {
-                    ...mod,
-                    classes: mod.classes.map((cls) =>
-                        cls.id === updatedClass.id ? updatedClass : cls
-                    ),
-                }
+        const classToDuplicate = { ...module.classes[classIndex], id: `class-${module.classes.length + 1}` };
+        const updatedClasses = [...module.classes, classToDuplicate];
+
+        const updatedModules = modules.map(mod =>
+            mod.id === moduleId ? { ...mod, classes: updatedClasses } : mod
+        );
+
+        setModules(updatedModules);
+        saveModulesToFirebase(updatedModules);
+    };
+
+    const handleDeleteClass = (moduleId: string, classId: string) => {
+        const updatedModules = modules.map(mod =>
+            mod.id === moduleId
+                ? { ...mod, classes: mod.classes.filter(cls => cls.id !== classId) }
                 : mod
         );
 
         setModules(updatedModules);
-        setSelectedClass(updatedClass);
         saveModulesToFirebase(updatedModules);
     };
 
@@ -207,20 +221,34 @@ const AdminLearnOnlineCourse: React.FC = () => {
                     Añadir Módulo
                 </button>
                 <ul className={styles.moduleList}>
-                    {modules.map((module) => (
+                    {modules.map((module, index) => (
                         <li key={module.id} className={styles.moduleItem}>
-                            <div className={styles.moduleHeader} onClick={() => handleToggleModule(module.id)}>
-                                <span>{module.title}</span>
+                            <div className={styles.moduleHeader}>
+                                <span onClick={() => handleToggleModule(module.id)} className={styles.moduleTitle}>
+                                    {module.title}
+                                </span>
+                                <div className={styles.iconContainer}>
+                                    <FaEdit onClick={() => handleEditModuleTitle(module.id)} />
+                                    <FaArrowUp onClick={() => handleMoveModule(index, 'up')} />
+                                    <FaArrowDown onClick={() => handleMoveModule(index, 'down')} />
+                                    <FaCopy onClick={() => handleDuplicateModule(index)} />
+                                    <FaTrash onClick={() => handleDeleteModule(module.id)} />
+                                </div>
                             </div>
                             {expandedModules[module.id] && (
                                 <ul className={styles.classList}>
-                                    {module.classes.map((clase) => (
-                                        <li
-                                            key={clase.id}
-                                            className={styles.classItem}
-                                            onClick={() => handleSelectClass(module.id, clase.id)}
-                                        >
-                                            {clase.title}
+                                    {module.classes.map((clase, classIndex) => (
+                                        <li key={clase.id} className={styles.classItem}>
+                                            <span onClick={() => handleSelectClass(module.id, clase.id)} className={styles.classTitle}>
+                                                {clase.title}
+                                            </span>
+                                            <div className={styles.iconContainer}>
+                                                <FaEdit onClick={() => handleEditClassTitle(module.id, clase.id)} />
+                                                <FaArrowUp onClick={() => handleMoveClass(module.id, classIndex, 'up')} />
+                                                <FaArrowDown onClick={() => handleMoveClass(module.id, classIndex, 'down')} />
+                                                <FaCopy onClick={() => handleDuplicateClass(module.id, classIndex)} />
+                                                <FaTrash onClick={() => handleDeleteClass(module.id, clase.id)} />
+                                            </div>
                                         </li>
                                     ))}
                                     <button className={styles.addClassButton} onClick={() => handleAddClass(module.id)}>

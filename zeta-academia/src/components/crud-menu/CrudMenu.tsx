@@ -1,7 +1,7 @@
+// File: src/components/crud-menu/CrudMenu.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Select from "react-select"; // Importar react-select para el ComboBox
 import styles from './CrudMenu.module.css';
 import useFetchData from "@/app/hooks/useFetchData";
 import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
@@ -14,7 +14,7 @@ interface CrudMenuProps {
     collectionName: string;
     displayFields: { label: string; field: string; type?: string; selectType?: string }[];
     editFields: { label: string; field: string; type?: string; selectType?: string }[];
-    itemActions?: { label: string; handler: (item: any) => void }[]; // Añadir itemActions para botones personalizados
+    itemActions?: { label: string; handler: (item: any) => void }[];
 }
 
 const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, itemActions = [] }) => {
@@ -22,25 +22,23 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [data, setData] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
-    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>({}); // Almacenar opciones de select
+    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>({});
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
-    const [searchTerm, setSearchTerm] = useState<string>(''); // Estado para el término de búsqueda
+    const [searchTerm, setSearchTerm] = useState<string>('');
 
     useEffect(() => {
         setData(fetchedData);
-        setFilteredData(fetchedData); // Inicializar los datos filtrados con todos los datos
-        fetchRoles(); // Obtener roles dinámicos
+        setFilteredData(fetchedData);
+        fetchRoles();
     }, [fetchedData]);
 
-    // Maneja la búsqueda filtrando los datos según el término ingresado
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
 
-        // Filtra los datos en base a los campos visibles
         const filtered = data.filter(item =>
             displayFields.some(({ field }) => {
                 const value = item[field]?.toString().toLowerCase() || '';
@@ -51,25 +49,18 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         setFilteredData(filtered);
     };
 
-    // Función para obtener todos los roles únicos de los usuarios y usarlos en el ComboBox
     const fetchRoles = async () => {
-        const colRef = collection(db, 'users'); // Suponiendo que 'users' es la colección donde se guardan los roles
+        const colRef = collection(db, 'users');
         const snapshot = await getDocs(colRef);
-
-        // Extraer todos los roles y eliminamos duplicados
         const roles = snapshot.docs.map((doc) => doc.data().role);
         const uniqueRoles = [...new Set(roles)];
 
-        // Formatear para usar en react-select
-        const roleOptions = uniqueRoles.map((role) => ({
-            value: role,
-            label: role,
-        }));
-
-        // Guardar las opciones en el estado para el ComboBox
         setSelectOptions((prevOptions) => ({
             ...prevOptions,
-            role: roleOptions, // Asignamos las opciones al campo role
+            role: uniqueRoles.map((role) => ({
+                value: role,
+                label: role,
+            })),
         }));
     };
 
@@ -190,11 +181,11 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         <div className={styles.CRUDContainer}>
             <section className={styles.topBar}>
                 <button onClick={handleAddClick}>Agregar</button>
-                <input 
-                    type="text" 
-                    placeholder="Buscar..." 
-                    value={searchTerm} 
-                    onChange={handleSearchChange} 
+                <input
+                    type="text"
+                    placeholder="Buscar..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                 />
             </section>
             <section className={styles.itemsSection}>
@@ -206,8 +197,8 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                     <div key={field} className={styles.fieldRow}>
                                         {type === 'image' ? (
                                             <img src={item[field]} alt={label} className={styles.itemImage} />
-                                        ) : field === 'title' || field === 'name' ? (
-                                            <strong className={styles.title}>{item[field]}</strong>
+                                        ) : typeof item[field] === 'object' ? (
+                                            <span>{item[field]?.label || item[field]?.value || JSON.stringify(item[field])}</span>
                                         ) : (
                                             <span>{item[field]}</span>
                                         )}
@@ -221,7 +212,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                         className={styles.actionButton}
                                         onClick={(e) => {
                                             e.stopPropagation(); // Evita que el clic se propague al contenedor del ítem
-                                            action.handler(item); // Llama al handler correspondiente
+                                            action.handler(item);
                                         }}
                                     >
                                         {action.label}
@@ -257,17 +248,18 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                             />
                                         )}
                                     </>
-
-
-                                //TODO no deja escoger combobox 
                                 ) : type === 'select' && selectType === 'combobox' ? (
-                                    <Select
-                                        classNamePrefix="react-select" 
-                                        options={selectOptions[field]}
-                                        value={selectOptions[field]?.find(option => option.value === selectedItem[field]) || null}
-                                        onChange={(option) => handleInputChange(option?.value, field)}
-                                        isClearable
-                                    />
+                                    <select
+                                        value={selectedItem[field] || ""}
+                                        onChange={(e) => handleInputChange(e.target.value, field)}
+                                    >
+                                        <option value="">Seleccione una opción</option>
+                                        {selectOptions[field]?.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
                                 ) : (
                                     <input
                                         type={type === 'number' ? 'number' : 'text'}
