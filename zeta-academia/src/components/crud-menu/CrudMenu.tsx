@@ -1,59 +1,77 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Select from "react-select"; // Importar react-select para el ComboBox
 import styles from './CrudMenu.module.css';
 import useFetchData from "@/app/hooks/useFetchData";
 import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
-import imageCompression from 'browser-image-compression'; // Importar la librería para comprimir imágenes
+import imageCompression from 'browser-image-compression';
 
 interface CrudMenuProps {
     collectionName: string;
     displayFields: { label: string; field: string; type?: string; selectType?: string }[];
     editFields: { label: string; field: string; type?: string; selectType?: string }[];
+    itemActions?: { label: string; handler: (item: any) => void }[]; // Añadir itemActions para botones personalizados
 }
 
-const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields }) => {
+const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, itemActions = [] }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
+    const [filteredData, setFilteredData] = useState<any[]>([]);
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
+    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>({}); // Almacenar opciones de select
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
-    const [searchTerm, setSearchTerm] = useState<string>("");
-    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>({}); // Almacena las opciones del select
+    const [searchTerm, setSearchTerm] = useState<string>(''); // Estado para el término de búsqueda
 
     useEffect(() => {
         setData(fetchedData);
+        setFilteredData(fetchedData); // Inicializar los datos filtrados con todos los datos
+        fetchRoles(); // Obtener roles dinámicos
     }, [fetchedData]);
 
-    // Función para obtener las opciones dinámicas del select desde una colección
-    const fetchSelectOptions = async (collectionName: string, field: string) => {
-        const colRef = collection(db, collectionName);
-        const snapshot = await getDocs(colRef);
-        const options = snapshot.docs.map((doc) => ({
-            value: doc.data()[field],
-            label: doc.data()[field],
-        }));
+    // Maneja la búsqueda filtrando los datos según el término ingresado
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const term = e.target.value.toLowerCase();
+        setSearchTerm(term);
 
-        return options;
+        // Filtra los datos en base a los campos visibles
+        const filtered = data.filter(item =>
+            displayFields.some(({ field }) => {
+                const value = item[field]?.toString().toLowerCase() || '';
+                return value.includes(term);
+            })
+        );
+
+        setFilteredData(filtered);
     };
 
-    // Cargar las opciones de los campos tipo 'select' dinámicos
-    useEffect(() => {
-        editFields.forEach(async ({ type, field, selectType }) => {
-            if (type === 'select' && selectType === 'dynamic') {
-                const options = await fetchSelectOptions(collectionName, field); // Usamos el `field` para obtener los datos
-                setSelectOptions((prevOptions) => ({
-                    ...prevOptions,
-                    [field]: options,
-                }));
-            }
-        });
-    }, [editFields, collectionName]);
+    // Función para obtener todos los roles únicos de los usuarios y usarlos en el ComboBox
+    const fetchRoles = async () => {
+        const colRef = collection(db, 'users'); // Suponiendo que 'users' es la colección donde se guardan los roles
+        const snapshot = await getDocs(colRef);
+
+        // Extraer todos los roles y eliminamos duplicados
+        const roles = snapshot.docs.map((doc) => doc.data().role);
+        const uniqueRoles = [...new Set(roles)];
+
+        // Formatear para usar en react-select
+        const roleOptions = uniqueRoles.map((role) => ({
+            value: role,
+            label: role,
+        }));
+
+        // Guardar las opciones en el estado para el ComboBox
+        setSelectOptions((prevOptions) => ({
+            ...prevOptions,
+            role: roleOptions, // Asignamos las opciones al campo role
+        }));
+    };
 
     const handleItemClick = (item: any) => {
         setSelectedItem(item);
@@ -76,8 +94,8 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         setIsModalOpen(false);
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value, type, checked } = e.target as HTMLInputElement;
         setSelectedItem({ ...selectedItem, [name]: type === 'checkbox' ? checked : value });
     };
 
@@ -165,16 +183,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
     };
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-    };
-
-    const filteredData = data.filter((item) =>
-        displayFields.some(({ field }) =>
-            item[field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    );
-
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -182,32 +190,44 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         <div className={styles.CRUDContainer}>
             <section className={styles.topBar}>
                 <button onClick={handleAddClick}>Agregar</button>
-                <input
-                    type="text"
-                    placeholder="Buscar..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
+                <input 
+                    type="text" 
+                    placeholder="Buscar..." 
+                    value={searchTerm} 
+                    onChange={handleSearchChange} 
                 />
             </section>
             <section className={styles.itemsSection}>
                 {filteredData.length > 0 ? (
                     filteredData.map((item) => (
-                        <div
-                            key={item.id}
-                            className={styles.itemCard}
-                            onClick={() => handleItemClick(item)}
-                        >
-                            {displayFields.map(({ label, field, type }) => (
-                                <div key={field} className={styles.fieldRow}>
-                                    {type === 'image' ? (
-                                        <img src={item[field]} alt={label} className={styles.itemImage} />
-                                    ) : field === 'title' || field === 'name' ? (
-                                        <strong className={styles.title}>{item[field]}</strong>
-                                    ) : (
-                                        <span>{item[field]}</span>
-                                    )}
-                                </div>
-                            ))}
+                        <div key={item.id} className={styles.itemCard}>
+                            <div onClick={() => handleItemClick(item)} className={styles.cardContent}>
+                                {displayFields.map(({ label, field, type }) => (
+                                    <div key={field} className={styles.fieldRow}>
+                                        {type === 'image' ? (
+                                            <img src={item[field]} alt={label} className={styles.itemImage} />
+                                        ) : field === 'title' || field === 'name' ? (
+                                            <strong className={styles.title}>{item[field]}</strong>
+                                        ) : (
+                                            <span>{item[field]}</span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className={styles.actionButtons}>
+                                {itemActions.map((action, index) => (
+                                    <button
+                                        key={index}
+                                        className={styles.actionButton}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Evita que el clic se propague al contenedor del ítem
+                                            action.handler(item); // Llama al handler correspondiente
+                                        }}
+                                    >
+                                        {action.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     ))
                 ) : (
@@ -237,30 +257,28 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                             />
                                         )}
                                     </>
-                                ) : type === 'select' && selectType === 'dynamic' ? (
-                                    <select
-                                        name={field}
-                                        value={selectedItem[field] || ""}
-                                        onChange={handleInputChange}
-                                    >
-                                        {selectOptions[field]?.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
+                                ) : type === 'select' && selectType === 'combobox' ? (
+                                    <Select
+                                        classNamePrefix="react-select" 
+                                        options={selectOptions[field]}
+                                        value={selectOptions[field]?.find(option => option.value === selectedItem[field]) || null}
+                                        onChange={(option) => handleInputChange(option?.value, field)}
+                                        isClearable
+                                    />
                                 ) : (
                                     <input
-                                        type={type === 'number' ? 'number' : type === 'checkbox' ? 'checkbox' : 'text'}
-                                        name={field}
-                                        value={type === 'checkbox' ? undefined : selectedItem[field] || ""}
-                                        checked={type === 'checkbox' ? selectedItem[field] : undefined}
-                                        onChange={handleInputChange}
+                                        type={type === 'number' ? 'number' : 'text'}
+                                        value={selectedItem[field] || ""}
+                                        onChange={(e) => handleInputChange(e.target.value, field)}
                                     />
                                 )}
                             </div>
                         ))}
-                        <button onClick={handleSave} disabled={isUploadingImage} className={`${isUploadingImage ? styles.disabledButton : ''}`}>
+                        <button
+                            onClick={handleSave}
+                            disabled={isUploadingImage}
+                            className={`${isUploadingImage ? styles.disabledButton : ''}`}
+                        >
                             {isEditMode ? "Actualizar" : "Guardar"}
                         </button>
 

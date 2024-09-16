@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from 'next/navigation'; // Para obtener el ID del curso
+import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebase"; // Asegúrate de tener configurada tu conexión a Firebase
+import { db } from "@/firebase/firebase";
 import styles from './page.module.css';
+import { FaArrowUp, FaArrowDown, FaCopy, FaTrash, FaEdit } from 'react-icons/fa'; // Iconos para las acciones
 
 interface Module {
     id: string;
@@ -26,21 +27,20 @@ interface ContentItem {
 const AdminLearnOnlineCourse: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const courseId = searchParams.get('courseId'); // Obtiene el ID del curso desde la URL
+    const courseId = searchParams.get('courseId');
     const [modules, setModules] = useState<Module[]>([]);
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+    const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         if (!courseId) {
-            alert("No se encontró el ID del curso.");
-            router.push('/admin/learn-online'); // Redirigir si no se encuentra el ID
+            router.push('/admin/learn-online');
             return;
         }
         fetchCourseModules(courseId);
     }, [courseId]);
 
-    // Cargar los módulos del curso desde Firebase
     const fetchCourseModules = async (courseId: string) => {
         const courseRef = doc(db, "onlineCourses", courseId);
         const courseSnap = await getDoc(courseRef);
@@ -57,41 +57,53 @@ const AdminLearnOnlineCourse: React.FC = () => {
             title: `Módulo ${modules.length + 1}`,
             classes: [],
         };
-        setModules([...modules, newModule]);
-        saveModulesToFirebase([...modules, newModule]);
+        const updatedModules = [...modules, newModule];
+        setModules(updatedModules);
+        saveModulesToFirebase(updatedModules);
     };
 
-    const handleSelectModule = (module: Module) => {
-        setSelectedModule(module);
-        setSelectedClass(null);
+    const handleToggleModule = (moduleId: string) => {
+        setExpandedModules((prev) => ({
+            ...prev,
+            [moduleId]: !prev[moduleId],
+        }));
     };
 
-    const handleAddClass = () => {
-        if (!selectedModule) return;
+    const handleAddClass = (moduleId: string) => {
+        const module = modules.find(mod => mod.id === moduleId);
+        if (!module) return;
 
         const newClass: Class = {
-            id: `class-${selectedModule.classes.length + 1}`,
-            title: `Clase ${selectedModule.classes.length + 1}`,
+            id: `class-${module.classes.length + 1}`,
+            title: `Clase ${module.classes.length + 1}`,
             content: [],
         };
 
         const updatedModules = modules.map((mod) =>
-            mod.id === selectedModule.id
+            mod.id === moduleId
                 ? { ...mod, classes: [...mod.classes, newClass] }
                 : mod
         );
 
         setModules(updatedModules);
-        setSelectedModule({ ...selectedModule, classes: [...selectedModule.classes, newClass] });
+        setSelectedModule({ ...module, classes: [...module.classes, newClass] });
         saveModulesToFirebase(updatedModules);
     };
 
-    const handleSelectClass = (clase: Class) => {
-        setSelectedClass(clase);
+    const handleSelectClass = (moduleId: string, classId: string) => {
+        const module = modules.find(mod => mod.id === moduleId);
+        const clase = module?.classes.find(cls => cls.id === classId);
+        if (module && clase) {
+            setSelectedModule(module);
+            setSelectedClass(clase);
+        }
     };
 
-    const handleAddContent = (type: ContentItem['type'], value: string) => {
+    const handleAddContent = (type: ContentItem['type']) => {
         if (!selectedClass || !selectedModule) return;
+
+        const value = prompt(`Ingresa el ${type === 'video' ? 'URL del Video' : type === 'text' ? 'Texto' : 'URL de la Imagen/Archivo'}`);
+        if (!value) return;
 
         const newContent: ContentItem = { type, value };
         const updatedClass = { ...selectedClass, content: [...selectedClass.content, newContent] };
@@ -112,7 +124,69 @@ const AdminLearnOnlineCourse: React.FC = () => {
         saveModulesToFirebase(updatedModules);
     };
 
-    // Función para guardar los módulos en Firebase
+    // Función para mover el contenido hacia arriba
+    const handleMoveUp = (index: number) => {
+        if (!selectedClass || index === 0) return;
+        const updatedContent = [...selectedClass.content];
+        [updatedContent[index - 1], updatedContent[index]] = [updatedContent[index], updatedContent[index - 1]];
+        updateClassContent(updatedContent);
+    };
+
+    // Función para mover el contenido hacia abajo
+    const handleMoveDown = (index: number) => {
+        if (!selectedClass || index === selectedClass.content.length - 1) return;
+        const updatedContent = [...selectedClass.content];
+        [updatedContent[index + 1], updatedContent[index]] = [updatedContent[index], updatedContent[index + 1]];
+        updateClassContent(updatedContent);
+    };
+
+    // Función para duplicar el contenido
+    const handleDuplicate = (index: number) => {
+        if (!selectedClass) return;
+        const updatedContent = [...selectedClass.content, selectedClass.content[index]];
+        updateClassContent(updatedContent);
+    };
+
+    // Función para eliminar el contenido
+    const handleDelete = (index: number) => {
+        if (!selectedClass) return;
+        const updatedContent = selectedClass.content.filter((_, i) => i !== index);
+        updateClassContent(updatedContent);
+    };
+
+    // Función para editar el contenido
+    const handleEdit = (index: number) => {
+        if (!selectedClass) return;
+        const content = selectedClass.content[index];
+        const newValue = prompt(`Edita el ${content.type}:`, content.value);
+        if (!newValue) return;
+
+        const updatedContent = [...selectedClass.content];
+        updatedContent[index] = { ...content, value: newValue };
+        updateClassContent(updatedContent);
+    };
+
+    // Actualiza el contenido de la clase seleccionada
+    const updateClassContent = (updatedContent: ContentItem[]) => {
+        if (!selectedClass || !selectedModule) return;
+
+        const updatedClass = { ...selectedClass, content: updatedContent };
+        const updatedModules = modules.map((mod) =>
+            mod.id === selectedModule.id
+                ? {
+                    ...mod,
+                    classes: mod.classes.map((cls) =>
+                        cls.id === updatedClass.id ? updatedClass : cls
+                    ),
+                }
+                : mod
+        );
+
+        setModules(updatedModules);
+        setSelectedClass(updatedClass);
+        saveModulesToFirebase(updatedModules);
+    };
+
     const saveModulesToFirebase = async (updatedModules: Module[]) => {
         if (!courseId) return;
 
@@ -134,65 +208,67 @@ const AdminLearnOnlineCourse: React.FC = () => {
                 </button>
                 <ul className={styles.moduleList}>
                     {modules.map((module) => (
-                        <li
-                            key={module.id}
-                            className={styles.moduleItem}
-                            onClick={() => handleSelectModule(module)}
-                        >
-                            {module.title}
+                        <li key={module.id} className={styles.moduleItem}>
+                            <div className={styles.moduleHeader} onClick={() => handleToggleModule(module.id)}>
+                                <span>{module.title}</span>
+                            </div>
+                            {expandedModules[module.id] && (
+                                <ul className={styles.classList}>
+                                    {module.classes.map((clase) => (
+                                        <li
+                                            key={clase.id}
+                                            className={styles.classItem}
+                                            onClick={() => handleSelectClass(module.id, clase.id)}
+                                        >
+                                            {clase.title}
+                                        </li>
+                                    ))}
+                                    <button className={styles.addClassButton} onClick={() => handleAddClass(module.id)}>
+                                        Añadir Clase
+                                    </button>
+                                </ul>
+                            )}
                         </li>
                     ))}
                 </ul>
             </div>
             <div className={styles.mainContent}>
-                {selectedModule ? (
-                    <>
-                        <h2>{selectedModule.title}</h2>
-                        <button className={styles.button} onClick={handleAddClass}>
-                            Añadir Clase
+                {selectedClass ? (
+                    <div>
+                        <h3>{selectedClass.title}</h3>
+                        <button className={styles.button} onClick={() => handleAddContent('video')}>
+                            Agregar Video
                         </button>
-                        <ul className={styles.moduleList}>
-                            {selectedModule.classes.map((clase) => (
-                                <li
-                                    key={clase.id}
-                                    className={styles.moduleItem}
-                                    onClick={() => handleSelectClass(clase)}
-                                >
-                                    {clase.title}
-                                </li>
-                            ))}
-                        </ul>
-                        {selectedClass && (
-                            <div>
-                                <h3>{selectedClass.title}</h3>
-                                <button className={styles.button} onClick={() => handleAddContent('video', 'YouTube Video URL')}>
-                                    Agregar Video
-                                </button>
-                                <button className={styles.button} onClick={() => handleAddContent('text', 'Texto de la clase')}>
-                                    Agregar Texto
-                                </button>
-                                <button className={styles.button} onClick={() => handleAddContent('image', 'URL de Imagen')}>
-                                    Agregar Imagen
-                                </button>
-                                <button className={styles.button} onClick={() => handleAddContent('file', 'URL de Archivo')}>
-                                    Agregar Archivo
-                                </button>
+                        <button className={styles.button} onClick={() => handleAddContent('text')}>
+                            Agregar Texto
+                        </button>
+                        <button className={styles.button} onClick={() => handleAddContent('image')}>
+                            Agregar Imagen
+                        </button>
+                        <button className={styles.button} onClick={() => handleAddContent('file')}>
+                            Agregar Archivo
+                        </button>
 
-                                <div>
-                                    {selectedClass.content.map((content, index) => (
-                                        <div key={index}>
-                                            {content.type === 'video' && <p>Video: {content.value}</p>}
-                                            {content.type === 'text' && <p>Texto: {content.value}</p>}
-                                            {content.type === 'image' && <img src={content.value} alt="Imagen de clase" />}
-                                            {content.type === 'file' && <a href={content.value} download>Descargar Archivo</a>}
-                                        </div>
-                                    ))}
+                        <div className={styles.contentList}>
+                            {selectedClass.content.map((content, index) => (
+                                <div key={index} className={styles.contentItem}>
+                                    {content.type === 'video' && <iframe src={content.value} title="Video" />}
+                                    {content.type === 'text' && <p>{content.value}</p>}
+                                    {content.type === 'image' && <img src={content.value} alt="Imagen de clase" />}
+                                    {content.type === 'file' && <a href={content.value} download>Descargar Archivo</a>}
+                                    <div className={styles.iconContainer}>
+                                        <FaEdit onClick={() => handleEdit(index)} />
+                                        <FaArrowUp onClick={() => handleMoveUp(index)} />
+                                        <FaArrowDown onClick={() => handleMoveDown(index)} />
+                                        <FaCopy onClick={() => handleDuplicate(index)} />
+                                        <FaTrash onClick={() => handleDelete(index)} />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </>
+                            ))}
+                        </div>
+                    </div>
                 ) : (
-                    <p>Selecciona un módulo para empezar</p>
+                    <p>Selecciona una clase para empezar</p>
                 )}
             </div>
         </div>

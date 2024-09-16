@@ -37,7 +37,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    justify-content: left;
+    justify-content: center;
 }
 
 .itemCard {
@@ -46,8 +46,8 @@
     border-radius: 8px;
     cursor: pointer;
     background-color: var(--component-dark);
-    flex: 1 1 calc(25% - 10px);
-    max-width: calc(25% - 10px);
+    flex: 1 1 calc(23% - 10px);
+    max-width: calc(23% - 10px);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -163,4 +163,10 @@
 
 .closeButton:hover {
     background-color: var(--primary-color-darker);
+}
+
+.imagePreview {
+    max-width: 200px;
+    max-height: 200px;
+    margin-top: 10px;
 }

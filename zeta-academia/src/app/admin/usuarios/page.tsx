@@ -11,7 +11,7 @@ const AdminUsers: React.FC = () => {
         { label: 'Imagen', field: 'photoURL', type: 'image' },
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
-        { label: 'Rol', field: 'role', type: 'select' },
+        { label: 'Rol', field: 'role'},
     ];
 
     // Definimos los campos a mostrar y editar en el modal
@@ -19,7 +19,7 @@ const AdminUsers: React.FC = () => {
         { label: 'Imagen', field: 'photoURL', type: 'image' },
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
-        { label: 'Rol', field: 'role' },
+        { label: 'Rol', field: 'role', type: 'select', selectType: 'combobox'  },
     ];
 
     return (
