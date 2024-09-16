@@ -12,7 +12,7 @@ import defaultProfileImage from '../../assets/img/defaultProfileImage.jpg';
 import styles from './Navbar.module.css'; // Los estilos globales pueden ir en _app.js
 
 function Navbar() {
-    const { currentUser } = useAuth();
+    const { currentUser, isAdmin } = useAuth();
     const [profileImage, setProfileImage] = useState(null);
 
     useEffect(() => {
@@ -40,9 +40,11 @@ function Navbar() {
             <Link href="/contacto" className={styles.navbarLink}>
                 Contacto
             </Link>
-            <Link href={currentUser ? '/admin' : '/login'} className={styles.navbarLink}>
-                Admin
-            </Link>
+            {isAdmin && currentUser && (
+                <Link href="/admin" className={styles.navbarLink}>
+                    Admin
+                </Link>
+            )}
             {currentUser ? (
                 <Link href="/perfil-usuario" className={styles.profileLink}>
                     <Image

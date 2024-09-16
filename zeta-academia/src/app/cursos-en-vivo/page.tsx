@@ -13,6 +13,10 @@ interface Course {
     description: string;
     category: string;
     price: number;
+    duration: string; // Nuevo campo agregado
+    paymentInfo: string; // Nuevo campo agregado
+    certificate: boolean; // Nuevo campo agregado
+    additionalInfo: string; // Nuevo campo agregado
     scheduleDay: string;
     startTime: string;
     endTime: string;
@@ -20,10 +24,10 @@ interface Course {
 }
 
 const LiveCourses: React.FC = () => {
-    const { data: courses, loading, error } = useFetchData('liveCourses'); // Asegúrate de usar el destructuring correcto
+    const { data: courses, loading, error } = useFetchData('liveCourses');
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [selectedDay, setSelectedDay] = useState<string>(''); // Cambiado a string para usar con select
+    const [selectedDay, setSelectedDay] = useState<string>('');
     const [maxPrice, setMaxPrice] = useState<number>(100000);
     const router = useRouter();
 
@@ -47,7 +51,6 @@ const LiveCourses: React.FC = () => {
         setMaxPrice(Number(e.target.value));
     };
 
-    // Asegurarse de que courses es un array antes de filtrar
     const filteredCourses = Array.isArray(courses)
         ? courses.filter((course) => {
             const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());

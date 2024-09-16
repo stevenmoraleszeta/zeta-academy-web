@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styles from './CrudMenu.module.css';
 import useFetchData from "@/app/hooks/useFetchData";
-import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
@@ -11,8 +11,8 @@ import imageCompression from 'browser-image-compression'; // Importar la librer�
 
 interface CrudMenuProps {
     collectionName: string;
-    displayFields: { label: string; field: string; type?: string }[];
-    editFields: { label: string; field: string; type?: string }[];
+    displayFields: { label: string; field: string; type?: string; selectType?: string }[];
+    editFields: { label: string; field: string; type?: string; selectType?: string }[];
 }
 
 const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields }) => {
@@ -23,10 +23,37 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>({}); // Almacena las opciones del select
 
     useEffect(() => {
         setData(fetchedData);
     }, [fetchedData]);
+
+    // Función para obtener las opciones dinámicas del select desde una colección
+    const fetchSelectOptions = async (collectionName: string, field: string) => {
+        const colRef = collection(db, collectionName);
+        const snapshot = await getDocs(colRef);
+        const options = snapshot.docs.map((doc) => ({
+            value: doc.data()[field],
+            label: doc.data()[field],
+        }));
+
+        return options;
+    };
+
+    // Cargar las opciones de los campos tipo 'select' dinámicos
+    useEffect(() => {
+        editFields.forEach(async ({ type, field, selectType }) => {
+            if (type === 'select' && selectType === 'dynamic') {
+                const options = await fetchSelectOptions(collectionName, field); // Usamos el `field` para obtener los datos
+                setSelectOptions((prevOptions) => ({
+                    ...prevOptions,
+                    [field]: options,
+                }));
+            }
+        });
+    }, [editFields, collectionName]);
 
     const handleItemClick = (item: any) => {
         setSelectedItem(item);
@@ -49,8 +76,8 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         setIsModalOpen(false);
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
         setSelectedItem({ ...selectedItem, [name]: type === 'checkbox' ? checked : value });
     };
 
@@ -59,14 +86,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         if (!file) return;
 
         try {
-            // Configura las opciones de compresión
             const options = {
-                maxSizeMB: 0.5, // Tamaño máximo de 0.5MB
-                maxWidthOrHeight: 800, // Dimensión máxima de 800px
+                maxSizeMB: 0.5,
+                maxWidthOrHeight: 800,
                 useWebWorker: true,
             };
 
-            // Comprime la imagen
             const compressedFile = await imageCompression(file, options);
 
             setIsUploadingImage(true);
@@ -140,6 +165,16 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
     };
 
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const filteredData = data.filter((item) =>
+        displayFields.some(({ field }) =>
+            item[field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    );
+
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -147,11 +182,16 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         <div className={styles.CRUDContainer}>
             <section className={styles.topBar}>
                 <button onClick={handleAddClick}>Agregar</button>
-                <input type="text" placeholder="Buscar..." />
+                <input
+                    type="text"
+                    placeholder="Buscar..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                />
             </section>
             <section className={styles.itemsSection}>
-                {data.length > 0 ? (
-                    data.map((item) => (
+                {filteredData.length > 0 ? (
+                    filteredData.map((item) => (
                         <div
                             key={item.id}
                             className={styles.itemCard}
@@ -161,7 +201,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 <div key={field} className={styles.fieldRow}>
                                     {type === 'image' ? (
                                         <img src={item[field]} alt={label} className={styles.itemImage} />
-                                    ) : field === 'title' ? (
+                                    ) : field === 'title' || field === 'name' ? (
                                         <strong className={styles.title}>{item[field]}</strong>
                                     ) : (
                                         <span>{item[field]}</span>
@@ -179,7 +219,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                 <div className={styles.modal}>
                     <div className={styles.modalContent}>
                         <h2>{isEditMode ? "Editar Elemento" : "Agregar Nuevo Elemento"}</h2>
-                        {editFields.map(({ label, field, type }) => (
+                        {editFields.map(({ label, field, type, selectType }) => (
                             <div key={field} className={styles.fieldRow}>
                                 <label>{label}:</label>
                                 {type === 'image' ? (
@@ -197,6 +237,18 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                             />
                                         )}
                                     </>
+                                ) : type === 'select' && selectType === 'dynamic' ? (
+                                    <select
+                                        name={field}
+                                        value={selectedItem[field] || ""}
+                                        onChange={handleInputChange}
+                                    >
+                                        {selectOptions[field]?.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
                                 ) : (
                                     <input
                                         type={type === 'number' ? 'number' : type === 'checkbox' ? 'checkbox' : 'text'}
@@ -208,11 +260,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 )}
                             </div>
                         ))}
-                        <button
-                            onClick={handleSave}
-                            disabled={isUploadingImage}
-                            className={`${isUploadingImage ? styles.disabledButton : ''}`}
-                        >
+                        <button onClick={handleSave} disabled={isUploadingImage} className={`${isUploadingImage ? styles.disabledButton : ''}`}>
                             {isEditMode ? "Actualizar" : "Guardar"}
                         </button>
 

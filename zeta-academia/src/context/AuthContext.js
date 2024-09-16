@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
 
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            if (userData.role === 1) {
+            if (userData.role === "admin") {
                 setIsAdmin(true); 
             } else {
                 setIsAdmin(false);
@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
                 displayName: user.displayName,
                 email: user.email,
                 photoURL: user.photoURL,
-                role: 2 
+                role: "student" 
             });
             setIsAdmin(true); 
             console.log("Usuario agregado a Firestore");

@@ -1,4 +1,3 @@
-// File: src/app/admin/cursos/page.tsx
 "use client";
 
 import React from 'react';

@@ -1,0 +1,53 @@
+/* File: src/app/admin/learn-online-course/page.module.css */
+
+.pageContainer {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.sideBar {
+    background-color: darkblue;
+    flex: 1;
+    width: 200px;
+    height: 100vh;
+    padding: 10px;
+    color: white;
+}
+
+.mainContent {
+    background-color: black;
+    flex: 3;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+}
+
+.button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.moduleList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.moduleItem {
+    margin: 5px 0;
+    cursor: pointer;
+    color: white;
+}
+
+.moduleItem:hover {
+    color: yellow;
+}
