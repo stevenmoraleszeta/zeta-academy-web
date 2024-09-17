@@ -37,6 +37,19 @@
     background-color: #0056b3;
 }
 
+.buttonCancel {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buttonCancel:hover {
+    background-color: #c82333;
+}
+
 .moduleList {
     list-style-type: none;
     padding: 0;
@@ -110,4 +123,40 @@
     background-color: #222;
     border-radius: 5px;
     color: white;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: white;
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: space-between;
 }
