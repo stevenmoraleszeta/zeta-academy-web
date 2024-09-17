@@ -13,7 +13,7 @@ import imageCompression from 'browser-image-compression';
 interface CrudMenuProps {
     collectionName: string;
     displayFields: { label: string; field: string; type?: string; selectType?: string }[];
-    editFields: { label: string; field: string; type?: string; selectType?: string }[];
+    editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
 }
 
@@ -34,8 +34,18 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     useEffect(() => {
         setData(fetchedData);
         setFilteredData(fetchedData);
-        fetchRoles();
-    }, [fetchedData]);
+        initializeSelectOptions();
+    }, [fetchedData, editFields]);
+
+    const initializeSelectOptions = () => {
+        const options: { [key: string]: any[] } = {};
+        editFields.forEach(field => {
+            if (field.type === 'select' && field.options) {
+                options[field.field] = field.options;
+            }
+        });
+        setSelectOptions(options);
+    };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value.toLowerCase();
@@ -49,21 +59,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         );
 
         setFilteredData(filtered);
-    };
-
-    const fetchRoles = async () => {
-        const colRef = collection(db, 'users');
-        const snapshot = await getDocs(colRef);
-        const roles = snapshot.docs.map((doc) => doc.data().role);
-        const uniqueRoles = [...new Set(roles)];
-
-        setSelectOptions((prevOptions) => ({
-            ...prevOptions,
-            role: uniqueRoles.map((role) => ({
-                value: role,
-                label: role,
-            })),
-        }));
     };
 
     const handleItemClick = (item: any) => {
@@ -87,7 +82,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         setIsModalOpen(false);
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target as HTMLInputElement;
         setSelectedItem({ ...selectedItem, [name]: type === 'checkbox' ? checked : value });
     };
@@ -150,15 +145,36 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                 setData((prevData) =>
                     prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
                 );
+                setFilteredData((prevData) =>
+                    prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
+                );
                 alert("Elemento actualizado con éxito");
             } else {
                 const docRef = await addDoc(collection(db, collectionName), selectedItem);
-                setData((prevData) => [...prevData, { ...selectedItem, id: docRef.id }]);
+                const newItem = { ...selectedItem, id: docRef.id };
+                setData((prevData) => [...prevData, newItem]);
+                setFilteredData((prevData) => [...prevData, newItem]);
                 alert("Elemento agregado con éxito");
             }
             handleModalClose();
         } catch (error) {
             console.error("Error al guardar el elemento:", error);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!selectedItem || !selectedItem.id) return;
+
+        try {
+            const itemRef = doc(db, collectionName, selectedItem.id);
+            await deleteDoc(itemRef);
+            setData((prevData) => prevData.filter((i) => i.id !== selectedItem.id));
+            setFilteredData((prevData) => prevData.filter((i) => i.id !== selectedItem.id));
+            alert("Elemento eliminado con éxito");
+            handleModalClose();
+        } catch (error) {
+            console.error("Error al eliminar el elemento:", error);
+            alert("Error al eliminar el elemento");
         }
     };
 
@@ -287,7 +303,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                 <div className={styles.modal}>
                     <div className={styles.modalContent}>
                         <h2>{isEditMode ? "Editar Elemento" : "Agregar Nuevo Elemento"}</h2>
-                        {editFields.map(({ label, field, type, selectType }) => (
+                        {editFields.map(({ label, field, type, selectType, options }) => (
                             <div key={field} className={styles.fieldRow}>
                                 <label>{label}:</label>
                                 {type === 'image' ? (
@@ -307,8 +323,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                     </>
                                 ) : type === 'select' && selectType === 'combobox' ? (
                                     <select
+                                        name={field}
                                         value={selectedItem[field] || ""}
-                                        onChange={(e) => handleInputChange(e.target.value, field)}
+                                        onChange={handleInputChange}
                                     >
                                         <option value="">Seleccione una opción</option>
                                         {selectOptions[field]?.map((option) => (
@@ -320,8 +337,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 ) : (
                                     <input
                                         type={type === 'number' ? 'number' : 'text'}
+                                        name={field}
                                         value={selectedItem[field] || ""}
-                                        onChange={(e) => handleInputChange(e.target.value, field)}
+                                        onChange={handleInputChange}
                                     />
                                 )}
                             </div>
@@ -335,10 +353,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                         </button>
 
                         {isEditMode && (
-                            <button 
-                                onClick={() => handleDeleteItem(selectedItem)} 
-                                className={styles.deleteButton}
-                            >
+                            <button onClick={handleDelete} className={styles.deleteButton}>
                                 Eliminar
                             </button>
                         )}

@@ -19,7 +19,16 @@ const AdminUsers: React.FC = () => {
         { label: 'Imagen', field: 'photoURL', type: 'image' },
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
-        { label: 'Rol', field: 'role', type: 'select', selectType: 'combobox'  },
+        { 
+            label: 'Rol', 
+            field: 'role', 
+            type: 'select', 
+            selectType: 'combobox',
+            options: [
+                { label: 'Student', value: 'student' },
+                { label: 'Admin', value: 'admin' }
+            ]
+        },
     ];
 
     return (

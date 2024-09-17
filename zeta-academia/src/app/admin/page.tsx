@@ -1,4 +1,3 @@
-// File: src/pages/admin/page.tsx
 "use client"; // Indica que este componente se ejecuta en el cliente
 
 import styles from './page.module.css'; // Importa los estilos modulares
@@ -7,12 +6,9 @@ import { useRouter } from 'next/navigation'; // Usa el enrutador de Next.js
 import RequireAuth from '@/components/RequireAuth'; // Asegúrate de que esté correctamente configurado
 
 import {
-    AiOutlineDashboard,
     AiOutlineUser,
     AiOutlineBook,
-    AiOutlineBarChart,
-    AiOutlineSetting,
-    AiOutlineBell,
+    AiOutlineFileText,
 } from 'react-icons/ai';
 
 const AdminMenu: React.FC = () => {
@@ -47,6 +43,13 @@ const AdminMenu: React.FC = () => {
                     >
                         <AiOutlineUser className={styles.buttonIcon} />
                         <span>Usuarios</span>
+                    </button>
+                    <button
+                        className={styles.adminButton}
+                        onClick={() => handleNavigation('/admin/tickets')}
+                    >
+                        <AiOutlineFileText className={styles.buttonIcon} />
+                        <span>Sección de Tickets</span>
                     </button>
                 </div>
             </div>
