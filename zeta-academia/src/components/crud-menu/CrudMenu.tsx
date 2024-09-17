@@ -334,7 +334,14 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                             {isEditMode ? "Actualizar" : "Guardar"}
                         </button>
 
-                        {isEditMode && <button onClick={handleDelete} className={styles.deleteButton}>Eliminar</button>}
+                        {isEditMode && (
+                            <button 
+                                onClick={() => handleDeleteItem(selectedItem)} 
+                                className={styles.deleteButton}
+                            >
+                                Eliminar
+                            </button>
+                        )}
                         <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
                     </div>
                 </div>

@@ -172,26 +172,34 @@ const AdminLearnOnlineCourse: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleSaveTitle = (newTitle: string) => {
+    const handleSaveTitle = (newValue: string) => {
         if (modalType === 'module' && editingModule) {
             const updatedModules = modules.map(mod =>
-                mod.id === editingModule.id ? { ...mod, title: newTitle } : mod
+                mod.id === editingModule.id ? { ...mod, title: newValue } : mod
             );
             setModules(updatedModules);
             saveModulesToFirebase(updatedModules);
         } else if (modalType === 'class' && editingModule && editingClass) {
             const updatedClasses = editingModule.classes.map(cls =>
-                cls.id === editingClass.id ? { ...cls, title: newTitle } : cls
+                cls.id === editingClass.id ? { ...cls, title: newValue } : cls
             );
             const updatedModules = modules.map(mod =>
                 mod.id === editingModule.id ? { ...mod, classes: updatedClasses } : mod
             );
             setModules(updatedModules);
             saveModulesToFirebase(updatedModules);
-        } else if (modalType === 'content' && editingClass && editingContent) {
-            const updatedContent = editingClass.content.map((item) =>
-                item === editingContent ? { ...item, value: newTitle } : item
-            );
+        } else if (modalType === 'content' && selectedClass && editingContent) {
+            const updatedContent = [...selectedClass.content];
+            if (editingContent.value === '') {
+                // Si es un nuevo contenido, añádelo al final
+                updatedContent.push({ ...editingContent, value: newValue });
+            } else {
+                // Si es un contenido existente, actualízalo
+                const index = updatedContent.findIndex(item => item === editingContent);
+                if (index !== -1) {
+                    updatedContent[index] = { ...editingContent, value: newValue };
+                }
+            }
             updateClassContent(updatedContent);
         }
         setIsModalOpen(false);
@@ -347,10 +355,8 @@ const AdminLearnOnlineCourse: React.FC = () => {
             fileInput.click();
         } else if (type === 'text') {
             openEditModal('content', selectedModule, selectedClass, newContent);
-        } else {
-            newContent.value = '';
-            const updatedContent = [...selectedClass.content, newContent];
-            updateClassContent(updatedContent);
+        } else if (type === 'video') {
+            openEditModal('content', selectedModule, selectedClass, newContent);
         }
     };
 
