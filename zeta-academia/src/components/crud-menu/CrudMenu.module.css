@@ -49,6 +49,7 @@
     flex: 1 1 calc(23% - 10px);
     max-width: calc(23% - 10px);
     transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
 }
 
 .itemCard:hover {
@@ -169,4 +170,33 @@
     max-width: 200px;
     max-height: 200px;
     margin-top: 10px;
+}
+
+.iconButtons {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.iconButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.iconButton:hover {
+    opacity: 1;
+}
+
+.iconButton svg {
+    width: 16px;
+    height: 16px;
 }

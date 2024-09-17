@@ -11,7 +11,7 @@ import styles from './page.module.css';
 import { FaArrowUp, FaArrowDown, FaCopy, FaTrash, FaEdit } from 'react-icons/fa';
 
 // Modal component
-const Modal = ({ isOpen, onClose, onSave, title, inputLabel = "Editar Título", confirmMode = false }) => {
+const Modal = ({ isOpen, onClose, onSave, title, inputLabel = "Editar Título", confirmMode = false, isTextArea = false }) => {
     const [inputValue, setInputValue] = useState('');
 
     useEffect(() => {
@@ -29,12 +29,21 @@ const Modal = ({ isOpen, onClose, onSave, title, inputLabel = "Editar Título", 
                 <div className={styles.modal}>
                     <h3>{inputLabel}</h3>
                     {!confirmMode ? (
-                        <input
-                            type="text"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            className={styles.input}
-                        />
+                        isTextArea ? (
+                            <textarea
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                className={styles.textArea}
+                                rows={10}
+                            />
+                        ) : (
+                            <input
+                                type="text"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                className={styles.input}
+                            />
+                        )
                     ) : (
                         <p>¿Estás seguro de realizar esta acción?</p>
                     )}
@@ -81,6 +90,8 @@ const AdminLearnOnlineCourse: React.FC = () => {
     const [editingClass, setEditingClass] = useState<Class | null>(null);
     const [editingContent, setEditingContent] = useState<ContentItem | null>(null);
     const [modalInputLabel, setModalInputLabel] = useState<string>("");
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [deleteAction, setDeleteAction] = useState<() => void>(() => {});
 
     useEffect(() => {
         if (!courseId) {
@@ -156,7 +167,7 @@ const AdminLearnOnlineCourse: React.FC = () => {
         setModalInputLabel(
             type === 'module' ? 'Editar Título del Módulo' :
             type === 'class' ? 'Editar Título de la Clase' :
-            'Editar Contenido'
+            content?.type === 'text' ? 'Editar Texto' : 'Editar Contenido'
         );
         setIsModalOpen(true);
     };
@@ -205,10 +216,22 @@ const AdminLearnOnlineCourse: React.FC = () => {
         saveModulesToFirebase(updatedModules);
     };
 
+    const openConfirmModal = (action: () => void) => {
+        setDeleteAction(() => action);
+        setIsConfirmModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        deleteAction();
+        setIsConfirmModalOpen(false);
+    };
+
     const handleDeleteModule = (moduleId: string) => {
-        const updatedModules = modules.filter(mod => mod.id !== moduleId);
-        setModules(updatedModules);
-        saveModulesToFirebase(updatedModules);
+        openConfirmModal(() => {
+            const updatedModules = modules.filter(mod => mod.id !== moduleId);
+            setModules(updatedModules);
+            saveModulesToFirebase(updatedModules);
+        });
     };
 
     const handleMoveClass = (moduleId: string, classIndex: number, direction: 'up' | 'down') => {
@@ -246,14 +269,15 @@ const AdminLearnOnlineCourse: React.FC = () => {
     };
 
     const handleDeleteClass = (moduleId: string, classId: string) => {
-        const updatedModules = modules.map(mod =>
-            mod.id === moduleId
-                ? { ...mod, classes: mod.classes.filter(cls => cls.id !== classId) }
-                : mod
-        );
-
-        setModules(updatedModules);
-        saveModulesToFirebase(updatedModules);
+        openConfirmModal(() => {
+            const updatedModules = modules.map(mod =>
+                mod.id === moduleId
+                    ? { ...mod, classes: mod.classes.filter(cls => cls.id !== classId) }
+                    : mod
+            );
+            setModules(updatedModules);
+            saveModulesToFirebase(updatedModules);
+        });
     };
 
     const handleMoveContentUp = (index: number) => {
@@ -279,8 +303,10 @@ const AdminLearnOnlineCourse: React.FC = () => {
 
     const handleDeleteContent = (index: number) => {
         if (!selectedClass) return;
-        const updatedContent = selectedClass.content.filter((_, i) => i !== index);
-        updateClassContent(updatedContent);
+        openConfirmModal(() => {
+            const updatedContent = selectedClass.content.filter((_, i) => i !== index);
+            updateClassContent(updatedContent);
+        });
     };
 
     const handleAddContent = async (type: 'video' | 'text' | 'image' | 'file') => {
@@ -319,8 +345,10 @@ const AdminLearnOnlineCourse: React.FC = () => {
                 updateClassContent(updatedContent);
             };
             fileInput.click();
+        } else if (type === 'text') {
+            openEditModal('content', selectedModule, selectedClass, newContent);
         } else {
-            newContent.value = type === 'text' ? 'Nuevo texto' : '';
+            newContent.value = '';
             const updatedContent = [...selectedClass.content, newContent];
             updateClassContent(updatedContent);
         }
@@ -371,6 +399,15 @@ const AdminLearnOnlineCourse: React.FC = () => {
                 }
                 inputLabel={modalInputLabel}
                 confirmMode={false}
+                isTextArea={modalType === 'content' && editingContent?.type === 'text'}
+            />
+            <Modal
+                isOpen={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
+                onSave={handleConfirmDelete}
+                title="Confirmar eliminación"
+                inputLabel="¿Estás seguro de que quieres eliminar este elemento?"
+                confirmMode={true}
             />
             <div className={styles.sideBar}>
                 <h2>Módulos</h2>
@@ -389,7 +426,7 @@ const AdminLearnOnlineCourse: React.FC = () => {
                                     <FaArrowUp onClick={() => handleMoveModule(index, 'up')} />
                                     <FaArrowDown onClick={() => handleMoveModule(index, 'down')} />
                                     <FaCopy onClick={() => handleDuplicateModule(index)} />
-                                    <FaTrash onClick={() => openEditModal('module', module)} />
+                                    <FaTrash onClick={() => handleDeleteModule(module.id)} />
                                 </div>
                             </div>
                             {expandedModules[module.id] && (
@@ -404,7 +441,7 @@ const AdminLearnOnlineCourse: React.FC = () => {
                                                 <FaArrowUp onClick={() => handleMoveClass(module.id, classIndex, 'up')} />
                                                 <FaArrowDown onClick={() => handleMoveClass(module.id, classIndex, 'down')} />
                                                 <FaCopy onClick={() => handleDuplicateClass(module.id, classIndex)} />
-                                                <FaTrash onClick={() => openEditModal('class', module, clase)} />
+                                                <FaTrash onClick={() => handleDeleteClass(module.id, clase.id)} />
                                             </div>
                                         </li>
                                     ))}

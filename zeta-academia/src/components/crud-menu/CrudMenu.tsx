@@ -28,6 +28,8 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<any | null>(null);
 
     useEffect(() => {
         setData(fetchedData);
@@ -160,17 +162,42 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
     };
 
-    const handleDelete = async () => {
-        if (!selectedItem || !selectedItem.id) return;
+    const handleDeleteItem = (item: any) => {
+        setItemToDelete(item);
+        setIsConfirmModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!itemToDelete || !itemToDelete.id) return;
 
         try {
-            const itemRef = doc(db, collectionName, selectedItem.id);
+            const itemRef = doc(db, collectionName, itemToDelete.id);
             await deleteDoc(itemRef);
-            setData((prevData) => prevData.filter((item) => item.id !== selectedItem.id));
+            setData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
+            setFilteredData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
             alert("Elemento eliminado con éxito");
-            handleModalClose();
         } catch (error) {
             console.error("Error al eliminar el elemento:", error);
+            alert("Error al eliminar el elemento");
+        } finally {
+            setIsConfirmModalOpen(false);
+            setItemToDelete(null);
+        }
+    };
+
+    const handleDuplicate = async (item: any) => {
+        const { id, ...itemWithoutId } = item;
+        const newItem = { ...itemWithoutId, createdAt: new Date() };
+        
+        try {
+            const docRef = await addDoc(collection(db, collectionName), newItem);
+            const duplicatedItem = { ...newItem, id: docRef.id };
+            setData((prevData) => [...prevData, duplicatedItem]);
+            setFilteredData((prevData) => [...prevData, duplicatedItem]);
+            alert("Elemento duplicado con éxito");
+        } catch (error) {
+            console.error("Error al duplicar el elemento:", error);
+            alert("Error al duplicar el elemento");
         }
     };
 
@@ -218,6 +245,36 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                         {action.label}
                                     </button>
                                 ))}
+                            </div>
+                            <div className={styles.iconButtons}>
+                                <button
+                                    className={styles.iconButton}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDuplicate(item);
+                                    }}
+                                    title="Duplicar"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                </button>
+                                <button
+                                    className={styles.iconButton}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteItem(item);
+                                    }}
+                                    title="Eliminar"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     ))
@@ -282,6 +339,34 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                     </div>
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
+                onConfirm={confirmDelete}
+                message="¿Estás seguro de que quieres eliminar este elemento?"
+            />
+        </div>
+    );
+};
+
+const ConfirmationModal: React.FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    message: string;
+}> = ({ isOpen, onClose, onConfirm, message }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+                <p>{message}</p>
+                <div className={styles.modalButtons}>
+                    <button onClick={onConfirm} className={styles.confirmButton}>Confirmar</button>
+                    <button onClick={onClose} className={styles.cancelButton}>Cancelar</button>
+                </div>
+            </div>
         </div>
     );
 };
