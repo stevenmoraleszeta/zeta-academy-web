@@ -6,10 +6,12 @@ import { useRouter } from 'next/navigation'; // Usa el enrutador de Next.js
 import RequireAuth from '@/components/RequireAuth'; // Asegúrate de que esté correctamente configurado
 
 import {
-    AiOutlineUser,
-    AiOutlineBook,
-    AiOutlineFileText,
-} from 'react-icons/ai';
+    AiOutlineUser, // Usuarios
+    AiOutlineFileText, // Tickets
+    AiOutlineRead, // Cursos en línea
+    AiOutlineLaptop, // Cursos en Vivo
+    AiOutlineProject, // Proyectos Estudiantes
+} from 'react-icons/ai'; // Importamos íconos relacionados con los textos
 
 const AdminMenu: React.FC = () => {
     const router = useRouter();
@@ -27,14 +29,14 @@ const AdminMenu: React.FC = () => {
                         className={styles.adminButton}
                         onClick={() => handleNavigation('/admin/aprende-en-linea')}
                     >
-                        <AiOutlineBook className={styles.buttonIcon} />
+                        <AiOutlineRead className={styles.buttonIcon} />
                         <span>Aprende en línea</span>
                     </button>
                     <button
                         className={styles.adminButton}
                         onClick={() => handleNavigation('/admin/cursos-en-vivo')}
                     >
-                        <AiOutlineBook className={styles.buttonIcon} />
+                        <AiOutlineLaptop className={styles.buttonIcon} />
                         <span>Cursos en Vivo</span>
                     </button>
                     <button
@@ -49,7 +51,14 @@ const AdminMenu: React.FC = () => {
                         onClick={() => handleNavigation('/admin/tickets')}
                     >
                         <AiOutlineFileText className={styles.buttonIcon} />
-                        <span>Sección de Tickets</span>
+                        <span>Tickets</span>
+                    </button>
+                    <button
+                        className={styles.adminButton}
+                        onClick={() => handleNavigation('/admin/proyectos-estudiantes')}
+                    >
+                        <AiOutlineProject className={styles.buttonIcon} />
+                        <span>Proyectos Estudiantes</span>
                     </button>
                 </div>
             </div>

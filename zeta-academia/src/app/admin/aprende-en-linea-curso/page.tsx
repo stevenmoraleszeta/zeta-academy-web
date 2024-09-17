@@ -467,6 +467,7 @@ const AdminLearnOnlineCourse: React.FC = () => {
                         <div className={styles.contentList}>
                             {selectedClass.content.map((content, index) => (
                                 <div key={index} className={styles.contentItem}>
+                                    //TODO debe agregarse un botón para agregar cargas de archivos, que crearán automáticamente un proyecto en proyectos-estudiantes.
                                     {content.type === 'video' && <iframe src={content.value} title="Video" />}
                                     {content.type === 'text' && <p>{content.value}</p>}
                                     {content.type === 'image' && <img src={content.value} alt="Imagen de clase" />}

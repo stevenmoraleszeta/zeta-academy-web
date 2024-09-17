@@ -28,7 +28,6 @@
 .topBar input {
     background-color: var(--component-dark);
     color: var(--text-color);
-    border: 1px solid var(--primary-color-darker);
     border-radius: 5px;
     padding: 10px;
 }
@@ -41,7 +40,6 @@
 }
 
 .itemCard {
-    border: 1px solid var(--primary-color-darker);
     padding: 15px;
     border-radius: 8px;
     cursor: pointer;
@@ -104,7 +102,6 @@
 .fieldRow input {
     background-color: var(--component-dark);
     color: var(--text-color);
-    border: 1px solid var(--primary-color-darker);
     border-radius: 5px;
     padding: 8px;
 }
@@ -119,7 +116,6 @@
 
 .fieldRow input[type="checkbox"]:checked {
     background-color: var(--secundary-color);
-    border: 2px solid var(--primary-color);
 }
 
 /* Añade una clase específica para los botones deshabilitados */

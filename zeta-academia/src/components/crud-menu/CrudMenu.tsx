@@ -1,4 +1,3 @@
-// File: src/components/crud-menu/CrudMenu.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -10,6 +9,8 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
 
+
+//TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
 interface CrudMenuProps {
     collectionName: string;
     displayFields: { label: string; field: string; type?: string; selectType?: string }[];
@@ -128,6 +129,41 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         } catch (error) {
             console.error("Error al comprimir la imagen:", error);
             alert("Error al comprimir la imagen.");
+        }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setIsUploadingImage(true);
+            const storage = getStorage();
+            const uniqueFileName = `${uuidv4()}-${file.name}`;
+            const storageRef = ref(storage, `files/${uniqueFileName}`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on(
+                'state_changed',
+                null,
+                (error) => {
+                    console.error("Error al subir el archivo:", error);
+                    alert("Error al subir el archivo. Verifica los permisos de Firebase Storage.");
+                    setIsUploadingImage(false);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        setSelectedItem((prevItem) => ({
+                            ...prevItem,
+                            archivoUrl: downloadURL,
+                        }));
+                        setIsUploadingImage(false);
+                    });
+                }
+            );
+        } catch (error) {
+            console.error("Error al subir el archivo:", error);
+            alert("Error al subir el archivo.");
         }
     };
 
@@ -306,7 +342,20 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                         {editFields.map(({ label, field, type, selectType, options }) => (
                             <div key={field} className={styles.fieldRow}>
                                 <label>{label}:</label>
-                                {type === 'image' ? (
+                                {type === 'file' ? (
+                                    <>
+                                        <input
+                                            type="file"
+                                            accept="*/*"
+                                            onChange={handleFileUpload}
+                                        />
+                                        {selectedItem[field] && (
+                                            <a href={selectedItem[field]} target="_blank" rel="noopener noreferrer">
+                                                Ver archivo
+                                            </a>
+                                        )}
+                                    </>
+                                ) : type === 'image' ? (
                                     <>
                                         <input
                                             type="file"
@@ -336,7 +385,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                     </select>
                                 ) : (
                                     <input
-                                        type={type === 'number' ? 'number' : 'text'}
+                                        type={type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'}
                                         name={field}
                                         value={selectedItem[field] || ""}
                                         onChange={handleInputChange}
@@ -351,12 +400,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                         >
                             {isEditMode ? "Actualizar" : "Guardar"}
                         </button>
-
-                        {isEditMode && (
-                            <button onClick={handleDelete} className={styles.deleteButton}>
-                                Eliminar
-                            </button>
-                        )}
                         <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
                     </div>
                 </div>
