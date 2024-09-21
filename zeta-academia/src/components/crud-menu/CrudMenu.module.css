@@ -196,3 +196,18 @@
     width: 16px;
     height: 16px;
 }
+
+.downloadLink {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.downloadLink:hover {
+    background-color: var(--primary-color-darker);
+}

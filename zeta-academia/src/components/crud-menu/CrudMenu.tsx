@@ -253,6 +253,16 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
     };
 
+    const handleFileDownload = (fileUrl: string, fileName: string) => {
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.target = '_blank';
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -349,10 +359,16 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                             accept="*/*"
                                             onChange={handleFileUpload}
                                         />
+                                        {/*Arreglar la descarga de archivos*/}
                                         {selectedItem[field] && (
-                                            <a href={selectedItem[field]} target="_blank" rel="noopener noreferrer">
-                                                Ver archivo
-                                            </a>
+                                            <div>
+                                                <button
+                                                    onClick={() => handleFileDownload(selectedItem[field], `file.${selectedItem[field].split('.').pop()}`)}
+                                                    className={styles.downloadButton}
+                                                >
+                                                    Descargar archivo
+                                                </button>
+                                            </div>
                                         )}
                                     </>
                                 ) : type === 'image' ? (
