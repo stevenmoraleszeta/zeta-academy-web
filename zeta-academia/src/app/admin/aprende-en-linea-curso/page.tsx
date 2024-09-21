@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, setDoc, collection } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/firebase/firebase";
 import { v4 as uuidv4 } from "uuid";
 import imageCompression from "browser-image-compression";
 import styles from './page.module.css';
 import { FaArrowUp, FaArrowDown, FaCopy, FaTrash, FaEdit } from 'react-icons/fa';
+import { useAuth } from '@/context/AuthContext';
 
 // Modal component
 const Modal = ({ isOpen, onClose, onSave, title, inputLabel = "Editar Título", confirmMode = false, isTextArea = false }) => {
@@ -72,7 +73,7 @@ interface Class {
 }
 
 interface ContentItem {
-    type: 'video' | 'text' | 'image' | 'file';
+    type: 'video' | 'text' | 'image' | 'file' | 'project';
     value: string;
 }
 
@@ -92,6 +93,7 @@ const AdminLearnOnlineCourse: React.FC = () => {
     const [modalInputLabel, setModalInputLabel] = useState<string>("");
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [deleteAction, setDeleteAction] = useState<() => void>(() => {});
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         if (!courseId) {
@@ -317,7 +319,7 @@ const AdminLearnOnlineCourse: React.FC = () => {
         });
     };
 
-    const handleAddContent = async (type: 'video' | 'text' | 'image' | 'file') => {
+    const handleAddContent = async (type: 'video' | 'text' | 'image' | 'file' | 'project') => {
         if (!selectedClass) return;
 
         let newContent: ContentItem = {
@@ -353,10 +355,12 @@ const AdminLearnOnlineCourse: React.FC = () => {
                 updateClassContent(updatedContent);
             };
             fileInput.click();
-        } else if (type === 'text') {
+        } else if (type === 'text' || type === 'video') {
             openEditModal('content', selectedModule, selectedClass, newContent);
-        } else if (type === 'video') {
-            openEditModal('content', selectedModule, selectedClass, newContent);
+        } else if (type === 'project') {
+            newContent.value = 'Carga de proyecto';
+            const updatedContent = [...selectedClass.content, newContent];
+            updateClassContent(updatedContent);
         }
     };
 
@@ -390,6 +394,47 @@ const AdminLearnOnlineCourse: React.FC = () => {
         } catch (error) {
             console.error("Error al guardar los módulos:", error);
         }
+    };
+
+    const handleProjectUpload = async (classId: string, contentIndex: number) => {
+        if (!courseId || !selectedModule || !selectedClass || !currentUser) return;
+
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.onchange = async (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+
+            try {
+                // Subir el archivo a Firebase Storage
+                const storageRef = ref(storage, `studentProjects/${uuidv4()}-${file.name}`);
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+
+                const projectName = `${selectedClass.title}-${selectedModule.title}`;
+
+                // Crear un nuevo documento en la colección studentProjects
+                const projectRef = doc(collection(db, "studentProjects"));
+                await setDoc(projectRef, {
+                    projectName: projectName,
+                    description: "",
+                    fileUrl: downloadURL,
+                    studentEmail: currentUser.email,
+                    course: courseId,
+                    deliveryDate: new Date(),
+                    reviewDate: null,
+                    reviewedBy: null,
+                    grade: null,
+                    status: "sin revisar"
+                });
+
+                console.log("Proyecto cargado exitosamente");
+                // Aquí puedes actualizar la interfaz de usuario si es necesario
+            } catch (error) {
+                console.error("Error al cargar el proyecto:", error);
+            }
+        };
+        fileInput.click();
     };
 
     return (
@@ -467,11 +512,18 @@ const AdminLearnOnlineCourse: React.FC = () => {
                         <div className={styles.contentList}>
                             {selectedClass.content.map((content, index) => (
                                 <div key={index} className={styles.contentItem}>
-                                    //TODO debe agregarse un botón para agregar cargas de archivos, que crearán automáticamente un proyecto en proyectos-estudiantes.
                                     {content.type === 'video' && <iframe src={content.value} title="Video" />}
                                     {content.type === 'text' && <p>{content.value}</p>}
                                     {content.type === 'image' && <img src={content.value} alt="Imagen de clase" />}
                                     {content.type === 'file' && <a href={content.value} download>Descargar Archivo</a>}
+                                    {content.type === 'project' && (
+                                        <div>
+                                            <p>{content.value}</p>
+                                            <button className={styles.button} onClick={() => handleProjectUpload(selectedClass.id, index)}>
+                                                Cargar Proyecto
+                                            </button>
+                                        </div>
+                                    )}
                                     <div className={styles.iconContainer}>
                                         <FaEdit onClick={() => openEditModal('content', selectedModule, selectedClass, content)} />
                                         <FaArrowUp onClick={() => handleMoveContentUp(index)} />
@@ -493,6 +545,9 @@ const AdminLearnOnlineCourse: React.FC = () => {
                             </button>
                             <button className={styles.button} onClick={() => handleAddContent('file')}>
                                 Agregar Archivo
+                            </button>
+                            <button className={styles.button} onClick={() => handleAddContent('project')}>
+                                Agregar Carga de Proyecto
                             </button>
                         </div>
                     </div>
