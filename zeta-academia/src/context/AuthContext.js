@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 "use client"; // Indica que este componente se ejecuta en el cliente
 
 import React, { useContext, useState, useEffect, createContext } from "react";
@@ -19,7 +18,8 @@ export function useAuth() {
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false); 
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [userId, setUserId] = useState(null); // Nuevo estado para almacenar el ID del usuario
 
     // Manejar el cambio de estado de autenticación
     useEffect(() => {
@@ -28,6 +28,7 @@ export function AuthProvider({ children }) {
                 checkUserInFirestore(user);
             }
             setCurrentUser(user);
+            setUserId(user ? user.uid : null); // Guardar el ID del usuario o ponerlo en null si no hay usuario
             setLoading(false);
         });
 
@@ -39,8 +40,8 @@ export function AuthProvider({ children }) {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             setCurrentUser(result.user);
+            setUserId(result.user.uid); // Guardar el ID del usuario al iniciar sesión
             console.log("Usuario autenticado:", result.user);
-
             checkUserInFirestore(result.user);
         } catch (error) {
             console.error("Error al iniciar sesión con Google:", error);
@@ -48,13 +49,14 @@ export function AuthProvider({ children }) {
     };
 
     const checkUserInFirestore = async (user) => {
-        const userDocRef = doc(db, "users", user.uid); 
+        const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
             const userData = userDoc.data();
             if (userData.role === "admin") {
-                setIsAdmin(true); 
+                setIsAdmin(true);
+                console.log(userId)
             } else {
                 setIsAdmin(false);
             }
@@ -62,10 +64,11 @@ export function AuthProvider({ children }) {
             await setDoc(userDocRef, {
                 displayName: user.displayName,
                 email: user.email,
+                id: user.uid,
                 photoURL: user.photoURL,
-                role: "student" 
+                role: "student"
             });
-            setIsAdmin(true); 
+            setIsAdmin(false); // Asumimos que el nuevo usuario no es admin
             console.log("Usuario agregado a Firestore");
         }
     };
@@ -74,7 +77,8 @@ export function AuthProvider({ children }) {
         currentUser,
         loginWithGoogle,
         updateCurrentUser: setCurrentUser,
-        isAdmin, 
+        isAdmin,
+        userId, // Añadir el userId en el valor del contexto
     };
 
     return (

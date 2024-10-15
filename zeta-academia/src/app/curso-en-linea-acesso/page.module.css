@@ -1,0 +1,163 @@
+.pageContainer {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sideBar {
+    background-color: darkblue;
+    flex: 1;
+    width: 200px;
+    height: 100%;
+    padding: 10px;
+    color: white;
+    overflow-y: auto;
+}
+
+.mainContent {
+    background-color: black;
+    flex: 3;
+    height: 100%;
+    padding: 20px;
+    color: white;
+    overflow-y: auto;
+}
+
+.button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.buttonCancel {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buttonCancel:hover {
+    background-color: #c82333;
+}
+
+.moduleList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.moduleItem {
+    display: flex;
+    flex-direction: column;
+    margin: 5px 0;
+    color: white;
+}
+
+.moduleHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.moduleTitle {
+    flex: 1;
+    cursor: pointer;
+}
+
+.iconContainer {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.classList {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.classItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.classTitle {
+    flex: 1;
+    cursor: pointer;
+}
+
+.addClassButton {
+    margin-top: 5px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.addClassButton:hover {
+    background-color: #218838;
+}
+
+.contentList {
+    margin-top: 20px;
+}
+
+.contentItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #222;
+    border-radius: 5px;
+    color: white;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: white;
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: space-between;
+}

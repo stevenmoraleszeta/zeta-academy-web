@@ -1,0 +1,106 @@
+.platformContainer {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+.sidebar {
+    width: 200px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.filterCategory,
+.filterPrice {
+    margin-bottom: 20px;
+}
+
+.filterCategory h4,
+.filterPrice h4 {
+    margin-bottom: 10px;
+}
+
+.filterCategory label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    gap: 8px;
+}
+
+.filterCategory input[type="checkbox"] {
+    appearance: auto;
+    accent-color: #007bff;
+    width: 16px;
+    height: 16px;
+}
+
+.priceSlider {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.searchBar {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.searchBar input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.coursesSection {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* Configuración para 4 columnas */
+    gap: 20px;
+}
+
+.courseCard {
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.courseCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.courseCard h4 {
+    margin: 0 0 10px 0;
+}
+
+.categoryLabel {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+}
+
+.priceLabel {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.courseImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}

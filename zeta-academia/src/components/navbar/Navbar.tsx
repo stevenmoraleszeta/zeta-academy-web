@@ -31,12 +31,12 @@ function Navbar() {
             <Link href="/cursos-en-linea" className={styles.navbarLink}>
                 Aprende en Línea
             </Link>
-            {/*<Link href="/cursos-en-vivo" className={styles.navbarLink}>
+            <Link href="/cursos-en-vivo" className={styles.navbarLink}>
                 Cursos en Vivo
             </Link>
             <Link href="/aprende-python" className={styles.navbarLink}>
                 Aprende Python
-            </Link>*/}
+            </Link>
             <Link href="/contacto" className={styles.navbarLink}>
                 Contacto
             </Link>
