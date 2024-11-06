@@ -70,6 +70,6 @@
 .coursesBtn {
     background-color: #E85D04;
     color: white;
-    font-size: clamp(15px, 25px, 35px);
+    font-size: clamp(1vw, 20px, 2vw);
     width: 15vw;
 }

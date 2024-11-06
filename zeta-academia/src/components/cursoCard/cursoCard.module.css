@@ -1,6 +1,6 @@
 .cardContainer {
     width: clamp(10vw, 400px, 20vw);
-    height: clamp(25vw, 450px, 35vw);
+    height: clamp(45vh, 425px, 55vh);
 
     background: linear-gradient(#005F73, #002128);
 
@@ -8,22 +8,53 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    border-radius: 10px;
 }
 
+/* course image styles */
 .imgContainer {
     height: 90%;
     width: 100%;
 }
 
 .courseImg {
-    height: 100%;
+    height: 20vh;
+    width: 100vw;
 }
+
+/* icon img styles */
+
+.iconContainer {
+    width: fit-content;
+    height: fit-content;
+
+    margin-top: -15vh;
+    margin-right: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-self: flex-end;
+}
+
+.iconImg {
+    width: clamp(3vw, 5vw, 6vw);
+    height: clamp(4vw, 6vw, 10vw);
+}
+
+/* Text styles */
 
 .textContainer {
     height: 70%;
-    width: 100%;
+    width: 90%;
 }
 
 .textContainer h2 {
     color: white;
+    font-size: clamp(1.08vw, 15px, 3vw);
+}
+
+.textContainer p {
+    color: white;
+    font-size: clamp(1vw, 10px, 2vw);
 }
