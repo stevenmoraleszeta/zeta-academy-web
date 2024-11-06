@@ -1,6 +1,6 @@
 .cardContainer {
-    width: clamp(10vw, 400px, 20vw);
-    height: clamp(45vh, 425px, 55vh);
+    width: clamp(30vw, 300px, 35vw);
+    height: clamp(40vw, 300px, 45vw);
 
     background: linear-gradient(#005F73, #002128);
 
@@ -15,12 +15,12 @@
 
 /* course image styles */
 .imgContainer {
-    height: 90%;
+    height: 100%;
     width: 100%;
 }
 
 .courseImg {
-    height: 20vh;
+    height: 35vh;
     width: 100vw;
 }
 
@@ -30,7 +30,7 @@
     width: fit-content;
     height: fit-content;
 
-    margin-top: -15vh;
+    margin-top: -8vh;
     margin-right: 10px;
 
     display: flex;
@@ -46,7 +46,7 @@
 /* Text styles */
 
 .textContainer {
-    height: 70%;
+    height: 100%;
     width: 90%;
 }
 

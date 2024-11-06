@@ -3,7 +3,7 @@
 /* main containers */
 .mainSection {
     width: 100vw;
-    height: 85vh;
+    height: 70vh;
 
     display: flex;
     align-items: center;
@@ -30,25 +30,23 @@
     align-items: flex-start;
     justify-content: center;
     flex-direction: column;
-
-    margin: 10%;
 }
 
 .mainTitle {
     color: white;
-    font-size: clamp(6vw, 20px, 7vw);
+    font-size: clamp(3.5vw, 20px, 5vw);
     margin: 0px;
 }
 
 .dynamicMessage {
     color: white;
-    font-size: clamp(10vw, 30px, 12vw);
+    font-size: clamp(7vw, 30px, 10vw);
     margin: 0px;
 }
 
 .mainSubtitle {
     color: #005F73;
-    font-size: clamp(2vw, 10px, 4vw);
+    font-size: clamp(2.5vw, 10px, 5vw);
     margin-top: 15px;
     margin-bottom: 15px;
 }
@@ -71,7 +69,8 @@
     background-color: #E85D04;
     color: white;
     font-size: clamp(1vw, 20px, 2vw);
-    width: 15vw;
+    width: 20vw;
+    height: 7vh;
 }
 
 /* Benefits section styles */
