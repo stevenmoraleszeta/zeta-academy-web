@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { MainPage } from "./pages/page"
+import { MainPage } from "./pages/main/page"
 import styles from "./page.module.css";
 
 export default function Home() {
