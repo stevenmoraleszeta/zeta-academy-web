@@ -1,9 +1,9 @@
-/* Estilos del welcome section */
+/* Estilos del main section */
 
-/* Welcome main containers */
-.welcomeSection {
+/* main containers */
+.mainSection {
     width: 100vw;
-    height: 50vh;
+    height: 85vh;
 
     display: flex;
     align-items: center;
@@ -23,7 +23,7 @@
 
 
 .infoContainer {
-    width: 30%;
+    width: 50%;
     height: 100%;
 
     display: flex;
@@ -34,19 +34,19 @@
     margin: 10%;
 }
 
-.welcomeTitle {
+.mainTitle {
     color: white;
-    font-size: clamp(3vw, 15px, 5vw);
+    font-size: clamp(6vw, 20px, 7vw);
     margin: 0px;
 }
 
 .dynamicMessage {
     color: white;
-    font-size: clamp(5vw, 20px, 7vw);
+    font-size: clamp(10vw, 30px, 12vw);
     margin: 0px;
 }
 
-.welcomeSubtitle {
+.mainSubtitle {
     color: #005F73;
     font-size: clamp(2vw, 10px, 4vw);
     margin-top: 15px;
@@ -72,4 +72,37 @@
     color: white;
     font-size: clamp(1vw, 20px, 2vw);
     width: 15vw;
+}
+
+/* Benefits section styles */
+
+.benefitsSection {
+    width: 100vw;
+    height: 80vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.benefitsTextContainer {
+    width: 50%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.benefitsTitle {
+    color: white;
+    font-size: clamp(4vw, 25px, 12vw);
+}
+
+.benefitsSubtitle {
+    color: #005F73;
+    font-size: clamp(2vw, 15px, 7vw);
+    margin: 20px;
 }
