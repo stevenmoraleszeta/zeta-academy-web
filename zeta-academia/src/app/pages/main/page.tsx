@@ -1,9 +1,15 @@
 import CursoCard from "@/components/cursoCard/cursoCard";
 import styles from "./mainPage.module.css";
+import Image from "next/image";
+
+import excelIcon from '@/assets/img/excelIcon.png';
+import sqlIcon from '@/assets/img/SQLIconPng.png';
+import pythonIcon from '@/assets/img/pythonIconPng.png'
 
 export function MainPage() {
     return (
         <>
+            {/* Main content */}
             <section className={styles.mainSection}>
                 <div className={styles.contentContainer}>
                     <div className={styles.infoContainer}>
@@ -18,11 +24,19 @@ export function MainPage() {
                     </div>
                 </div>
             </section >
+            {/* benefits elements */}
             <section className={styles.benefitsSection}>
-                <div className={styles.benefitsTextContainer}>
-                    <h1 className={styles.benefitsTitle}>Conéctate y aprende en vivo desde casa</h1>
-                    <h2 className={styles.benefitsSubtitle}>Apoyo personalizado las 24 horas del día</h2>
-                    <button className={styles.coursesBtn}>Ver cursos en vivo</button>
+                <div className={styles.benefitsContentContainer}>
+                    <div className={styles.iconsContainer}>
+                        <Image className={styles.excelIcon} alt="icon" src={excelIcon} width={400} height={400}></Image>
+                        <Image className={styles.sqlIcon} alt="icon" src={sqlIcon} width={400} height={400}></Image>
+                        <Image className={styles.pythonIcon} alt="icon" src={pythonIcon} width={400} height={400}></Image>
+                    </div>
+                    <div className={styles.benefitsTextContainer}>
+                        <h1 className={styles.benefitsTitle}>Conéctate y aprende en vivo desde casa</h1>
+                        <h2 className={styles.benefitsSubtitle}>Apoyo personalizado las 24 horas del día</h2>
+                        <button className={styles.coursesBtn}>Ver cursos en vivo</button>
+                    </div>
                 </div>
             </section >
         </>

@@ -1,6 +1,6 @@
 .cardContainer {
     width: clamp(30vw, 300px, 35vw);
-    height: clamp(40vw, 300px, 45vw);
+    height: clamp(33vw, 300px, 45vw);
 
     background: linear-gradient(#005F73, #002128);
 
