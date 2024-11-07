@@ -1,7 +1,6 @@
 .cardContainer {
     width: clamp(30vw, 300px, 35vw);
     height: clamp(33vw, 300px, 45vw);
-
     background: linear-gradient(#005F73, #002128);
 
     display: flex;
@@ -15,47 +14,60 @@
 
 /* course image styles */
 .imgContainer {
-    height: 100%;
+    height: 50%;
     width: 100%;
 }
 
 .courseImg {
-    height: 35vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
 }
 
 /* icon img styles */
 
 .iconContainer {
-    width: fit-content;
-    height: fit-content;
-
-    margin-top: -8vh;
+    margin-top: -6vh;
     margin-right: 10px;
 
     display: flex;
     justify-content: center;
     align-self: flex-end;
+
+    position: relative;
+    top: -2vh;
 }
 
 .iconImg {
-    width: clamp(3vw, 5vw, 6vw);
-    height: clamp(4vw, 6vw, 10vw);
+    width: clamp(6.5vw, 5vw, 4.5vw);
+    height: clamp(6.5vw, 5vw, 4.5vw);
 }
 
 /* Text styles */
 
 .textContainer {
-    height: 100%;
-    width: 90%;
+    height: 50%;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .textContainer h2 {
     color: white;
-    font-size: clamp(1.08vw, 15px, 3vw);
+    font-size: clamp(1.9vw, 15px, 3vw);
+    font-weight: bold;
+
+    margin: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .textContainer p {
     color: white;
-    font-size: clamp(1vw, 10px, 2vw);
+    font-size: clamp(1.2vw, 7px, 1.8vw);
+    font-weight: bold;
+
+    margin-left: 20px;
+    margin-right: 20px;
 }

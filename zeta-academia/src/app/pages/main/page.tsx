@@ -22,7 +22,7 @@ export function MainPage() {
                         <button className={styles.coursesBtn}>Ver cursos en línea</button>
                     </div>
                     <div className={styles.componentContainer}>
-                        <CursoCard icon="https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/community/logos/python-logo-only.png" imgSrc='/codingImgAI.webp' descText="Conviértete en programador con Python desde cero. Avanza a tu ritmo y cuenta con el apoyo de tutores especializados." titleText="Introducción a la Programación con Python" width={500}
+                        <CursoCard icon="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FpythonIconPng.png?alt=media&token=6583f3bc-0ce1-42f8-adbe-75e4ede5e662" imgSrc='https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE03.webp?alt=media&token=858d23a3-df7a-4b29-ba21-38bb56b27011' descText="Conviértete en programador con Python desde cero. Avanza a tu ritmo y cuenta con el apoyo de tutores especializados." titleText="Introducción a la Programación con Python" width={500}
                             height={500}></CursoCard>
                     </div>
                 </div>
