@@ -20,9 +20,7 @@ export default function CursoCard(props: cardProps) {
                         height={height} src={imgSrc} alt="imageCurso">
                     </Image>
                 </div>
-                <div className={styles.iconContainer}>
-                    <Image className={styles.iconImg} width={200} height={200} src={icon} alt="pythonLogo"></Image>
-                </div>
+                <Image className={styles.iconImg} width={200} height={200} src={icon} alt="pythonLogo"></Image>
                 <div className={styles.textContainer}>
                     <h2>{titleText}</h2>
                     <p>{descText}</p>

@@ -25,21 +25,18 @@
 
 /* icon img styles */
 
-.iconContainer {
-    margin-top: -6vh;
-    margin-right: 10px;
-
-    display: flex;
-    justify-content: center;
-    align-self: flex-end;
-
-    position: relative;
-    top: -2vh;
-}
 
 .iconImg {
     width: clamp(6.5vw, 5vw, 4.5vw);
     height: clamp(6.5vw, 5vw, 4.5vw);
+
+    display: flex;
+    align-self: flex-end;
+    justify-self: flex-end;
+
+    position: relative;
+    top: -8vh;
+    z-index: 1;
 }
 
 /* Text styles */
@@ -51,6 +48,10 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
+
+    position: relative;
+    z-index: 0;
+    top: -10vh;
 }
 
 .textContainer h2 {
