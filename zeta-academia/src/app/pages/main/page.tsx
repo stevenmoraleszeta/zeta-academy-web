@@ -1,10 +1,13 @@
 import CursoCard from "@/components/cursoCard/cursoCard";
+import Service from "@/components/serviceOffered/servicesOffered";
+import ContactUsBtn from "@/components/contactUsBtn/contactUsBtn";
+
 import styles from "./mainPage.module.css";
 import Image from "next/image";
 
 import excelIcon from '@/assets/img/excelIcon.png';
 import sqlIcon from '@/assets/img/SQLIconPng.png';
-import pythonIcon from '@/assets/img/pythonIconPng.png'
+import pythonIcon from '@/assets/img/pythonIconPng.png';
 
 export function MainPage() {
     return (
@@ -19,7 +22,7 @@ export function MainPage() {
                         <button className={styles.coursesBtn}>Ver cursos en línea</button>
                     </div>
                     <div className={styles.componentContainer}>
-                        <CursoCard icon="https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/community/logos/python-logo-only.png" imgSrc="https://drive.google.com/file/d/13YFd7NYdfN_3-NC2-_sWzYz0miUUTBYQ/view?usp=drive_link" descText="Conviértete en programador con Python desde cero. Avanza a tu ritmo y cuenta con el apoyo de tutores especializados." titleText="Introducción a la Programación con Python" width={500}
+                        <CursoCard icon="https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/community/logos/python-logo-only.png" imgSrc='/codingImgAI.webp' descText="Conviértete en programador con Python desde cero. Avanza a tu ritmo y cuenta con el apoyo de tutores especializados." titleText="Introducción a la Programación con Python" width={500}
                             height={500}></CursoCard>
                     </div>
                 </div>
@@ -39,6 +42,20 @@ export function MainPage() {
                     </div>
                 </div>
             </section >
+            {/* benefits elements */}
+            <section className={styles.servicesSection}>
+                <div className={styles.servicesTitle}>
+                    <h1>Nosotros te ayudamos</h1>
+                </div>
+                <div className={styles.servicesMainContainer}>
+                    <Service displayText="Realizamos tus proyectos de universidad" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
+                        <ContactUsBtn link=""></ContactUsBtn>
+                    </Service>
+                </div>
+                <div className={styles.auxContactContainer}>
+                    <h3>Cualquier otro asunto</h3>
+                </div>
+            </section>
         </>
     );
 };

@@ -129,19 +129,19 @@
     z-index: 0;
 
     bottom: 10px;
-    right: 10px;
+    right: 15px;
     transform: translateX(30%) rotate(-20deg);
     transition: transform ease 0.5s;
 }
 
 .sqlIcon {
-    width: 10vw;
-    height: 10vw;
+    width: 9.3vw;
+    height: 9.3vw;
     position: absolute;
     z-index: 0;
 
-    bottom: 10px;
-    left: 10px;
+    bottom: 15px;
+    left: 15px;
     transform: translateX(-65%) rotate(15deg);
     transition: transform ease 0.5s;
 }
