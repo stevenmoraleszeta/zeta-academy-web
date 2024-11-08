@@ -8,7 +8,12 @@ interface ContactUsBtnProps {
 
 export default function ContactUsBtn(props: ContactUsBtnProps) {
     const { link } = props;
+
+    const handleLink = () => {
+        window.open(link)
+    }
+
     return (
-        <button className={styles.link}>Contáctanos</button>
+        <button onClick={handleLink} className={styles.link}>Contáctanos</button>
     )
 }
