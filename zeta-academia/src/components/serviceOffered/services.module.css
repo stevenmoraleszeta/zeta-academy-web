@@ -14,6 +14,7 @@
     overflow: hidden;
 
     margin: 2%;
+    transition: transform ease 0.5s;
 }
 
 .backImgService {
@@ -42,7 +43,6 @@
     position: relative;
     z-index: 2;
     color: white;
-    display: none;
 
     margin-left: 5%;
     margin-right: 5%;
@@ -55,4 +55,8 @@
 
     margin-left: 5%;
     margin-right: 5%;
+}
+
+.serviceContentContainer:hover {
+    transform: scale(1.1)
 }
