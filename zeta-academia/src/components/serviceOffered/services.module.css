@@ -1,0 +1,58 @@
+.serviceContentContainer {
+    width: 22vw;
+    height: 50vh;
+    border-radius: 20px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+
+
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+
+    margin: 2%;
+}
+
+.backImgService {
+    width: 100%;
+    height: 100%;
+    filter: brightness(50%);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.displayedText {
+    position: relative;
+    z-index: 2;
+    color: white;
+
+    margin-left: 5%;
+    margin-right: 5%;
+
+    font-size: clamp(1.7vw, 10px, 4vw);
+}
+
+.onHoverText {
+    position: relative;
+    z-index: 2;
+    color: white;
+    display: none;
+
+    margin-left: 5%;
+    margin-right: 5%;
+    font-size: clamp(1.7vw, 10px, 4vw);
+}
+
+.childrenContainer {
+    position: relative;
+    z-index: 2;
+
+    margin-left: 5%;
+    margin-right: 5%;
+}

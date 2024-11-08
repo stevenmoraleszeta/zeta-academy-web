@@ -70,16 +70,25 @@ export function MainPage() {
             </section >
             {/* benefits elements */}
             <section className={styles.servicesSection}>
-                <div className={styles.servicesTitle}>
-                    <h1>Nosotros te ayudamos</h1>
+                <div className={styles.servicesTitleContainer}>
+                    <h1 className={styles.servicesTitle}>Nosotros te ayudamos</h1>
                 </div>
                 <div className={styles.servicesMainContainer}>
-                    <Service displayText="Realizamos tus proyectos de universidad" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
+                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE01.webp?alt=media&token=12fe3e5e-cd7b-4307-bbdf-3cb374b02186" displayText="Realizamos tus proyectos de universidad" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
+                        <ContactUsBtn link=""></ContactUsBtn>
+                    </Service>
+                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE02.webp?alt=media&token=55bf8abe-6b4d-4e52-8344-842e730e6d6f" displayText="Te ayudamos con clases particulares" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
+                        <ContactUsBtn link=""></ContactUsBtn>
+                    </Service>
+                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE04.webp?alt=media&token=38e225b8-7a83-457c-96a3-382c1a85a08c" displayText="Forma parte del equipo Zeta" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
                         <ContactUsBtn link=""></ContactUsBtn>
                     </Service>
                 </div>
                 <div className={styles.auxContactContainer}>
                     <h3>Cualquier otro asunto</h3>
+                </div>
+                <div className={styles.auxBtnContainer}>
+                    <ContactUsBtn link=""></ContactUsBtn>
                 </div>
             </section>
         </>
