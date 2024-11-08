@@ -25,28 +25,28 @@ function Navbar() {
 
     return (
         <div className={styles.topnav} id="myTopnav">
-            <Image alt='ZetaLogo' src="/noLink" width={50} height={50} className={styles.zLogo}></Image>
+            <Image alt='ZetaLogo' src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c" width={50} height={50} className={styles.zLogo}></Image>
             <ul className={styles.navLinks}>
                 <li>
                     <Link href="/" className={styles.navbarLink}>
-                        Aprende en Línea
+                        APRENDE EN LÍNEA
                     </Link>
                 </li>
                 <li>
                     <Link href="/cursos-en-linea" className={styles.navbarLink}>
-                        Cursos en vivo
+                        CURSOS EN VIVO
                     </Link>
                 </li>
                 <li>
                     <Link href="/contacto" className={styles.navbarLink}>
-                        Servicios
+                        SERVICIOS
                     </Link>
                 </li>
             </ul>
             <div className={styles.manageContainer}>
                 {isAdmin && currentUser && (
                     <Link href="/admin" className={styles.accessLink}>
-                        Admin
+                        ADMIN
                     </Link>
                 )}
                 {currentUser ? (
@@ -61,7 +61,7 @@ function Navbar() {
                     </Link>
                 ) : (
                     <Link href="/login" className={styles.accessLink}>
-                        Acceder
+                        ACCEDER
                     </Link>
                 )}
             </div>

@@ -20,7 +20,7 @@
 .backImgService {
     width: 100%;
     height: 100%;
-    filter: brightness(50%);
+    filter: brightness(30%);
 
     position: absolute;
     top: 0;

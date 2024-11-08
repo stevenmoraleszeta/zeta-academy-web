@@ -3,6 +3,7 @@
 import CursoCard from "@/components/cursoCard/cursoCard";
 import Service from "@/components/serviceOffered/servicesOffered";
 import ContactUsBtn from "@/components/contactUsBtn/contactUsBtn";
+
 import Typed from 'typed.js';
 import { useEffect } from 'react';
 import React from 'react';
@@ -18,12 +19,12 @@ export function MainPage() {
 
         if (targetElement) {
             const typed = new Typed(targetElement, {
-                strings: ['Potencial', 'Futuro'],
-                typeSpeed: 50,
+                strings: ['Potencial', 'Futuro', 'Capacidad'],
+                typeSpeed: 150,
                 loop: true,
                 backSpeed: 100,
                 startDelay: 300,
-                cursorChar: '|',
+                cursorChar: '',
             });
 
             return () => {
