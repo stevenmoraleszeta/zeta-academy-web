@@ -88,6 +88,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    margin-bottom: 5%;
 }
 
 .benefitsContentContainer {
@@ -182,7 +184,7 @@
 /* Services styles */
 
 .servicesSection {
-    width: 100vw;
+    width: 100%;
     height: 70vh;
 
     display: flex;
@@ -192,8 +194,8 @@
 }
 
 .servicesTitleContainer {
-    width: 75%;
-    height: 20vh;
+    width: 82%;
+    height: 10vh;
 
     display: flex;
     align-items: center;
@@ -206,7 +208,7 @@
 }
 
 .servicesMainContainer {
-    width: 90%;
+    width: 200%;
     height: fit-content;
 
     display: flex;
@@ -221,7 +223,7 @@
     align-items: center;
     justify-content: flex-start;
 
-    width: 75%;
+    width: 82%;
     height: 20vh;
 }
 
@@ -234,7 +236,7 @@
     align-items: center;
     justify-content: flex-start;
 
-    width: 75%;
+    width: 82%;
     height: 20vh;
 
     margin-bottom: 10%;

@@ -69,7 +69,7 @@ export function MainPage() {
                     </div>
                 </div>
             </section >
-            {/* benefits elements */}
+            {/* services elements */}
             <section className={styles.servicesSection}>
                 <div className={styles.servicesTitleContainer}>
                     <h1 className={styles.servicesTitle}>Nosotros te ayudamos</h1>
