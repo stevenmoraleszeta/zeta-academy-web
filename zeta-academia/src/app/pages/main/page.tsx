@@ -1,11 +1,34 @@
+"use client"
+
 import CursoCard from "@/components/cursoCard/cursoCard";
 import Service from "@/components/serviceOffered/servicesOffered";
 import ContactUsBtn from "@/components/contactUsBtn/contactUsBtn";
+import Typed from 'typed.js';
+import { useEffect } from 'react';
+import React from 'react';
+
 
 import styles from "./mainPage.module.css";
 import Image from "next/image";
 
 export function MainPage() {
+
+    const el = React.useRef(null);
+    useEffect(() => {
+        const typed = new Typed(el.current, {
+            strings: ['Potencial', 'Futuro'],
+            typeSpeed: 50,
+            loop: true,
+            backSpeed: 100,
+            startDelay: 300
+
+        });
+        return () => {
+            typed.destroy();
+        };
+    }, []);
+
+
     return (
         <>
             {/* Main content */}
@@ -13,7 +36,7 @@ export function MainPage() {
                 <div className={styles.contentContainer}>
                     <div className={styles.infoContainer}>
                         <h1 className={styles.mainTitle}>Desbloquea tu</h1>
-                        <h1 className={styles.dynamicMessage}>Potencial</h1>
+                        <h1 className={styles.dynamicMessage} ref={el}>Potencial</h1>
                         <h4 className={styles.mainSubtitle}>Aprende con los mejores</h4>
                         <button className={styles.coursesBtn}>Ver cursos en línea</button>
                     </div>
