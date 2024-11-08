@@ -5,10 +5,6 @@ import ContactUsBtn from "@/components/contactUsBtn/contactUsBtn";
 import styles from "./mainPage.module.css";
 import Image from "next/image";
 
-import excelIcon from '@/assets/img/excelIcon.png';
-import sqlIcon from '@/assets/img/SQLIconPng.png';
-import pythonIcon from '@/assets/img/pythonIconPng.png';
-
 export function MainPage() {
     return (
         <>
@@ -31,9 +27,9 @@ export function MainPage() {
             <section className={styles.benefitsSection}>
                 <div className={styles.benefitsContentContainer}>
                     <div className={styles.iconsContainer}>
-                        <Image className={styles.excelIcon} alt="icon" src={excelIcon} width={400} height={400}></Image>
-                        <Image className={styles.sqlIcon} alt="icon" src={sqlIcon} width={400} height={400}></Image>
-                        <Image className={styles.pythonIcon} alt="icon" src={pythonIcon} width={400} height={400}></Image>
+                        <Image className={styles.excelIcon} alt="icon" src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FexcelIcon.png?alt=media&token=ae94876e-b189-4728-9ff0-56fd51014dbe" width={400} height={400}></Image>
+                        <Image className={styles.sqlIcon} alt="icon" src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FsqlPngIcon.png?alt=media&token=03f5dc8e-8bfb-4ee1-b18f-3e0764604815" width={400} height={400}></Image>
+                        <Image className={styles.pythonIcon} alt="icon" src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FpythonIconPng.png?alt=media&token=6583f3bc-0ce1-42f8-adbe-75e4ede5e662" width={400} height={400}></Image>
                     </div>
                     <div className={styles.benefitsTextContainer}>
                         <h1 className={styles.benefitsTitle}>Conéctate y aprende en vivo desde casa</h1>

@@ -106,12 +106,14 @@
 .benefitsTitle {
     color: white;
     font-size: clamp(4vw, 25px, 12vw);
+    margin: 0px;
 }
 
 .benefitsSubtitle {
     color: #005F73;
     font-size: clamp(2vw, 15px, 7vw);
-    margin: 20px;
+    margin-bottom: 6%;
+
 }
 
 /* Icons styles */
@@ -130,8 +132,8 @@
     position: absolute;
     z-index: 0;
 
-    bottom: 10px;
-    right: 15px;
+    bottom: 20vh;
+    right: -7vh;
     transform: translateX(30%) rotate(-20deg);
     transition: transform ease 0.5s;
 }
@@ -142,8 +144,8 @@
     position: absolute;
     z-index: 0;
 
-    bottom: 15px;
-    left: 15px;
+    bottom: 20vh;
+    left: -7vh;
     transform: translateX(-65%) rotate(15deg);
     transition: transform ease 0.5s;
 }
