@@ -77,10 +77,10 @@ export function MainPage() {
                     <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE01.webp?alt=media&token=12fe3e5e-cd7b-4307-bbdf-3cb374b02186" displayText="Realizamos tus proyectos de universidad" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
                         <ContactUsBtn link=""></ContactUsBtn>
                     </Service>
-                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE02.webp?alt=media&token=55bf8abe-6b4d-4e52-8344-842e730e6d6f" displayText="Te ayudamos con clases particulares" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
+                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE02.webp?alt=media&token=55bf8abe-6b4d-4e52-8344-842e730e6d6f" displayText="Te ayudamos con clases particulares" nonDisplayedText="Te ayudamos con clases particulares online de programación u ofimática, la hora y día que mejor te funcionen">
                         <ContactUsBtn link=""></ContactUsBtn>
                     </Service>
-                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE04.webp?alt=media&token=38e225b8-7a83-457c-96a3-382c1a85a08c" displayText="Forma parte del equipo Zeta" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
+                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE04.webp?alt=media&token=38e225b8-7a83-457c-96a3-382c1a85a08c" displayText="Forma parte del equipo Zeta" nonDisplayedText="Si eres programador y te interesa unirte a una startup de educación y tecnología, envíanos tu CV">
                         <ContactUsBtn link=""></ContactUsBtn>
                     </Service>
                 </div>
