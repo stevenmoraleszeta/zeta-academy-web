@@ -13,21 +13,26 @@ import Image from "next/image";
 
 export function MainPage() {
 
-    const el = React.useRef(null);
     useEffect(() => {
-        const typed = new Typed(el.current, {
-            strings: ['Potencial', 'Futuro'],
-            typeSpeed: 50,
-            loop: true,
-            backSpeed: 100,
-            startDelay: 300
+        const targetElement = document.getElementById('dynamicMsg');
 
-        });
-        return () => {
-            typed.destroy();
-        };
+        if (targetElement) {
+            const typed = new Typed(targetElement, {
+                strings: ['Potencial', 'Futuro'],
+                typeSpeed: 50,
+                loop: true,
+                backSpeed: 100,
+                startDelay: 300,
+                cursorChar: '|',
+            });
+
+            return () => {
+                if (typed && targetElement) {
+                    typed.destroy();
+                }
+            };
+        }
     }, []);
-
 
     return (
         <>
@@ -36,7 +41,9 @@ export function MainPage() {
                 <div className={styles.contentContainer}>
                     <div className={styles.infoContainer}>
                         <h1 className={styles.mainTitle}>Desbloquea tu</h1>
-                        <h1 className={styles.dynamicMessage} ref={el}>Potencial</h1>
+                        <div className={styles.dynamicMsgContainer}>
+                            <span id="dynamicMsg" className={styles.dynamicMessage}></span>
+                        </div>
                         <h4 className={styles.mainSubtitle}>Aprende con los mejores</h4>
                         <button className={styles.coursesBtn}>Ver cursos en línea</button>
                     </div>

@@ -21,7 +21,6 @@
 
 /* Slogan styles*/
 
-
 .infoContainer {
     width: 50%;
     height: 100%;
@@ -36,6 +35,11 @@
     color: white;
     font-size: clamp(3.5vw, 20px, 5vw);
     margin: 0px;
+}
+
+.dynamicMsgContainer {
+    width: 100%;
+    height: 25%;
 }
 
 .dynamicMessage {
@@ -173,4 +177,11 @@
 
 .excelIcon:hover {
     transform: scale(1.3) translateX(30%) rotate(-40deg);
+}
+
+.typed-cursor {
+    font-size: 24px;
+    /* Adjust this value to make the cursor bigger */
+    line-height: 1;
+    /* Keep the cursor vertically aligned */
 }
