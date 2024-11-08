@@ -25,41 +25,46 @@ function Navbar() {
 
     return (
         <div className={styles.topnav} id="myTopnav">
-            <Link href="/" className={styles.navbarLink}>
-                Inicio
-            </Link>
-            <Link href="/cursos-en-linea" className={styles.navbarLink}>
-                Aprende en Línea
-            </Link>
-            {/*<Link href="/cursos-en-vivo" className={styles.navbarLink}>
-                Cursos en Vivo
-            </Link>
-            <Link href="/aprende-python" className={styles.navbarLink}>
-                Aprende Python
-            </Link>*/}
-            <Link href="/contacto" className={styles.navbarLink}>
-                Contacto
-            </Link>
-            {isAdmin && currentUser && (
-                <Link href="/admin" className={styles.navbarLink}>
-                    Admin
-                </Link>
-            )}
-            {currentUser ? (
-                <Link href="/perfil-usuario" className={styles.profileLink}>
-                    <Image
-                        className={styles.profileImage}
-                        src={profileImage || defaultProfileImage}
-                        alt="Profile"
-                        width={40}
-                        height={40}
-                    />
-                </Link>
-            ) : (
-                <Link href="/login" className={styles.navbarLink}>
-                    Iniciar Sesión
-                </Link>
-            )}
+            <Image alt='ZetaLogo' src="/noLink" width={50} height={50} className={styles.zLogo}></Image>
+            <ul className={styles.navLinks}>
+                <li>
+                    <Link href="/" className={styles.navbarLink}>
+                        Aprende en Línea
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/cursos-en-linea" className={styles.navbarLink}>
+                        Cursos en vivo
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/contacto" className={styles.navbarLink}>
+                        Servicios
+                    </Link>
+                </li>
+            </ul>
+            <div className={styles.manageContainer}>
+                {isAdmin && currentUser && (
+                    <Link href="/admin" className={styles.accessLink}>
+                        Admin
+                    </Link>
+                )}
+                {currentUser ? (
+                    <Link href="/perfil-usuario" className={styles.profileLink}>
+                        <Image
+                            className={styles.profileImage}
+                            src={profileImage || defaultProfileImage}
+                            alt="Profile"
+                            width={40}
+                            height={40}
+                        />
+                    </Link>
+                ) : (
+                    <Link href="/login" className={styles.accessLink}>
+                        Acceder
+                    </Link>
+                )}
+            </div>
         </div>
     );
 }

@@ -1,45 +1,67 @@
 .topnav {
-  background-color: var(--component-dark);
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  gap: 10px;
-  position: fixed;
-  top: 0; 
-  left: 0;
-  right: 0;
-  height: 7vh; 
-  z-index: 1000; 
-  padding: 0 10px; 
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
-}
-
-.profileLink,
-.navbarLink {
   display: flex;
   align-items: center;
-  color: var(--text-color);
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: linear-gradient(80deg, #012F38 60%, #000E11 100%);
+  color: white;
+
+  gap: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 7vh;
+  z-index: 1000;
+}
+
+.navLinks {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+.navbarLink {
+  color: white;
   text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.accessLink {
+  background-color: #FF6B00;
+  color: white;
+  border: none;
+
+  padding: 10px 20px;
+  margin-right: 20px;
+
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+
+  cursor: pointer;
+  border-radius: 5px;
 }
 
 .profileLink {
-  padding: 0; 
+  padding: 0;
 }
 
 .profileImage {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover; 
+  object-fit: cover;
 }
 
-.navbarLink {
-  padding: 10px 12px; 
-  border-radius: 5px; 
+.zLogo {
+  margin-left: 20px;
 }
 
-.navbarLink:hover {
-  background-color: var(--secundary-color); 
-  color: var(--text-color);
-  transition: background-color 0.3s; 
+.manageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
