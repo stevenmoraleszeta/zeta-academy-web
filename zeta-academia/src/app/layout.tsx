@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/navbar/Navbar"
 import { AuthProvider } from "@/context/AuthContext";
+import { Montserrat } from 'next/font/google';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -13,6 +14,11 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+});
+
+const montserrat = Montserrat({
+  weight: ['400', '700'],
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="app" >
+      <body className={`app ${montserrat.className}`} >
         <AuthProvider>
           <Navbar />
           {children}

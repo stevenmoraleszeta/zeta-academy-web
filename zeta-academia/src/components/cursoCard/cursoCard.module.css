@@ -1,0 +1,75 @@
+.cardContainer {
+    width: clamp(30vw, 300px, 35vw);
+    height: clamp(33vw, 300px, 45vw);
+    background: linear-gradient(#005F73, #002128);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 10px;
+    cursor: url('../../assets/cursors/pngwing.com.png'), auto;
+}
+
+/* course image styles */
+.imgContainer {
+    height: 50%;
+    width: 100%;
+}
+
+.courseImg {
+    height: 100%;
+    width: 100%;
+}
+
+/* icon img styles */
+
+
+.iconImg {
+    width: clamp(6.5vw, 5vw, 4.5vw);
+    height: clamp(6.5vw, 5vw, 4.5vw);
+
+    display: flex;
+    align-self: flex-end;
+    justify-self: flex-end;
+
+    position: relative;
+    top: -8vh;
+    z-index: 1;
+}
+
+/* Text styles */
+
+.textContainer {
+    height: 50%;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    position: relative;
+    z-index: 0;
+    top: -10vh;
+}
+
+.textContainer h2 {
+    color: white;
+    font-size: clamp(1.9vw, 15px, 3vw);
+    font-weight: bold;
+
+    margin: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.textContainer p {
+    color: white;
+    font-size: clamp(1.5vw, 10px, 2vw);
+    font-weight: 500;
+
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 7px;
+}
