@@ -1,4 +1,6 @@
-// File: src/app/hooks/useFetchData.ts
+// File: src/app/hooks/useFetchData.js
+"use client";
+
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
@@ -29,7 +31,6 @@ const useFetchData = (collectionName) => {
         fetchData();
     }, [collectionName]);
 
-    // Asegurarse de devolver siempre un array
     return { data: Array.isArray(data) ? data : [], loading, error };
 };
 

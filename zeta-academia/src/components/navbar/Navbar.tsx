@@ -67,6 +67,32 @@ function Navbar() {
                     </Link>
                 )}
             </div>
+            <Link href="/cursos-en-linea" className={styles.navbarLink}>
+                Aprende en Línea
+            </Link>
+            <Link href="/contacto" className={styles.navbarLink}>
+                Contacto
+            </Link>
+            {isAdmin && currentUser && (
+                <Link href="/admin" className={styles.navbarLink}>
+                    Admin
+                </Link>
+            )}
+            {currentUser ? (
+                <Link href="/perfil-usuario" className={styles.profileLink}>
+                    <Image
+                        className={styles.profileImage}
+                        src={profileImage || defaultProfileImage}
+                        alt="Profile"
+                        width={40}
+                        height={40}
+                    />
+                </Link>
+            ) : (
+                <Link href="/login" className={styles.navbarLink}>
+                    Iniciar Sesión
+                </Link>
+            )}
         </div>
     );
 }
