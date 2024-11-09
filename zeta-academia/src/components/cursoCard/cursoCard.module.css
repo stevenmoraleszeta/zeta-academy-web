@@ -1,6 +1,6 @@
 .cardContainer {
-    width: clamp(30vw, 300px, 35vw);
-    height: clamp(33vw, 300px, 45vw);
+    width: clamp(27vw, 270px, 31.5vw); /* 10% menos en cada valor de width */
+    aspect-ratio: 5 / 6; /* Mantiene la proporción de 3:4 entre ancho y alto */
     background: linear-gradient(#005F73, #002128);
 
     display: flex;
@@ -21,22 +21,24 @@
 .courseImg {
     height: 100%;
     width: 100%;
+    opacity: 0.9; /* Reduce la exposición de la imagen */
+    filter: brightness(90%); /* Otra forma de reducir exposición */
 }
 
 /* icon img styles */
-
-
 .iconImg {
-    width: clamp(6.5vw, 5vw, 4.5vw);
-    height: clamp(6.5vw, 5vw, 4.5vw);
+    width: clamp(5.4vw, 3.6vw, 6.3vw); /* 10% menos */
+    height: clamp(5.4vw, 3.6vw, 6.3vw); /* 10% menos */
 
     display: flex;
     align-self: flex-end;
     justify-self: flex-end;
 
+    filter: brightness(120%);
     position: relative;
     top: -8vh;
     z-index: 1;
+    left: -1vh;
 }
 
 /* Text styles */
@@ -56,20 +58,22 @@
 
 .textContainer h2 {
     color: white;
-    font-size: clamp(1.9vw, 15px, 3vw);
+    font-size: clamp(1.683vw, 11.88px, 2.574vw);
     font-weight: bold;
+    width: 90%;
 
     margin: 0px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 18px; /* 10% menos */
+    margin-right: 18px; /* 10% menos */
+    margin-bottom: 4.5px; /* 10% menos */
 }
 
 .textContainer p {
     color: white;
-    font-size: clamp(1.5vw, 10px, 2vw);
-    font-weight: 500;
+    font-size: clamp(1.08vw, 7.2px, 1.44vw); /* 10% menos */
+    font-weight: normal;
 
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 7px;
+    margin-left: 18px; /* 10% menos */
+    margin-right: 18px; /* 10% menos */
+    margin-top: 6.3px; /* 10% menos */
 }

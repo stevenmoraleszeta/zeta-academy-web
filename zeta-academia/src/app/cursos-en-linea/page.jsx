@@ -19,7 +19,7 @@ const OnlineCourses = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
-    if (courses.length > 0) {
+    if (courses && courses.length > 0) {
       const prices = courses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 1000) * 1000;
       const maxCoursePrice = Math.ceil(Math.max(...prices) / 1000) * 1000;
@@ -52,10 +52,11 @@ const OnlineCourses = () => {
   };
 
   const handleFilter = () => {
+    if (!courses) return; // Safeguard against undefined courses
     const filtered = courses.filter((course) => {
-      const matchesQuery = course.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const withinPriceRange = course.discountedPrice <= priceRange;
-      const matchesCategory = !selectedCategory || course.category === selectedCategory;
+      const matchesQuery = course?.title?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
+      const withinPriceRange = course?.discountedPrice <= priceRange || false;
+      const matchesCategory = !selectedCategory || course?.category === selectedCategory;
 
       return matchesQuery && withinPriceRange && matchesCategory;
     });
@@ -136,33 +137,37 @@ const OnlineCourses = () => {
 
       {/* Courses Grid */}
       <div className={styles.courseGrid}>
-        {filteredCourses.map((course) => (
-          <div key={course.id} className={styles.courseCard}>
-            <img
-              src={course.imageUrl || "/default-course.jpg"}
-              alt={course.title}
-              className={styles.courseImage}
-            />
-            <div className={styles.courseInfo}>
-              <h2>{course.title}</h2>
-              <p>{course.description}</p>
-              <div className={styles.priceContainer}>
-                <span className={styles.discountedPrice}>
-                  ₡{course.discountedPrice}
-                </span>
-                <span className={styles.originalPrice}>
-                  ₡{course.originalPrice}
-                </span>
+        {filteredCourses?.length > 0 ? (
+          filteredCourses.map((course) => (
+            <div key={course.id} className={styles.courseCard}>
+              <img
+                src={course.imageUrl || "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"}
+                alt={course.title}
+                className={styles.courseImage}
+              />
+              <div className={styles.courseInfo}>
+                <h2>{course.title}</h2>
+                <p>{course.description}</p>
+                <div className={styles.priceContainer}>
+                  <span className={styles.discountedPrice}>
+                    ₡{course.discountedPrice}
+                  </span>
+                  <span className={styles.originalPrice}>
+                    ₡{course.originalPrice}
+                  </span>
+                </div>
+                <button 
+                  className={styles.infoButton} 
+                  onClick={() => handleViewCourse(course.id)}
+                >
+                  Ver Información
+                </button>
               </div>
-              <button 
-                className={styles.infoButton} 
-                onClick={() => handleViewCourse(course.id)}
-              >
-                Ver Información
-              </button>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No courses available.</p>
+        )}
       </div>
 
       {/* Footer Section */}

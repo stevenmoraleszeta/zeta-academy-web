@@ -22,46 +22,47 @@
 }
 
 /* Video Container */
-.videoContainer {
+.videoWrapper {
+  cursor: pointer;
+  position: relative;
   margin-bottom: 15px;
 }
 
-/* Video URL Input */
-.videoInput {
-  width: 100%;
-  background: transparent;
-  color: #ffffff;
-  border: none;
-  border-bottom: 1px solid #8baabc;
-  margin-top: 5px;
-  font-size: 1em;
-  outline: none;
-  padding: 8px;
+.videoWrapper::after {
+  content: "Edit Video URL";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8em;
 }
 
-/* Course Image Container */
-.courseImageContainer {
-  margin-top: 15px;
-  text-align: center;
+/* Circular Icon Button for Editing Image */
+.iconWrapper {
+  position: relative;
+  width: 50px; /* Smaller, circular size */
+  height: 50px;
+  border-radius: 50%; /* Make it circular */
+  background-color: #ff6200; /* Icon background color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: white;
+  margin: 10px auto; /* Center the icon if needed */
 }
 
-.courseImage {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
+.iconWrapper:hover {
+  background-color: #e55c00; /* Darken on hover */
 }
 
-/* Image URL Input */
-.imageInput {
-  width: 100%;
-  background: transparent;
-  color: #ffffff;
-  border: none;
-  border-bottom: 1px solid #8baabc;
-  margin-top: 5px;
-  font-size: 1em;
-  outline: none;
-  padding: 8px;
+.editIcon {
+  font-size: 1.5em; /* Smaller icon size */
+  color: white; /* Icon color */
 }
 
 /* Description Input */
@@ -173,4 +174,71 @@
 
 .featureDescriptionInput {
   font-size: 0.9em;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+}
+
+.modalContent h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  margin-bottom: 15px;
+  background-color: #333;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.modalActions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modalActions button:first-child {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.modalActions button:last-child {
+  background-color: #f44336;
+  color: white;
+}
+
+.modalActions button:hover {
+  opacity: 0.9;
 }

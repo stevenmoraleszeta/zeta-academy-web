@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
+import { FaRegImage } from "react-icons/fa"; // Import FontAwesome icon from react-icons
 import styles from "./page.module.css";
 
 const CourseDetail = ({ params }) => {
@@ -16,8 +17,9 @@ const CourseDetail = ({ params }) => {
     discountedPrice: 14900,
     originalPrice: 29900,
     category: "Programación",
-    videoUrl: "https://www.youtube.com/embed/default-video", // Default YouTube URL
-    imageUrl: "/default-course.jpg", // Default image URL
+    videoUrl: "https://www.youtube.com/embed/default-video",
+    imageUrl: "/default-course.jpg",
+    courseIcon: "/default-icon.jpg", // Default icon URL
     features: [
       { icon: "🕒", title: "Curso asincrónico", description: "Aprende cualquier día y hora." },
       { icon: "👨‍🏫", title: "Atención personalizada", description: "Consulta al mentor en cualquier momento." },
@@ -25,6 +27,10 @@ const CourseDetail = ({ params }) => {
       { icon: "📜", title: "Certificado de finalización", description: "Incrementa tu conocimiento." },
     ],
   });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState("");
+  const [currentIconUrl, setCurrentIconUrl] = useState("");
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -58,6 +64,33 @@ const CourseDetail = ({ params }) => {
     await updateDoc(docRef, { [field]: value });
   };
 
+  // Open modal for editing image and icon URL
+  const openModal = () => {
+    setCurrentUrl(course.imageUrl);
+    setCurrentIconUrl(course.courseIcon);
+    setIsModalOpen(true);
+  };
+
+  const handleUrlChange = (e) => {
+    setCurrentUrl(e.target.value);
+  };
+
+  const handleIconUrlChange = (e) => {
+    setCurrentIconUrl(e.target.value);
+  };
+
+  const saveUrl = () => {
+    handleFieldChange("imageUrl", currentUrl);
+    handleFieldChange("courseIcon", currentIconUrl);
+    closeModal();
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCurrentUrl("");
+    setCurrentIconUrl("");
+  };
+
   return (
     <div className={styles.container}>
       <input
@@ -66,8 +99,9 @@ const CourseDetail = ({ params }) => {
         onChange={(e) => handleFieldChange("title", e.target.value)}
         className={styles.titleInput}
       />
-      
-      <div className={styles.videoContainer}>
+
+      {/* Video Container Wrapper */}
+      <div className={styles.videoWrapper} onClick={openModal}>
         <iframe
           width="100%"
           height="315"
@@ -78,27 +112,12 @@ const CourseDetail = ({ params }) => {
           allowFullScreen
         ></iframe>
       </div>
-      
-      <input
-        type="text"
-        value={course.videoUrl}
-        onChange={(e) => handleFieldChange("videoUrl", e.target.value)}
-        placeholder="Enter YouTube video URL"
-        className={styles.videoInput}
-      />
 
-      <div className={styles.courseImageContainer}>
-        <img src={course.imageUrl} alt={course.title} className={styles.courseImage} />
+      {/* Circular Icon Button for Editing Image and Icon URLs */}
+      <div className={styles.iconWrapper} onClick={openModal}>
+        <FaRegImage className={styles.editIcon} /> {/* FontAwesome icon only */}
       </div>
       
-      <input
-        type="text"
-        value={course.imageUrl}
-        onChange={(e) => handleFieldChange("imageUrl", e.target.value)}
-        placeholder="Enter image URL"
-        className={styles.imageInput}
-      />
-
       <textarea
         value={course.description}
         onChange={(e) => handleFieldChange("description", e.target.value)}
@@ -159,6 +178,39 @@ const CourseDetail = ({ params }) => {
           </div>
         ))}
       </div>
+
+      {/* Modal for Editing Image URL and Course Icon */}
+      {isModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Edit URLs</h3>
+            <label>
+              Image URL:
+              <input
+                type="text"
+                value={currentUrl}
+                onChange={handleUrlChange}
+                placeholder="Enter new image URL"
+                className={styles.modalInput}
+              />
+            </label>
+            <label>
+              Course Icon URL:
+              <input
+                type="text"
+                value={currentIconUrl}
+                onChange={handleIconUrlChange}
+                placeholder="Enter new icon URL"
+                className={styles.modalInput}
+              />
+            </label>
+            <div className={styles.modalActions}>
+              <button onClick={saveUrl}>Save</button>
+              <button onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
