@@ -61,9 +61,20 @@
 
 .zLogo {
   margin-left: 20px;
+
+  width: clamp(6vw, 50px, 15vw);
+  height: clamp(7.5vw, 50px, 15vw);
+
+  object-fit: cover;
 }
 
 .manageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.imgLink {
   display: flex;
   justify-content: center;
   align-items: center;

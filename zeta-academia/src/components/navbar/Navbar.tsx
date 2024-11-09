@@ -25,20 +25,22 @@ function Navbar() {
 
     return (
         <div className={styles.topnav} id="myTopnav">
-            <Image alt='ZetaLogo' src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c" width={50} height={50} className={styles.zLogo}></Image>
+            <Link href={'/'} className={styles.imgLink}>
+                <Image alt='ZetaLogo' src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c" width={100} height={100} className={styles.zLogo}></Image>
+            </Link>
             <ul className={styles.navLinks}>
                 <li>
-                    <Link href="/" className={styles.navbarLink}>
+                    <Link href="/cursos-en-linea" className={styles.navbarLink}>
                         APRENDE EN LÍNEA
                     </Link>
                 </li>
                 <li>
-                    <Link href="/cursos-en-linea" className={styles.navbarLink}>
+                    <Link href="/cursos-en-vivo" className={styles.navbarLink}>
                         CURSOS EN VIVO
                     </Link>
                 </li>
                 <li>
-                    <Link href="/contacto" className={styles.navbarLink}>
+                    <Link href="/servicios" className={styles.navbarLink}>
                         SERVICIOS
                     </Link>
                 </li>

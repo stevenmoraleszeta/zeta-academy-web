@@ -66,9 +66,10 @@
 
 .textContainer p {
     color: white;
-    font-size: clamp(1.75vw, 10px, 2vw);
+    font-size: clamp(1.5vw, 10px, 2vw);
     font-weight: 500;
 
     margin-left: 20px;
     margin-right: 20px;
+    margin-top: 7px;
 }
