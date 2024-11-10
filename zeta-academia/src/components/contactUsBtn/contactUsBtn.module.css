@@ -1,10 +1,10 @@
 .link {
-    width: 9vw;
+    width: 7vw;
     height: 4vh;
     background-color: #E85D04;
 
     font-weight: bold;
-    font-size: clamp(1.1vw, 15px, 1.5vw);
+    font-size: clamp(1vw, 15px, 1.5vw);
     text-align: center;
 
     display: flex;

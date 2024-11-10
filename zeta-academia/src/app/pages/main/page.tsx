@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import CursoCard from "@/components/cursoCard/cursoCard";
 import Service from "@/components/serviceOffered/servicesOffered";
@@ -11,9 +11,9 @@ import React from 'react';
 
 import styles from "./mainPage.module.css";
 import Image from "next/image";
+import Link from "next/link";
 
 export function MainPage() {
-
     useEffect(() => {
         const targetElement = document.getElementById('dynamicMsg');
 
@@ -46,7 +46,7 @@ export function MainPage() {
                             <span id="dynamicMsg" className={styles.dynamicMessage}></span>
                         </div>
                         <h4 className={styles.mainSubtitle}>Aprende con los mejores</h4>
-                        <button className={styles.coursesBtn}>Ver cursos en línea</button>
+                        <Link href={'/cursos-en-linea'} className={styles.coursesBtn}>Ver cursos en línea</Link>
                     </div>
                     <div className={styles.componentContainer}>
                         <CursoCard icon="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FpythonIconPng.png?alt=media&token=6583f3bc-0ce1-42f8-adbe-75e4ede5e662" imgSrc='https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE03.webp?alt=media&token=858d23a3-df7a-4b29-ba21-38bb56b27011' descText="Conviértete en programador con Python desde cero. Avanza a tu ritmo y cuenta con el apoyo de tutores especializados." titleText="Introducción a la Programación con Python" width={500}
@@ -65,7 +65,7 @@ export function MainPage() {
                     <div className={styles.benefitsTextContainer}>
                         <h1 className={styles.benefitsTitle}>Conéctate y aprende en vivo desde casa</h1>
                         <h2 className={styles.benefitsSubtitle}>Apoyo personalizado las 24 horas del día</h2>
-                        <button className={styles.coursesBtn}>Ver cursos en vivo</button>
+                        <Link href={'/cursos-en-vivo'} className={styles.coursesBtn}>Ver cursos en vivo</Link>
                     </div>
                 </div>
             </section >
@@ -76,20 +76,20 @@ export function MainPage() {
                 </div>
                 <div className={styles.servicesMainContainer}>
                     <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE01.webp?alt=media&token=12fe3e5e-cd7b-4307-bbdf-3cb374b02186" displayText="Realizamos tus proyectos de universidad" nonDisplayedText="Envíanos las instrucciones de tu proyecto universitario o de cualquier otra institución, y te cotizaremos el costo de realización">
-                        <ContactUsBtn link=""></ContactUsBtn>
+                        <ContactUsBtn link="https:\\wa.link/00f9oz"></ContactUsBtn>
                     </Service>
                     <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE02.webp?alt=media&token=55bf8abe-6b4d-4e52-8344-842e730e6d6f" displayText="Te ayudamos con clases particulares" nonDisplayedText="Te ayudamos con clases particulares online de programación u ofimática, la hora y día que mejor te funcionen">
-                        <ContactUsBtn link=""></ContactUsBtn>
+                        <ContactUsBtn link="https:\\wa.link/2n1x0p"></ContactUsBtn>
                     </Service>
-                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE04.webp?alt=media&token=38e225b8-7a83-457c-96a3-382c1a85a08c" displayText="Forma parte del equipo Zeta" nonDisplayedText="Si eres programador y te interesa unirte a una startup de educación y tecnología, envíanos tu CV">
-                        <ContactUsBtn link=""></ContactUsBtn>
+                    <Service imageURL="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE04.webp?alt=media&token=38e225b8-7a83-457c-96a3-382c1a85a08c" displayText="Forma parte del equipo ZETA" nonDisplayedText="Si eres programador y te interesa unirte a una startup de educación y tecnología, envíanos tu CV">
+                        <ContactUsBtn link="https:\\wa.link/ykfjv3"></ContactUsBtn>
                     </Service>
                 </div>
                 <div className={styles.auxContactContainer}>
                     <h3>Cualquier otro asunto</h3>
                 </div>
                 <div className={styles.auxBtnContainer}>
-                    <ContactUsBtn link=""></ContactUsBtn>
+                    <ContactUsBtn link="https:\\wa.link/c356fg"></ContactUsBtn>
                 </div>
             </section>
         </>
