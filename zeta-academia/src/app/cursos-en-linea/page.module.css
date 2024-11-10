@@ -161,6 +161,7 @@
 
 
 .courseCard {
+    position: relative;
     background-image: linear-gradient(var(--color-primary), var(--color-dark));
     /* Gradiente de azul oscuro a negro */
     border-radius: 10px;
@@ -302,4 +303,24 @@
 }
 
 .contactButton:hover {
+    background-color: var(--color-secondary-hover);
+}
+
+.archiveIconContainer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.archiveButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-lighter);
+    font-size: 1.2em;
+}
+
+.archiveButton:hover {
+    background-color: transparent;
+    color: var(--color-secondary);
 }

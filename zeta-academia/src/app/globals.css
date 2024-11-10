@@ -85,7 +85,7 @@ select option:checked {
 /* Button styles */
 button {
   padding: 10px;
-  border-radius: 7px;
+  border-radius: 3px;
   margin-top: 10px;
   margin-bottom: 10px;
   border: none;

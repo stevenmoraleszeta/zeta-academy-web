@@ -4,9 +4,10 @@
 import React, { useState, useEffect } from "react";
 import useFetchData from "@/app/hooks/useFetchData";
 import { useRouter } from "next/navigation";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
+import { FaArchive } from "react-icons/fa"; // Icono de archivo
 
 const OnlineCourses = () => {
   const router = useRouter();
@@ -20,14 +21,16 @@ const OnlineCourses = () => {
 
   useEffect(() => {
     if (courses && courses.length > 0) {
-      const prices = courses.map((course) => course.discountedPrice);
+      // Filtramos para excluir cursos archivados
+      const activeCourses = courses.filter(course => !course.archived);
+      const prices = activeCourses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 1000) * 1000;
       const maxCoursePrice = Math.ceil(Math.max(...prices) / 1000) * 1000;
 
       setMinPrice(minCoursePrice);
       setMaxPrice(maxCoursePrice);
       setPriceRange(maxCoursePrice);
-      setFilteredCourses(courses);
+      setFilteredCourses(activeCourses);
     }
   }, [courses]);
 
@@ -52,43 +55,57 @@ const OnlineCourses = () => {
   };
 
   const handleFilter = () => {
-    if (!courses) return; // Safeguard against undefined courses
+    if (!courses) return; // Salvaguarda para cursos indefinidos
     const filtered = courses.filter((course) => {
       const matchesQuery = course?.title?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
       const withinPriceRange = course?.discountedPrice <= priceRange || false;
       const matchesCategory = !selectedCategory || course?.category === selectedCategory;
+      const isNotArchived = !course.archived; // Excluir archivados
 
-      return matchesQuery && withinPriceRange && matchesCategory;
+      return matchesQuery && withinPriceRange && matchesCategory && isNotArchived;
     });
     setFilteredCourses(filtered);
   };
 
-  // Create a new course and navigate to the detail page
+  const handleArchiveCourse = async (courseId) => {
+    const confirmArchive = window.confirm("¿Estás seguro de que deseas archivar este curso?");
+    if (!confirmArchive) return;
+
+    const docRef = doc(db, "onlineCourses", courseId);
+    try {
+      await updateDoc(docRef, { archived: true });
+      setFilteredCourses((prevCourses) =>
+        prevCourses.filter((course) => course.id !== courseId)
+      );
+    } catch (error) {
+      console.error("Error archiving course: ", error);
+    }
+  };
+
   const handleAddCourse = async () => {
     try {
       const docRef = await addDoc(collection(db, "onlineCourses"), {
-        title: "", // Default title (empty for now)
-        description: "", // Default description
-        discountedPrice: 0, // Default price
-        originalPrice: 0, // Default original price
-        category: "", // Default category
-        imageUrl: "", // Default image URL
-        features: [], // Default features
+        title: "",
+        description: "",
+        discountedPrice: 0,
+        originalPrice: 0,
+        category: "",
+        imageUrl: "",
+        features: [],
+        archived: false, // Campo archivado por defecto
       });
-      router.push(`/cursos-en-linea/${docRef.id}`); // Redirect to the new course page
+      router.push(`/cursos-en-linea/${docRef.id}`);
     } catch (error) {
       console.error("Error adding course: ", error);
     }
   };
 
-  // Redirect to course detail page when "Ver Información" is clicked
   const handleViewCourse = (courseId) => {
     router.push(`/cursos-en-linea/${courseId}`);
   };
 
   return (
     <div className={styles.container}>
-      {/* Search Bar */}
       <header className={styles.header}>
         <input
           type="text"
@@ -99,7 +116,6 @@ const OnlineCourses = () => {
         />
       </header>
 
-      {/* Filters Section with "Agregar curso" Button aligned right */}
       <div className={styles.filters}>
         <div className={styles.filterOptions}>
           <button
@@ -131,15 +147,22 @@ const OnlineCourses = () => {
         <button className={styles.addButton} onClick={handleAddCourse}>Agregar curso</button>
       </div>
 
-      {/* Loading and Error States */}
       {loading && <p>Loading courses...</p>}
       {error && <p>{error}</p>}
 
-      {/* Courses Grid */}
       <div className={styles.courseGrid}>
         {filteredCourses?.length > 0 ? (
           filteredCourses.map((course) => (
             <div key={course.id} className={styles.courseCard}>
+              <div className={styles.archiveIconContainer}>
+                <button 
+                  className={styles.archiveButton}
+                  onClick={() => handleArchiveCourse(course.id)}
+                  title="Archivar curso"
+                >
+                  <FaArchive /> {/* Icono de archivado */}
+                </button>
+              </div>
               <img
                 src={course.imageUrl || "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"}
                 alt={course.title}
@@ -170,7 +193,6 @@ const OnlineCourses = () => {
         )}
       </div>
 
-      {/* Footer Section */}
       <footer className={styles.footer}>
         <p>¿No ves el curso que buscas?</p>
         <button className={styles.contactButton}>Contáctanos</button>

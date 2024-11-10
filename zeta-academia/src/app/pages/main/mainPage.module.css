@@ -78,7 +78,7 @@
 /* Btn styles */
 
 .coursesBtn {
-    background-color: #E85D04;
+    background-color: var(--color-secondary);
     color: white;
     font-size: clamp(1.5vw, 20px, 2vw);
     font-weight: bold;
@@ -90,7 +90,7 @@
     align-items: center;
 
     text-decoration: none;
-    border-radius: 10px;
+    border-radius: 3px;
 }
 
 /* Benefits section styles */

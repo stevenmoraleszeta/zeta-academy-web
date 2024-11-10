@@ -27,20 +27,6 @@ const AdminMenu: React.FC = () => {
                 <div className={styles.buttonContainer}>
                     <button
                         className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/aprende-en-linea')}
-                    >
-                        <AiOutlineRead className={styles.buttonIcon} />
-                        <span>Aprende en línea</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/cursos-en-vivo')}
-                    >
-                        <AiOutlineLaptop className={styles.buttonIcon} />
-                        <span>Cursos en Vivo</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
                         onClick={() => handleNavigation('/admin/usuarios')}
                     >
                         <AiOutlineUser className={styles.buttonIcon} />

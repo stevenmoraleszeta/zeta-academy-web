@@ -1,7 +1,6 @@
 .link {
-    width: 7vw;
     height: 4vh;
-    background-color: #E85D04;
+    background-color: var(--color-secondary);
 
     font-weight: bold;
     font-size: clamp(1vw, 15px, 1.5vw);
@@ -10,4 +9,5 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 5px;
 }
