@@ -58,7 +58,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 0.95em;
+  font-size: 1vh;
   align-items: flex-start;
   flex-grow: 1; /* Takes up remaining space next to the video */
   height: 37vh;
@@ -127,14 +127,14 @@
 
 /* Adjusted Description Input */
 .descriptionInput {
-  width: 50%;
+  width: 35vw;
   background: transparent;
   color: var(--color-lighter);
   border: none;
   outline: none;
   padding: 0;
   margin-top: 10px;
-  font-size: 1.7rem;
+  font-size: 1.7vw;
   line-height: 1.4;
   resize: none;
   text-align: left; /* Align text to the left */
@@ -147,7 +147,7 @@
   display: flex;
   align-items: center;
   gap: 5px; /* Minimal gap between the two price elements */
-  font-size: 2rem;
+  font-size: 1.8vw;
   font-weight: bold;
 }
 
@@ -160,7 +160,7 @@
 
 /* Original Price */
 .originalPrice {
-  color: #8baabc; /* Customize as needed */
+  color: var(--color-primary); /* Customize as needed */
   text-decoration: line-through;
   display: flex;
   align-items: center;
@@ -173,7 +173,7 @@
   background: transparent;
   color: inherit;
   border: none;
-  font-size: 2rem;
+  font-size: 1.8vw;
   outline: none;
   padding: 0;
   text-align: left;
@@ -206,7 +206,7 @@
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 0.9em;
+  font-size: 1.5rem;
   transition: background-color 0.2s ease;
 }
 
@@ -215,27 +215,52 @@
   background-color: #e55c00;
 }
 
-/* Features Section */
-.features {
+/* Styles for the circular icon button */
+.iconWrapper {
   display: flex;
-  flex-wrap: wrap;
-  margin-top: 15px;
-  justify-content: flex-start; /* Align features to the left */
+  justify-content: center;
+  align-items: center;
+  width: 50px; /* Adjust the width and height as needed */
+  height: 50px;
+  background-color: var(--color-secondary); /* White background */
+  border-radius: 50%; /* Makes it circular */
+  cursor: pointer;
+  align-self: center;
+  transition: background-color 0.3s ease;
 }
 
+/* Style for the icon inside the button */
+.editIcon {
+  color: var(--text-color); /* Orange color */
+  font-size: 1.2rem; /* Adjust size if needed */
+}
+
+/* Optional: hover effect */
+.iconWrapper:hover {
+  background-color: var(--color-secondary-hover); /* Slightly darker shade on hover */
+}
+
+/* Features Section */
+.features {
+  display: grid;
+  grid-template-columns: 0.6fr 1fr; /* Primera columna 30% menos ancha */
+  gap: 16px;
+  margin-top: 4vh;
+}
+
+/* Feature Item */
 .feature {
   display: flex;
-  align-items: center; /* Center-align icon and text for compactness */
-  gap: 8px; /* Reduced gap for compact layout */
-  padding: 10px 8px; /* Less padding for reduced height */
+  align-items: center;
+  gap: 8px;
   border-radius: 5px;
-  flex: 1 1 45%;
 }
 
 /* Icon for Feature */
-.icon {
-  font-size: 2.5rem; /* Slightly reduced size for less height */
-  color: #6db1bf;
+.featureIcon {
+  object-fit: cover;
+  align-self: flex-start;
+  border-radius: 8px; /* Optional for rounded corners */
 }
 
 /* Title and Description Inputs */
@@ -248,30 +273,32 @@
   outline: none;
   padding: 0;
   resize: none;
-  text-align: left; /* Align text to the left */
+  text-align: left;
 }
 
 /* Title Input with Slightly Smaller Font Size */
 .featureTitleInput {
-  font-size: 1.8rem; /* Slightly reduced font size for compactness */
+  font-size: 1.8rem;
   font-weight: bold;
 }
 
 /* Description Input with Reduced Line Height */
 .featureDescriptionInput {
-  font-size: 1.6rem; /* Slightly reduced font size */
-  line-height: 1.4; /* Reduced line height for compactness */
+  font-size: 1.6rem;
+  line-height: 1.4;
   color: var(--text-color);
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .courseMainContent {
+  .features {
     grid-template-columns: 1fr;
   }
   .feature {
     flex: 1 1 100%;
   }
 }
+
 
 /* Modal Styles */
 .modalOverlay {

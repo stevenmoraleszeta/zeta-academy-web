@@ -16,22 +16,38 @@ const CourseDetail = ({ params }) => {
     discountedPrice: 14900,
     originalPrice: 29900,
     category: "Programación",
-    videoUrl: "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU", // Set to empty for fallback scenario
-    imageUrl: "/default-course.jpg",
-    courseIcon: "/default-icon.jpg",
+    videoUrl: "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU",
+    imageUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45",
+    courseIcon: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FpythonIconPng.png?alt=media&token=6583f3bc-0ce1-42f8-adbe-75e4ede5e662",
     features: [
-      { icon: "🕒", title: "Curso asincrónico", description: "Aprende cualquier día y hora." },
-      { icon: "👨‍🏫", title: "Atención personalizada", description: "Consulta al mentor en cualquier momento." },
-      { icon: "💻", title: "Aprendizaje práctico", description: "Aprende con problemas reales." },
-      { icon: "📜", title: "Certificado de finalización", description: "Incrementa tu conocimiento." },
+      {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de",
+        title: "Curso asincrónico",
+        description: "Aprende cualquier día y hora."
+      },
+      {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
+        title: "Atención personalizada",
+        description: "Consulta al mentor en cualquier momento."
+      },
+      {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
+        title: "Aprendizaje práctico",
+        description: "Aprende con problemas reales."
+      },
+      {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6",
+        title: "Certificado de finalización",
+        description: "Incrementa tu conocimiento."
+      }
     ],
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [currentUrl, setCurrentUrl] = useState(""); // For image URL
-  const [currentIconUrl, setCurrentIconUrl] = useState(""); // For icon URL
-  const [newVideoUrl, setNewVideoUrl] = useState(""); // State to store new video URL
+  const [currentUrl, setCurrentUrl] = useState("");
+  const [currentIconUrl, setCurrentIconUrl] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -40,10 +56,10 @@ const CourseDetail = ({ params }) => {
       if (docSnap.exists()) {
         const fetchedData = docSnap.data();
         const defaultFeatures = [
-          { icon: "🕒", title: "Curso asincrónico", description: "Aprende cualquier día y hora." },
-          { icon: "👨‍🏫", title: "Atención personalizada", description: "Consulta al mentor en cualquier momento." },
-          { icon: "💻", title: "Aprendizaje práctico", description: "Aprende con problemas reales." },
-          { icon: "📜", title: "Certificado de finalización", description: "Incrementa tu conocimiento." },
+          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de", title: "Curso asincrónico", description: "Aprende cualquier día y hora." },
+          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3", title: "Atención personalizada", description: "Consulta al mentor en cualquier momento." },
+          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7", title: "Aprendizaje práctico", description: "Aprende con problemas reales." },
+          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6", title: "Certificado de finalización", description: "Incrementa tu conocimiento." },
         ];
         setCourse({
           ...course,
@@ -63,6 +79,13 @@ const CourseDetail = ({ params }) => {
     setCourse(updatedCourse);
     const docRef = doc(db, "onlineCourses", courseId);
     await updateDoc(docRef, { [field]: value });
+  };
+
+  const handleContactClick = () => {
+    const phoneNumber = "+50661304830";
+    const message = `Hola, estoy interesado en el curso en línea ${course.title}.`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   const openModal = () => {
@@ -140,8 +163,6 @@ const CourseDetail = ({ params }) => {
         </div>
 
         <div className={styles.courseInfo}>
-
-
           <textarea
             value={course.description}
             onChange={(e) => handleFieldChange("description", e.target.value)}
@@ -169,10 +190,9 @@ const CourseDetail = ({ params }) => {
             </span>
           </div>
 
-
           <div className={styles.buttonContainer}>
             <button className={styles.enrollButton}>Inscríbete</button>
-            <button className={styles.contactButton}>Contáctanos</button>
+            <button className={styles.contactButton} onClick={handleContactClick}>Contáctanos</button>
             <div className={styles.iconWrapper} onClick={openModal}>
               <FaRegImage className={styles.editIcon} />
             </div>
@@ -183,7 +203,11 @@ const CourseDetail = ({ params }) => {
       <div className={styles.features}>
         {(course.features || []).map((feature, index) => (
           <div key={index} className={styles.feature}>
-            <span className={styles.icon}>{feature.icon}</span>
+            <img
+              src={feature.iconUrl}
+              alt={`Icono de ${feature.title}`}
+              className={styles.featureIcon}
+            />
             <div>
               <input
                 type="text"

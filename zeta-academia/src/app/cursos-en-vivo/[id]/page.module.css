@@ -33,6 +33,7 @@
   flex-direction: column;
   align-items: center;
   border-radius: 5px;
+  height: 35vh;
 }
 
 .videoContainer {
@@ -70,8 +71,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: space-between;
-  
+  height: 35vh;
 }
 
 
@@ -146,35 +146,39 @@
 }
 
 /* Características */
-
 .featuresGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Dos columnas de igual ancho */
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr); /* Two equal-width columns */
+  gap: 10px; /* Reduced gap for a closer layout */
 }
 
 .featureItem {
   display: flex;
-  align-items: start; /* Alinea el icono y texto al inicio */
-  gap: 10px;
-  padding: 15px;
+  flex-direction: column; /* Stacks icon above text */
+  align-items: center; /* Centers icon and text */
+  gap: 5px; /* Minimal gap between icon and text */
+  padding: 10px;
   border-radius: 5px;
+  background-color: #2a2a2a; /* Optional background color for separation */
 }
 
 .icon {
-  font-size: 1.8em;
+  font-size: 2rem; /* Adjusted size for icon prominence */
   color: #6db1bf;
 }
 
 .featureTitle {
   font-weight: bold;
   color: var(--color-light-active);
-  font-size: 1.4em;
+  font-size: 1.2em;
+  text-align: center; /* Center-align text under the icon */
 }
 
 .featureDescription {
   color: #ffffff;
-  font-size: 1em;
+  font-size: 0.9em; /* Slightly smaller text for compactness */
+  text-align: center; /* Center-align description text */
+  line-height: 1.4; /* Reduced line height for closer text */
 }
 
 /* Estilo para el icono de edición circular */
