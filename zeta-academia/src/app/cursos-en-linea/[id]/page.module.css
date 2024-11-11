@@ -219,8 +219,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50px; /* Adjust the width and height as needed */
-  height: 50px;
+  width: 2vw; /* Adjust the width and height as needed */
+  height: 2vw;
   background-color: var(--color-secondary); /* White background */
   border-radius: 50%; /* Makes it circular */
   cursor: pointer;
