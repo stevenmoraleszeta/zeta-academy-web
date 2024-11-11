@@ -192,7 +192,7 @@
 }
 
 .courseInfo h2 {
-    font-size: 1.15vw;
+    font-size: 2.2vh;
     height: 7vh;
     width: 90%;
     font-weight: bold;
@@ -216,7 +216,7 @@
 }
 
 .courseInfo p {
-    font-size: 0.8vw;
+    font-size: 1.5vh;
     color: var(--color-lighter);
     text-align: left;
     font-weight: normal;
@@ -249,13 +249,13 @@
 }
 
 .discountedPrice {
-    font-size: 1.3vw;
+    font-size: 2.5vh;
     font-weight: bold;
     color: var(--color-secondary);
 }
 
 .originalPrice {
-    font-size: 1.3vw;
+    font-size: 2.5vh;
     color: var(--color-lighter);
     font-weight: bold;
     text-decoration: line-through;
@@ -267,7 +267,7 @@
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 0.8vw;
+    font-size: 1.7vh;
     transition: background-color 0.2s ease;
     width: auto;
     margin: 0;
