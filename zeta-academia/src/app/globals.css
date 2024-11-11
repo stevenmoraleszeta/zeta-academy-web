@@ -32,7 +32,7 @@ html {
 }
 
 /* General text styles */
-label, h1, input, select, button, th, td, p, a {
+label, h1, input, select, button, th, td, p, a, textarea {
   font-family: 'Montserrat', sans-serif;
   color: inherit;
 }

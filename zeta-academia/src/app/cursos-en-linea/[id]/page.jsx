@@ -1,11 +1,10 @@
-// File: src/app/cursos-en-linea/[id]/page.jsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { FaRegImage } from "react-icons/fa"; // Import FontAwesome icon from react-icons
+import { FaRegImage, FaPencilAlt } from "react-icons/fa";
 import styles from "./page.module.css";
 
 const CourseDetail = ({ params }) => {
@@ -17,9 +16,9 @@ const CourseDetail = ({ params }) => {
     discountedPrice: 14900,
     originalPrice: 29900,
     category: "Programación",
-    videoUrl: "https://www.youtube.com/embed/default-video",
+    videoUrl: "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU", // Set to empty for fallback scenario
     imageUrl: "/default-course.jpg",
-    courseIcon: "/default-icon.jpg", // Default icon URL
+    courseIcon: "/default-icon.jpg",
     features: [
       { icon: "🕒", title: "Curso asincrónico", description: "Aprende cualquier día y hora." },
       { icon: "👨‍🏫", title: "Atención personalizada", description: "Consulta al mentor en cualquier momento." },
@@ -29,8 +28,10 @@ const CourseDetail = ({ params }) => {
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentUrl, setCurrentUrl] = useState("");
-  const [currentIconUrl, setCurrentIconUrl] = useState("");
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState(""); // For image URL
+  const [currentIconUrl, setCurrentIconUrl] = useState(""); // For icon URL
+  const [newVideoUrl, setNewVideoUrl] = useState(""); // State to store new video URL
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -64,11 +65,15 @@ const CourseDetail = ({ params }) => {
     await updateDoc(docRef, { [field]: value });
   };
 
-  // Open modal for editing image and icon URL
   const openModal = () => {
     setCurrentUrl(course.imageUrl);
     setCurrentIconUrl(course.courseIcon);
     setIsModalOpen(true);
+  };
+
+  const openVideoModal = () => {
+    setNewVideoUrl(course.videoUrl || "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU");
+    setIsVideoModalOpen(true);
   };
 
   const handleUrlChange = (e) => {
@@ -79,16 +84,30 @@ const CourseDetail = ({ params }) => {
     setCurrentIconUrl(e.target.value);
   };
 
-  const saveUrl = () => {
+  const handleVideoUrlChange = (e) => {
+    setNewVideoUrl(e.target.value);
+  };
+
+  const saveUrls = () => {
     handleFieldChange("imageUrl", currentUrl);
     handleFieldChange("courseIcon", currentIconUrl);
     closeModal();
+  };
+
+  const saveVideoUrl = () => {
+    handleFieldChange("videoUrl", newVideoUrl);
+    closeVideoModal();
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentUrl("");
     setCurrentIconUrl("");
+  };
+
+  const closeVideoModal = () => {
+    setIsVideoModalOpen(false);
+    setNewVideoUrl("");
   };
 
   return (
@@ -100,54 +119,65 @@ const CourseDetail = ({ params }) => {
         className={styles.titleInput}
       />
 
-      {/* Video Container Wrapper */}
-      <div className={styles.videoWrapper} onClick={openModal}>
-        <iframe
-          width="100%"
-          height="315"
-          src={course.videoUrl}
-          title="Course video"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      </div>
+      <div className={styles.courseMainContent}>
+        <div className={styles.courseVideo}>
+          <div className={styles.videoWrapper}>
+            {course.videoUrl ? (
+              <iframe
+                src={course.videoUrl}
+                title="Course video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            ) : (
+              <div className={styles.videoPlaceholder}>Video no disponible</div>
+            )}
 
-      {/* Circular Icon Button for Editing Image and Icon URLs */}
-      <div className={styles.iconWrapper} onClick={openModal}>
-        <FaRegImage className={styles.editIcon} /> {/* FontAwesome icon only */}
-      </div>
-      
-      <textarea
-        value={course.description}
-        onChange={(e) => handleFieldChange("description", e.target.value)}
-        className={styles.descriptionInput}
-      />
+            <button className={styles.editVideoButton} onClick={openVideoModal}>
+              <FaPencilAlt /> Editar Video
+            </button>
+          </div>
+        </div>
 
-      <div className={styles.priceContainer}>
-        <span className={styles.discountedPrice}>
-          ₡
-          <input
-            type="number"
-            value={course.discountedPrice}
-            onChange={(e) => handleFieldChange("discountedPrice", +e.target.value)}
-            className={styles.priceInput}
+        <div className={styles.courseInfo}>
+
+
+          <textarea
+            value={course.description}
+            onChange={(e) => handleFieldChange("description", e.target.value)}
+            className={styles.descriptionInput}
           />
-        </span>
-        <span className={styles.originalPrice}>
-          ₡
-          <input
-            type="number"
-            value={course.originalPrice}
-            onChange={(e) => handleFieldChange("originalPrice", +e.target.value)}
-            className={styles.priceInput}
-          />
-        </span>
-      </div>
 
-      <div className={styles.buttonContainer}>
-        <button className={styles.enrollButton}>Inscríbete</button>
-        <button className={styles.contactButton}>Contáctanos</button>
+          <div className={styles.priceContainer}>
+            <span className={styles.discountedPrice}>
+              ₡
+              <input
+                type="number"
+                value={course.discountedPrice}
+                onChange={(e) => handleFieldChange("discountedPrice", +e.target.value)}
+                className={styles.discountedPriceInput}
+              />
+            </span>
+            <span className={styles.originalPrice}>
+              ₡
+              <input
+                type="number"
+                value={course.originalPrice}
+                onChange={(e) => handleFieldChange("originalPrice", +e.target.value)}
+                className={styles.originalPriceInput}
+              />
+            </span>
+          </div>
+
+
+          <div className={styles.buttonContainer}>
+            <button className={styles.enrollButton}>Inscríbete</button>
+            <button className={styles.contactButton}>Contáctanos</button>
+            <div className={styles.iconWrapper} onClick={openModal}>
+              <FaRegImage className={styles.editIcon} />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className={styles.features}>
@@ -205,8 +235,31 @@ const CourseDetail = ({ params }) => {
               />
             </label>
             <div className={styles.modalActions}>
-              <button onClick={saveUrl}>Save</button>
+              <button onClick={saveUrls}>Save</button>
               <button onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Editing Video URL */}
+      {isVideoModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Edit Video URL</h3>
+            <label>
+              Video URL:
+              <input
+                type="text"
+                value={newVideoUrl}
+                onChange={handleVideoUrlChange}
+                placeholder="Enter new video URL"
+                className={styles.modalInput}
+              />
+            </label>
+            <div className={styles.modalActions}>
+              <button onClick={saveVideoUrl}>Save</button>
+              <button onClick={closeVideoModal}>Cancel</button>
             </div>
           </div>
         </div>
