@@ -11,7 +11,7 @@
 /* Title Input */
 .titleInput {
   width: 100%;
-  font-size: 2.5rem;
+  font-size: 2.2vw;
   font-weight: bold;
   background: transparent;
   color: #ffffff;
@@ -61,15 +61,14 @@
   font-size: 1vh;
   align-items: flex-start;
   flex-grow: 1; /* Takes up remaining space next to the video */
-  height: 37vh;
+  height: 42vh;
 }
 
 /* Video Wrapper with Responsive 16:9 Aspect Ratio using viewport width */
 .videoWrapper {
   position: relative;
   width: 40vw; /* Sets width to 40% of viewport width */
-  max-width: 640px; /* Maximum width for large screens */
-  height: 37vh; /* Ensures 16:9 aspect ratio with viewport width */
+  height: 40vh; /* Ensures 16:9 aspect ratio with viewport width */
   overflow: hidden;
   border-radius: 8px;
   background-color: #000;
