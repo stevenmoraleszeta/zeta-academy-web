@@ -192,8 +192,7 @@
 }
 
 .courseInfo h2 {
-    font-size: 2.2vh;
-    height: 7vh;
+    font-size: 1.3rem;
     width: 90%;
     font-weight: bold;
     color: var(--text-color);
@@ -216,11 +215,10 @@
 }
 
 .courseInfo p {
-    font-size: 1.5vh;
+    font-size: 0.85rem;
     color: var(--color-lighter);
     text-align: left;
     font-weight: normal;
-    height: 4.8rem;
     /* Controla la altura del contenedor */
     overflow: hidden;
     /* Oculta el texto que desborda */
@@ -246,16 +244,17 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 15px;
+    margin-top: 5vh;
 }
 
 .discountedPrice {
-    font-size: 2.5vh;
+    font-size:  1.5rem;
     font-weight: bold;
     color: var(--color-secondary);
 }
 
 .originalPrice {
-    font-size: 2.5vh;
+    font-size:  1.5rem;
     color: var(--color-lighter);
     font-weight: bold;
     text-decoration: line-through;
@@ -270,7 +269,6 @@
     font-size: 1.7vh;
     transition: background-color 0.2s ease;
     width: auto;
-    margin: 0;
     justify-self: left;
 }
 
@@ -315,7 +313,7 @@
     border: none;
     cursor: pointer;
     color: var(--color-lighter);
-    font-size: 1vw;
+    font-size:  1.2rem;
 }
 
 .archiveButton:hover {
