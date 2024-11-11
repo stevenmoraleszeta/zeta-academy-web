@@ -231,7 +231,7 @@
 /* Style for the icon inside the button */
 .editIcon {
   color: var(--text-color); /* Orange color */
-  font-size: 1.2rem; /* Adjust size if needed */
+  font-size: 1vw; /* Adjust size if needed */
 }
 
 /* Optional: hover effect */

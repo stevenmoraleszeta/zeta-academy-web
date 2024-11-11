@@ -146,7 +146,7 @@
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 0.9vw;
     display: inline-block;
     width: auto;
 }
@@ -169,12 +169,10 @@
     text-align: left;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
-    max-width: 450px;
     width: 100%;
     padding: 0 20px 20px 20px 20px;
     color: var(--text-color);
     /* Asegura que el texto sea legible sobre el fondo */
-    height: 550px;
 }
 
 
@@ -185,7 +183,7 @@
 
 .courseImage {
     width: 100%;
-    height: 250px;
+    height: 20vh;
     object-fit: cover;
 }
 
@@ -194,8 +192,8 @@
 }
 
 .courseInfo h2 {
-    font-size: 1.35rem;
-    height: 3.2rem;
+    font-size: 1.15vw;
+    height: 7vh;
     width: 90%;
     font-weight: bold;
     color: var(--text-color);
@@ -218,11 +216,11 @@
 }
 
 .courseInfo p {
-    font-size: 1rem;
+    font-size: 0.8vw;
     color: var(--color-lighter);
     text-align: left;
     font-weight: normal;
-    height: 5.2rem;
+    height: 4.8rem;
     /* Controla la altura del contenedor */
     overflow: hidden;
     /* Oculta el texto que desborda */
@@ -251,13 +249,13 @@
 }
 
 .discountedPrice {
-    font-size: 1.5em;
+    font-size: 1.3vw;
     font-weight: bold;
     color: var(--color-secondary);
 }
 
 .originalPrice {
-    font-size: 1.5em;
+    font-size: 1.3vw;
     color: var(--color-lighter);
     font-weight: bold;
     text-decoration: line-through;
@@ -269,7 +267,7 @@
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.8vw;
     transition: background-color 0.2s ease;
     width: auto;
     margin: 0;
@@ -308,7 +306,7 @@
 
 .archiveIconContainer {
     position: absolute;
-    bottom: 10px;
+    bottom: 5px;
     right: 10px;
 }
 
@@ -317,7 +315,7 @@
     border: none;
     cursor: pointer;
     color: var(--color-lighter);
-    font-size: 1.2em;
+    font-size: 1vw;
 }
 
 .archiveButton:hover {

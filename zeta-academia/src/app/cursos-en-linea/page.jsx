@@ -154,15 +154,7 @@ const OnlineCourses = () => {
         {filteredCourses?.length > 0 ? (
           filteredCourses.map((course) => (
             <div key={course.id} className={styles.courseCard}>
-              <div className={styles.archiveIconContainer}>
-                <button 
-                  className={styles.archiveButton}
-                  onClick={() => handleArchiveCourse(course.id)}
-                  title="Archivar curso"
-                >
-                  <FaArchive /> {/* Icono de archivado */}
-                </button>
-              </div>
+
               <img
                 src={course.imageUrl || "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"}
                 alt={course.title}
@@ -179,12 +171,22 @@ const OnlineCourses = () => {
                     ₡{course.originalPrice}
                   </span>
                 </div>
-                <button 
-                  className={styles.infoButton} 
+                <button
+                  className={styles.infoButton}
                   onClick={() => handleViewCourse(course.id)}
                 >
                   Ver Información
                 </button>
+
+                <div className={styles.archiveIconContainer}>
+                  <button
+                    className={styles.archiveButton}
+                    onClick={() => handleArchiveCourse(course.id)}
+                    title="Archivar curso"
+                  >
+                    <FaArchive /> {/* Icono de archivado */}
+                  </button>
+                </div>
               </div>
             </div>
           ))
