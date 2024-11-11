@@ -4,10 +4,10 @@
 import React, { useState, useEffect } from "react";
 import useFetchData from "@/app/hooks/useFetchData";
 import { useRouter } from "next/navigation";
-import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
-import { FaArchive } from "react-icons/fa"; // Icono de archivo
+import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 
 const OnlineCourses = () => {
   const router = useRouter();
@@ -21,7 +21,6 @@ const OnlineCourses = () => {
 
   useEffect(() => {
     if (courses && courses.length > 0) {
-      // Filtramos para excluir cursos archivados
       const activeCourses = courses.filter(course => !course.archived);
       const prices = activeCourses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 1000) * 1000;
@@ -55,31 +54,14 @@ const OnlineCourses = () => {
   };
 
   const handleFilter = () => {
-    if (!courses) return; // Salvaguarda para cursos indefinidos
+    if (!courses) return;
     const filtered = courses.filter((course) => {
-      const matchesQuery = course?.title?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-      const withinPriceRange = course?.discountedPrice <= priceRange || false;
+      const matchesQuery = course?.title?.toLowerCase().includes(searchQuery.toLowerCase());
+      const withinPriceRange = course?.discountedPrice <= priceRange;
       const matchesCategory = !selectedCategory || course?.category === selectedCategory;
-      const isNotArchived = !course.archived; // Excluir archivados
-
-      return matchesQuery && withinPriceRange && matchesCategory && isNotArchived;
+      return matchesQuery && withinPriceRange && matchesCategory && !course.archived;
     });
     setFilteredCourses(filtered);
-  };
-
-  const handleArchiveCourse = async (courseId) => {
-    const confirmArchive = window.confirm("¿Estás seguro de que deseas archivar este curso?");
-    if (!confirmArchive) return;
-
-    const docRef = doc(db, "onlineCourses", courseId);
-    try {
-      await updateDoc(docRef, { archived: true });
-      setFilteredCourses((prevCourses) =>
-        prevCourses.filter((course) => course.id !== courseId)
-      );
-    } catch (error) {
-      console.error("Error archiving course: ", error);
-    }
   };
 
   const handleAddCourse = async () => {
@@ -92,7 +74,7 @@ const OnlineCourses = () => {
         category: "",
         imageUrl: "",
         features: [],
-        archived: false, // Campo archivado por defecto
+        archived: false,
       });
       router.push(`/cursos-en-linea/${docRef.id}`);
     } catch (error) {
@@ -100,8 +82,9 @@ const OnlineCourses = () => {
     }
   };
 
-  const handleViewCourse = (courseId) => {
-    router.push(`/cursos-en-linea/${courseId}`);
+  const handleCourseArchived = (courseId) => {
+    // Actualiza el estado de filteredCourses excluyendo el curso archivado
+    setFilteredCourses((prevCourses) => prevCourses.filter((course) => course.id !== courseId));
   };
 
   return (
@@ -153,42 +136,11 @@ const OnlineCourses = () => {
       <div className={styles.courseGrid}>
         {filteredCourses?.length > 0 ? (
           filteredCourses.map((course) => (
-            <div key={course.id} className={styles.courseCard}>
-
-              <img
-                src={course.imageUrl || "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"}
-                alt={course.title}
-                className={styles.courseImage}
-              />
-              <div className={styles.courseInfo}>
-                <h2>{course.title}</h2>
-                <p>{course.description}</p>
-                <div className={styles.priceContainer}>
-                  <span className={styles.discountedPrice}>
-                    ₡{course.discountedPrice}
-                  </span>
-                  <span className={styles.originalPrice}>
-                    ₡{course.originalPrice}
-                  </span>
-                </div>
-                <button
-                  className={styles.infoButton}
-                  onClick={() => handleViewCourse(course.id)}
-                >
-                  Ver Información
-                </button>
-
-                <div className={styles.archiveIconContainer}>
-                  <button
-                    className={styles.archiveButton}
-                    onClick={() => handleArchiveCourse(course.id)}
-                    title="Archivar curso"
-                  >
-                    <FaArchive /> {/* Icono de archivado */}
-                  </button>
-                </div>
-              </div>
-            </div>
+            <CourseCardMenu
+              key={course.id}
+              course={course}
+              courseType={"online"}
+            />
           ))
         ) : (
           <p>No courses available.</p>
