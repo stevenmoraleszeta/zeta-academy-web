@@ -37,6 +37,10 @@
   margin-left: 4vh;
 }
 
+.contactInfo p:hover {
+ color: var(--color-light-active);
+}
+
 .navPair {
   display: flex;
   align-items: flex-start;
@@ -61,7 +65,8 @@
 }
 
 .navColumn a:hover {
-  text-decoration: underline; /* Agrega subrayado al pasar el mouse, si deseas */
+  color: var(--color-light-active);
+
 }
 
 .separator {
