@@ -31,7 +31,7 @@
 .contactInfo p {
   margin: 0; /* Elimina cualquier margen adicional */
   padding: 0; /* Elimina cualquier padding adicional */
-  line-height: 1; /* Ajusta la altura de línea para que los elementos estén más juntos */
+  line-height: 2; /* Ajusta la altura de línea para que los elementos estén más juntos */
   margin-left: 4vh;
 }
 

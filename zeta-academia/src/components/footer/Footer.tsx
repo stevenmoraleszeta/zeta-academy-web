@@ -47,15 +47,15 @@ function FooterZ() {
             <div className={styles.separator}></div>
     
             <div className={styles.navColumn}>
-              <a href="https://wa.link/5euavh">Elaboración de proyectos</a>
-              <a href="https://wa.link/7suygw">Clases particulares</a>
+              <a href="https://wa.link/ifz1ng">Elaboración de proyectos</a>
+              <a href="https://wa.link/q2kzi6">Clases particulares</a>
             </div>
     
             <div className={styles.separator}></div>
     
             <div className={styles.navColumn}>
-              <a href="https://wa.link/rjd2qu">Desarrollo de Software</a>
-              <a href="https://wa.link/rn25ys">Unirse a ZETA</a>
+              <a href="https://wa.link/ackd1n">Desarrollo de Software</a>
+              <a href="https://wa.link/ek3xtk">Unirse a ZETA</a>
             </div>
           </div>
         </footer>
