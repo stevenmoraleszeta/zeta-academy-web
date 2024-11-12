@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs, addDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { FaRegImage, FaPencilAlt } from "react-icons/fa";
+import debounce from "lodash/debounce";
 import styles from "./page.module.css";
 
 const CourseDetail = ({ params }) => {
@@ -48,6 +49,7 @@ const CourseDetail = ({ params }) => {
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentIconUrl, setCurrentIconUrl] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
+  const [modules, setModules] = useState([]);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -55,23 +57,28 @@ const CourseDetail = ({ params }) => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const fetchedData = docSnap.data();
-        const defaultFeatures = [
-          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de", title: "Curso asincrónico", description: "Aprende cualquier día y hora." },
-          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3", title: "Atención personalizada", description: "Consulta al mentor en cualquier momento." },
-          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7", title: "Aprendizaje práctico", description: "Aprende con problemas reales." },
-          { iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6", title: "Certificado de finalización", description: "Incrementa tu conocimiento." },
-        ];
-        setCourse({
-          ...course,
+        setCourse((prevCourse) => ({
+          ...prevCourse,
           ...fetchedData,
-          features: fetchedData.features && fetchedData.features.length > 0 ? fetchedData.features : defaultFeatures,
-        });
+        }));
       } else {
         console.error("Course not found");
         router.push("/cursos-en-linea");
       }
     };
+
+    const fetchModules = async () => {
+      const modulesRef = collection(db, "onlineCourses", courseId, "modules");
+      const modulesSnapshot = await getDocs(modulesRef);
+      const fetchedModules = modulesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setModules(fetchedModules);
+    };
+
     fetchCourse();
+    fetchModules();
   }, [courseId]);
 
   const handleFieldChange = async (field, value) => {
@@ -81,9 +88,53 @@ const CourseDetail = ({ params }) => {
     await updateDoc(docRef, { [field]: value });
   };
 
+  const debouncedUpdateModuleTitle = debounce(async (moduleId, newTitle) => {
+    try {
+      const moduleRef = doc(db, "onlineCourses", courseId, "modules", moduleId);
+      await updateDoc(moduleRef, { title: newTitle });
+    } catch (error) {
+      console.error("Error al actualizar el título del módulo:", error);
+    }
+  }, 500);
+
+  const handleModuleTitleChange = (moduleId, newTitle) => {
+    setModules((prevModules) =>
+      prevModules.map((module) =>
+        module.id === moduleId ? { ...module, title: newTitle } : module
+      )
+    );
+    debouncedUpdateModuleTitle(moduleId, newTitle);
+  };
+
+  const debouncedUpdateClassTitle = debounce(async (moduleId, classId, newTitle) => {
+    try {
+      const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
+      await updateDoc(classRef, { title: newTitle });
+    } catch (error) {
+      console.error("Error al actualizar el título de la clase:", error);
+    }
+  }, 500);
+
+  const handleClassTitleChange = (moduleId, classId, newTitle) => {
+    setModules((prevModules) =>
+      prevModules.map((module) => {
+        if (module.id === moduleId) {
+          return {
+            ...module,
+            classes: module.classes.map((cls) =>
+              cls.id === classId ? { ...cls, title: newTitle } : cls
+            ),
+          };
+        }
+        return module;
+      })
+    );
+    debouncedUpdateClassTitle(moduleId, classId, newTitle);
+  };
+
   const handleContactClick = () => {
     const phoneNumber = "+50661304830";
-    const message = `Hola, estoy interesado en el curso en línea ${course.title}.`;
+    const message = `Hola, estoy interesado/a en el curso en línea ${course.title}.`;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
@@ -131,6 +182,50 @@ const CourseDetail = ({ params }) => {
   const closeVideoModal = () => {
     setIsVideoModalOpen(false);
     setNewVideoUrl("");
+  };
+
+  const addModule = async () => {
+    const newModule = { title: "Nuevo Módulo", classes: [] };
+    const moduleRef = await addDoc(collection(db, "onlineCourses", courseId, "modules"), newModule);
+    setModules((prevModules) => [...prevModules, { id: moduleRef.id, ...newModule }]);
+  };
+
+  const deleteModule = async (moduleId) => {
+    if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
+      await deleteDoc(doc(db, "onlineCourses", courseId, "modules", moduleId));
+      setModules(modules.filter((module) => module.id !== moduleId));
+    }
+  };
+
+  const addClass = async (moduleId) => {
+    const newClass = { title: "Nueva Clase" };
+    const classRef = await addDoc(collection(db, "onlineCourses", courseId, "modules", moduleId, "classes"), newClass);
+    setModules((prevModules) =>
+      prevModules.map((module) => {
+        if (module.id === moduleId) {
+          return {
+            ...module,
+            classes: [...module.classes, { id: classRef.id, ...newClass }],
+          };
+        }
+        return module;
+      })
+    );
+  };
+
+  const deleteClass = async (moduleId, classId) => {
+    if (confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
+      await deleteDoc(doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId));
+      setModules(modules.map((module) => {
+        if (module.id === moduleId) {
+          return {
+            ...module,
+            classes: module.classes.filter((c) => c.id !== classId),
+          };
+        }
+        return module;
+      }));
+    }
   };
 
   return (
@@ -288,6 +383,35 @@ const CourseDetail = ({ params }) => {
           </div>
         </div>
       )}
+      <div className={styles.modules}>
+        {modules.map((module) => (
+          <div key={module.id} className={styles.module}>
+            <input
+              type="text"
+              value={module.title}
+              onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
+              className={styles.moduleTitle}
+            />
+            <button onClick={() => deleteModule(module.id)}>Eliminar Módulo</button>
+            <button onClick={() => addClass(module.id)}>Añadir Clase</button>
+
+            <div className={styles.classes}>
+              {module.classes.map((cls) => (
+                <div key={cls.id} className={styles.class}>
+                  <input
+                    type="text"
+                    value={cls.title}
+                    onChange={(e) => handleClassTitleChange(module.id, cls.id, e.target.value)}
+                    className={styles.classTitle}
+                  />
+                  <button onClick={() => deleteClass(module.id, cls.id)}>Eliminar Clase</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        <button onClick={addModule}>Añadir Módulo</button>
+      </div>
     </div>
   );
 };

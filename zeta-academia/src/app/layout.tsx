@@ -26,6 +26,7 @@ export default function RootLayout({
           <Navbar />
           {children}
         </AuthProvider>
+        
       </body>
     </html>
   );

@@ -123,8 +123,6 @@ const LiveCourses = () => {
             Ofimática
           </button>
           <div className={styles.sliderContainer}>
-            <span>₡</span>
-            <span>{priceRange}</span>
             <input
               type="range"
               min={minPrice}
@@ -134,6 +132,8 @@ const LiveCourses = () => {
               onChange={handlePriceChange}
               className={styles.slider}
             />
+            <span>₡</span>
+            <span>{priceRange}</span>
           </div>
         </div>
         <button className={styles.addButton} onClick={handleAddCourse}>

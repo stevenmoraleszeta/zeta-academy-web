@@ -61,7 +61,7 @@ const CourseDetail = ({ params }) => {
         description: "Aprende con problemas reales."
       }
     ]
-    
+
     ,
   });
 
@@ -141,7 +141,14 @@ const CourseDetail = ({ params }) => {
 
   const handleContactClick = () => {
     const phoneNumber = "+50661304830";
-    const message = `Hola, estoy interesado en el curso en línea ${course.title}.`;
+    const message = `Hola, estoy interesado/a en el curso en vivo ${course.title}.`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const handleEnrollClick = () => {
+    const phoneNumber = "+50661304830"; // Reemplaza con tu número de teléfono
+    const message = `Hola, estoy interesado/a en inscribirme al curso en vivo ${course.title}.`;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
@@ -249,7 +256,9 @@ const CourseDetail = ({ params }) => {
           </div>
 
           <div className={styles.buttonContainer}>
-            <button className={styles.enrollButton}>Inscríbete</button>
+            <button className={styles.enrollButton} onClick={handleEnrollClick}>
+              Inscríbete
+            </button>
             <button className={styles.contactButton} onClick={handleContactClick}>Contáctanos</button>
             <div className={styles.iconWrapper} onClick={openModal}>
               <FaRegImage className={styles.editIcon} />
