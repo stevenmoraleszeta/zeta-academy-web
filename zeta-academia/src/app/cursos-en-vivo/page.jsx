@@ -1,4 +1,3 @@
-// File: src/app/cursos-en-linea/page.jsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -7,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
+import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 
-const OnlineCourses = () => {
+const LiveCourses = () => {
   const router = useRouter();
   const { data: courses, loading, error } = useFetchData("liveCourses");
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,14 +20,15 @@ const OnlineCourses = () => {
 
   useEffect(() => {
     if (courses && courses.length > 0) {
-      const prices = courses.map((course) => course.discountedPrice);
+      const activeCourses = courses.filter((course) => !course.archived);
+      const prices = activeCourses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 1000) * 1000;
       const maxCoursePrice = Math.ceil(Math.max(...prices) / 1000) * 1000;
 
       setMinPrice(minCoursePrice);
       setMaxPrice(maxCoursePrice);
       setPriceRange(maxCoursePrice);
-      setFilteredCourses(courses);
+      setFilteredCourses(activeCourses);
     }
   }, [courses]);
 
@@ -48,47 +49,51 @@ const OnlineCourses = () => {
   };
 
   const handleCategoryChange = (category) => {
-    setSelectedCategory((prevCategory) => (prevCategory === category ? "" : category));
+    setSelectedCategory((prevCategory) =>
+      prevCategory === category ? "" : category
+    );
   };
 
   const handleFilter = () => {
-    if (!courses) return; // Safeguard against undefined courses
+    if (!courses) return;
     const filtered = courses.filter((course) => {
-      const matchesQuery = course?.title?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-      const withinPriceRange = course?.discountedPrice <= priceRange || false;
-      const matchesCategory = !selectedCategory || course?.category === selectedCategory;
-
-      return matchesQuery && withinPriceRange && matchesCategory;
+      const matchesQuery = course?.title
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const withinPriceRange = course?.discountedPrice <= priceRange;
+      const matchesCategory =
+        !selectedCategory || course?.category === selectedCategory;
+      return matchesQuery && withinPriceRange && matchesCategory && !course.archived;
     });
     setFilteredCourses(filtered);
   };
 
-  // Create a new course and navigate to the detail page
   const handleAddCourse = async () => {
     try {
-      const docRef = await addDoc(collection(db, "onlineCourses"), {
-        title: "", // Default title (empty for now)
-        description: "", // Default description
-        discountedPrice: 0, // Default price
-        originalPrice: 0, // Default original price
-        category: "", // Default category
-        imageUrl: "", // Default image URL
-        features: [], // Default features
+      const docRef = await addDoc(collection(db, "liveCourses"), {
+        title: "",
+        description: "",
+        discountedPrice: 0,
+        originalPrice: 0,
+        category: "",
+        imageUrl: "",
+        features: [],
+        archived: false,
       });
-      router.push(`/cursos-en-vivo/${docRef.id}`); // Redirect to the new course page
+      router.push(`/cursos-en-vivo/${docRef.id}`);
     } catch (error) {
       console.error("Error adding course: ", error);
     }
   };
 
-  // Redirect to course detail page when "Ver Información" is clicked
-  const handleViewCourse = (courseId) => {
-    router.push(`/cursos-en-vivo/${courseId}`);
+  const handleCourseArchived = (courseId) => {
+    setFilteredCourses((prevCourses) =>
+      prevCourses.filter((course) => course.id !== courseId)
+    );
   };
 
   return (
     <div className={styles.container}>
-      {/* Search Bar */}
       <header className={styles.header}>
         <input
           type="text"
@@ -99,17 +104,20 @@ const OnlineCourses = () => {
         />
       </header>
 
-      {/* Filters Section with "Agregar curso" Button aligned right */}
       <div className={styles.filters}>
         <div className={styles.filterOptions}>
           <button
-            className={`${styles.filterButton} ${selectedCategory === 'Programación' ? styles.activeFilter : ''}`}
+            className={`${styles.filterButton} ${
+              selectedCategory === "Programación" ? styles.activeFilter : ""
+            }`}
             onClick={() => handleCategoryChange("Programación")}
           >
             Programación
           </button>
           <button
-            className={`${styles.filterButton} ${selectedCategory === 'Ofimática' ? styles.activeFilter : ''}`}
+            className={`${styles.filterButton} ${
+              selectedCategory === "Ofimática" ? styles.activeFilter : ""
+            }`}
             onClick={() => handleCategoryChange("Ofimática")}
           >
             Ofimática
@@ -128,55 +136,34 @@ const OnlineCourses = () => {
             />
           </div>
         </div>
-        <button className={styles.addButton} onClick={handleAddCourse}>Agregar curso</button>
+        <button className={styles.addButton} onClick={handleAddCourse}>
+          Agregar curso
+        </button>
       </div>
 
-      {/* Loading and Error States */}
-      {loading && <p>Loading courses...</p>}
+      {loading && <p>Loading live courses...</p>}
       {error && <p>{error}</p>}
 
-      {/* Courses Grid */}
       <div className={styles.courseGrid}>
         {filteredCourses?.length > 0 ? (
           filteredCourses.map((course) => (
-            <div key={course.id} className={styles.courseCard}>
-              <img
-                src={course.imageUrl || "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"}
-                alt={course.title}
-                className={styles.courseImage}
-              />
-              <div className={styles.courseInfo}>
-                <h2>{course.title}</h2>
-                <p>{course.description}</p>
-                <div className={styles.priceContainer}>
-                  <span className={styles.discountedPrice}>
-                    ₡{course.discountedPrice}
-                  </span>
-                  <span className={styles.originalPrice}>
-                    ₡{course.originalPrice}
-                  </span>
-                </div>
-                <button 
-                  className={styles.infoButton} 
-                  onClick={() => handleViewCourse(course.id)}
-                >
-                  Ver Información
-                </button>
-              </div>
-            </div>
+            <CourseCardMenu
+              key={course.id}
+              course={course}
+              courseType={"live"}
+            />
           ))
         ) : (
-          <p>No courses available.</p>
+          <p>No live courses available.</p>
         )}
       </div>
 
-      {/* Footer Section */}
       <footer className={styles.footer}>
-        <p>¿No ves el curso que buscas?</p>
+        <p>¿No ves el curso en vivo que buscas?</p>
         <button className={styles.contactButton}>Contáctanos</button>
       </footer>
     </div>
   );
 };
 
-export default OnlineCourses;
+export default LiveCourses;
