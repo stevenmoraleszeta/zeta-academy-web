@@ -25,13 +25,31 @@ function FooterZ() {
             </Link>
             <div className={styles.contactInfo}>
               <p>
-                <FaWhatsapp style={{ marginRight: '8px' }} /> +50661304830
+              <Image
+                alt="Wha"
+                src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Fwhatsapp.png?alt=media&token=c5a39c00-a699-446b-bab6-9ddf3c9ab7c9"
+                width={1000}
+                height={1000}
+                className={styles.iconsRedes}
+              /> +50661304830
               </p>
               <p>
-                <FaInstagram style={{ marginRight: '8px' }} /> stevenmoraleszeta
+              <Image
+                alt="IG"
+                src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Finstagram.png?alt=media&token=4ceb6bba-a56c-496b-92b6-5e1d936b5422"
+                width={1000}
+                height={1000}
+                className={styles.iconsRedes}
+              /> stevenmoraleszeta
               </p>
               <p>
-                <FaInstagram style={{ marginRight: '8px' }} /> zeta.steam
+              <Image
+                alt="IG"
+                src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Finstagram.png?alt=media&token=4ceb6bba-a56c-496b-92b6-5e1d936b5422"
+                width={1000}
+                height={1000}
+                className={styles.iconsRedes}
+              /> zeta.steam
               </p>
             </div>
           </div>
