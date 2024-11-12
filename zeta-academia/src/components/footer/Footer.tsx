@@ -18,8 +18,8 @@ function FooterZ() {
               <Image
                 alt="ZetaLogo"
                 src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c"
-                width={100}
-                height={100}
+                width={1000}
+                height={1000}
                 className={styles.zLogo}
               />
             </Link>

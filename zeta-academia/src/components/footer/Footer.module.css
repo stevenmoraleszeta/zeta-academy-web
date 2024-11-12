@@ -5,6 +5,8 @@
   padding: 20px 40px;
   color: #ffffff;
   flex-wrap: wrap;
+  padding-bottom: 7vh;
+  margin-top: 15vh;
 }
 
 .leftContainer {
@@ -63,7 +65,7 @@
 }
 
 .separator {
-  border-left: 2px solid #ffa500;
+  border-left: 2px solid var(--color-secondary);
   height: 8vh;
   margin-left: 0;
   margin-right: 1vh;
