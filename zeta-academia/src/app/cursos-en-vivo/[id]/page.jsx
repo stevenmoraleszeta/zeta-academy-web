@@ -272,7 +272,7 @@ const CourseDetail = ({ params }) => {
           <div key={index} className={styles.feature}>
             <img
               src={feature.iconUrl}
-              alt={`Icono de ${feature.title}`}
+              alt={Icono de ${feature.title}}
               className={styles.featureIcon}
             />
             <div>
