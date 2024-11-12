@@ -61,7 +61,7 @@ export function AuthProvider({ children }) {
             } else {
                 setIsAdmin(false);
             }
-            if (!userData.pais || !userData.numeroTel || !userData.edad) {
+            if (!userData.pais || !userData.number || !userData.edad) {
                 setMissingInfo(true);
             } else {
                 setMissingInfo(false);
