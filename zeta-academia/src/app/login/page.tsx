@@ -1,13 +1,21 @@
 // src/app/login/page.tsx
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./login.module.css";
 
 function Login() {
-    const { loginWithGoogle, currentUser } = useAuth();
+    const { loginWithGoogle, currentUser, missingInfo } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (currentUser && missingInfo) {
+            router.push("/completeInformation");
+        }
+    }, [currentUser, missingInfo, router]);
 
     return (
         <section>
