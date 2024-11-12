@@ -1,0 +1,195 @@
+/* src/app/perfil-usuario/page.module.css */
+/* .userProfileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 50vw;
+}
+
+.formGroup {
+    margin-bottom: 10px;
+}
+
+.profileImageSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.profileImageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profileImageInput {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profileImageUpload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profileInput {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.profileLabel {
+    min-width: 120px;
+    text-align: right;
+}
+
+.submitButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.logoutButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+} */
+
+/* User profile main Containers */
+
+.userProfileContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-weight: 600;
+}
+
+.userProfileForm {
+    width: 90%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Image and container styling */
+
+.imgContainer {
+    width: 30%;
+    height: 35%;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.userImg {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.userInformationContainer {
+    width: 50%;
+    height: fit-content;
+}
+
+/* First user's information container */
+
+.firstContainerInformation {
+    margin: 10px;
+    margin-left: 0px;
+}
+
+.nameInput {
+    border-bottom: 2px solid #005F73;
+    border-radius: 0px;
+
+    outline: none;
+    background-color: transparent;
+    font-size: clamp(2vw, 30px, 5vw);
+    text-align: justify;
+    color: white;
+
+    margin: 20px;
+    margin-left: 0px;
+}
+
+.nameInput:focus {
+    outline: none;
+    box-shadow: none;
+    border: none;
+    border-bottom: 2px solid #005F73;
+}
+
+.inputLabels {
+    color: #8CB7C0;
+    margin: 15px;
+    margin-left: 0px;
+    font-size: clamp(1.2vw, 16px, 1.5vw);
+}
+
+.inputNumber {
+    color: white;
+    margin: 10px;
+    margin-left: 0px;
+}
+
+/* Second user's information container */
+
+.secondContainerInformation {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    margin: 10px;
+    margin-left: 0px;
+}
+
+.countryContainer {
+    width: 30%;
+}
+
+.countrySelect {
+    color: white;
+}
+
+.ageContainer {
+    margin-left: 20px;
+    width: 20%;
+}
+
+.ageInput {
+    width: 50%;
+    color: white;
+}
+
+.submitButton {
+    width: 31%;
+}

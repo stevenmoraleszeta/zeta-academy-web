@@ -1,7 +1,8 @@
 // src/app/perfil-usuario/page.tsx
 "use client"; // Indica que este es un Client Component para Next.js
 
-import styles from './page.module.css'; // Importa los estilos modulares
+import Image from 'next/image';
+import styles from './userProfile.module.css'; // Importa los estilos modulares
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getAuth, updateProfile, updateEmail, signOut } from 'firebase/auth';
@@ -18,6 +19,8 @@ function UserProfile() {
         displayName: '',
         email: '',
         photoURL: '',
+        number: '',
+        edad: '',
     });
     const [loading, setLoading] = useState(true);
     const [imageFile, setImageFile] = useState(null);
@@ -28,6 +31,8 @@ function UserProfile() {
                 displayName: currentUser.displayName || '',
                 email: currentUser.email || '',
                 photoURL: currentUser.photoURL || '',
+                number: currentUser.number || '',
+                edad: currentUser.edad || '',
             });
             setLoading(false);
         }
@@ -95,7 +100,67 @@ function UserProfile() {
 
     return (
         <RequireAuth>
-            <div className={styles.userProfileContainer}>
+            <section className={styles.userProfileContainer}>
+                <form onSubmit={handleSubmit} className={styles.userProfileForm}>
+                    <div className={styles.imgContainer}>
+                        {userInfo.photoURL && (
+                            <Image alt='userProfileImage' src={userInfo.photoURL} width={500} height={500} className={styles.userImg}></Image>
+                        )}
+                    </div>
+                    <div className={styles.userInformationContainer}>
+                        <div className={styles.firstContainerInformation}>
+                            <input
+                                type="text"
+                                name="displayName"
+                                value={userInfo.displayName}
+                                onChange={handleChange}
+                                required
+
+                                className={styles.nameInput}
+                            />
+                            <p className={styles.inputLabels}>Número teléfonico</p>
+                            <input
+                                type="number"
+                                name="number"
+                                value={userInfo.number}
+                                onChange={handleChange}
+                                required
+                                className={styles.inputNumber}
+                            />
+                        </div>
+                        <div className={styles.secondContainerInformation}>
+                            <div className={styles.countryContainer}>
+                                <p className={styles.inputLabels}>País</p>
+                                <select name="country" id="countrySelect" className={styles.countrySelect}>
+                                    <option value="" selected disabled>Selecciona tu país</option>
+                                    <option value="Costa Rica">Costa Rica</option>
+                                    <option value="Nicaragua">Nicaragua</option>
+                                    <option value="El Salvador">El Salvador</option>
+                                    <option value="Colombia">Colombia</option>
+                                    <option value="México">México</option>
+                                    <option value="Estados Unidos">Estados Unidos</option>
+                                </select>
+                            </div>
+                            <div className={styles.ageContainer}>
+                                <p className={styles.inputLabels}>Edad</p>
+                                <input min={0} type="number" name='edad' value={userInfo.edad} required onChange={handleChange} className={styles.ageInput} />
+                            </div>
+                        </div>
+                        <button type="submit" className={styles.submitButton}>Guardar Cambios</button>
+                    </div>
+                    <button type="button" onClick={handleLogout} className={styles.logoutButton}>
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </section>
+        </RequireAuth>
+    );
+}
+
+export default UserProfile;
+
+/* 
+<div className={styles.userProfileContainer}>
                 <h1>Perfil de Usuario</h1>
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.formGroup}>
@@ -140,8 +205,4 @@ function UserProfile() {
                     </button>
                 </form>
             </div>
-        </RequireAuth>
-    );
-}
-
-export default UserProfile;
+*/
