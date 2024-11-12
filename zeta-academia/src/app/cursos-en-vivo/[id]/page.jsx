@@ -249,6 +249,9 @@ const CourseDetail = ({ params }) => {
           </div>
         ))}
       </div>
+      <footer>
+        
+      </footer>
     </div>
   );
 };
