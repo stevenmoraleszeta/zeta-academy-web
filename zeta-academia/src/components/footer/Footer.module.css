@@ -30,6 +30,10 @@
   gap: 0px;
 }
 
+.contactInfo a{
+  font-weight: bold;
+}
+
 .contactInfo p {
   margin: 0; /* Elimina cualquier margen adicional */
   padding: 0; /* Elimina cualquier padding adicional */
@@ -97,8 +101,8 @@
 }
 
 .iconsRedes {
-  width: 20px; /* Ajusta el tamaño a tu preferencia */
-  height: 20px;
+  width: 25px; /* Ajusta el tamaño a tu preferencia */
+  height: 25px;
   margin-right: 8px; /* Espacio entre el ícono y el texto */
   vertical-align: middle; /* Alinea el icono con el texto */
 }

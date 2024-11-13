@@ -25,53 +25,56 @@ function FooterZ() {
         </Link>
         <div className={styles.contactInfo}>
           <p>
-            <Image
-              alt="WhatsApp"
-              src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Fwhatsapp.png?alt=media&token=c5a39c00-a699-446b-bab6-9ddf3c9ab7c9"
-              width={20}
-              height={20}
-              className={styles.iconsRedes}
-            />
+
             <a
               href="https://wa.link/qggv19"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: "inherit", textDecoration: "none" }}
             >
+              <Image
+                alt="WhatsApp"
+                src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Fwhatsapp.png?alt=media&token=c5a39c00-a699-446b-bab6-9ddf3c9ab7c9"
+                width={20}
+                height={20}
+                className={styles.iconsRedes}
+              />
               +50661304830
             </a>
           </p>
           <p>
-            <Image
-              alt="IG"
-              src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Finstagram.png?alt=media&token=4ceb6bba-a56c-496b-92b6-5e1d936b5422"
-              width={20}
-              height={20}
-              className={styles.iconsRedes}
-            />
+
             <a
               href="https://www.instagram.com/stevenmoraleszeta"
               target="_blank" // Abre el enlace en una nueva pestaña
               rel="noopener noreferrer" // Buenas prácticas de seguridad
               style={{ color: "inherit", textDecoration: "none" }} // Opcional: estilos para mantener el color y eliminar el subrayado
             >
+              <Image
+                alt="IG"
+                src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Finstagram.png?alt=media&token=4ceb6bba-a56c-496b-92b6-5e1d936b5422"
+                width={20}
+                height={20}
+                className={styles.iconsRedes}
+              />
               stevenmoraleszeta
             </a>
           </p>
           <p>
-            <Image
-              alt="IG"
-              src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Finstagram.png?alt=media&token=4ceb6bba-a56c-496b-92b6-5e1d936b5422"
-              width={20} // Ajusta el tamaño según lo necesites
-              height={20}
-              className={styles.iconsRedes}
-            />{" "}
+
             <a
               href="https://www.instagram.com/zeta.steam"
               target="_blank" // Abre el enlace en una nueva pestaña
               rel="noopener noreferrer" // Buenas prácticas de seguridad
               style={{ color: "inherit", textDecoration: "none" }} // Mantiene el estilo de texto sin subrayado
             >
+              <Image
+                alt="IG"
+                src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Finstagram.png?alt=media&token=4ceb6bba-a56c-496b-92b6-5e1d936b5422"
+                width={20} // Ajusta el tamaño según lo necesites
+                height={20}
+                className={styles.iconsRedes}
+              />
               zeta.steam
             </a>
           </p>
