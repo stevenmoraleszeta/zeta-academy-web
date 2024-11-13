@@ -6,7 +6,7 @@ import Image from "next/image";
 
 import { useAuth } from "@/context/AuthContext";
 import { getAuth, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useRouter } from "next/navigation";
 
@@ -23,15 +23,26 @@ export default function CompleteInformation() {
     const router = useRouter();
 
     useEffect(() => {
-        if (currentUser) {
-            setUserInfo({
-                displayName: currentUser.displayName || '',
-                number: currentUser.number || '',
-                edad: currentUser.edad || '',
-                pais: currentUser.pais || '',
-            });
-            setLoading(false);
-        }
+        const fetchUserData = async () => {
+            if (currentUser) {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    setUserInfo({
+                        displayName: currentUser.displayName || '',
+                        number: userDocSnap.data().number || '',
+                        edad: userDocSnap.data().edad || '',
+                        pais: userDocSnap.data().pais || '',
+                    });
+                } else {
+                    console.log('No se encontró el documento del usuario en Firestore');
+                }
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
     }, [currentUser]);
 
     const handleChange = (e: any) => {
