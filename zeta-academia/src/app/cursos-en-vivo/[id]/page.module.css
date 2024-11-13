@@ -90,8 +90,8 @@
   position: absolute;
   bottom: 10px;
   left: 10px; /* Align button to the left */
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #ffffff;
+  background-color: var(--color-primary);
+  color: var(--text-color);
   padding: 6px 10px;
   border: none;
   border-radius: 5px;
@@ -104,8 +104,7 @@
 }
 
 .editVideoButton:hover {
-  background-color: rgba(255, 255, 255, 0.8);
-  color: #000;
+  background-color: var(--color-primary-hover);
 }
 
 /* Placeholder if no video URL is provided */
@@ -304,28 +303,37 @@
 }
 
 .modalContent {
-  background: #1a1a1a;
+  background: var(--color-dark-hover);
   padding: 20px;
   border-radius: 8px;
   width: 90%;
-  max-width: 300px;
+  max-width: 500px;
   text-align: left; /* Align modal content to the left */
 }
 
 .modalContent h3 {
-  color: #ffffff;
+  color: var(--text-color);
   margin-bottom: 15px;
   text-align: left; /* Align header to the left */
+  font-weight: bold;
+}
+
+.modalContent label {
+  color: var(--text-color);
+  text-align: left;
+  font-weight: bold;
 }
 
 .modalInput {
   width: 100%;
-  background: transparent;
-  color: #ffffff;
+  background: var(--color-black);
+  color: var(--text-color);
   border: none;
   outline: none;
-  padding: 0;
+  padding: 3px;
   text-align: left; /* Align input text to the left */
+  margin-top: 3px;
+  margin-bottom: 10px;
 }
 
 .modalActions {
@@ -344,15 +352,16 @@
 }
 
 .modalActions button:first-child {
-  background-color: #4CAF50;
+  background-color: var(--color-primary);
   color: white;
 }
 
 .modalActions button:last-child {
-  background-color: #f44336;
+  background-color: var(--color-secondary);
   color: white;
 }
 
 .modalActions button:hover {
   opacity: 0.9;
 }
+
