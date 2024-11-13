@@ -30,19 +30,22 @@
   gap: 0px;
 }
 
-.contactInfo a{
+.contactInfo a {
   font-weight: bold;
 }
 
 .contactInfo p {
-  margin: 0; /* Elimina cualquier margen adicional */
-  padding: 0; /* Elimina cualquier padding adicional */
-  line-height: 2; /* Ajusta la altura de línea para que los elementos estén más juntos */
+  margin: 0;
+  /* Elimina cualquier margen adicional */
+  padding: 0;
+  /* Elimina cualquier padding adicional */
+  line-height: 2;
+  /* Ajusta la altura de línea para que los elementos estén más juntos */
   margin-left: 4vh;
 }
 
 .contactInfo p:hover {
- color: var(--color-light-active);
+  color: var(--color-light-active);
 }
 
 .navPair {
@@ -61,9 +64,12 @@
   text-decoration: none;
   margin-top: 3vh;
 }
+
 .navColumn a {
-  text-decoration: none; /* Elimina la decoración de texto de los enlaces */
-  color: var(--button-primary-hover); /* Asegura el color del texto */
+  text-decoration: none;
+  /* Elimina la decoración de texto de los enlaces */
+  color: var(--button-primary-hover);
+  /* Asegura el color del texto */
   margin: 5px;
   font-weight: bold;
 }
@@ -101,9 +107,11 @@
 }
 
 .iconsRedes {
-  width: 25px; /* Ajusta el tamaño a tu preferencia */
+  width: 25px;
+  /* Ajusta el tamaño a tu preferencia */
   height: 25px;
-  margin-right: 8px; /* Espacio entre el ícono y el texto */
-  vertical-align: middle; /* Alinea el icono con el texto */
+  margin-right: 8px;
+  /* Espacio entre el ícono y el texto */
+  vertical-align: middle;
+  /* Alinea el icono con el texto */
 }
-

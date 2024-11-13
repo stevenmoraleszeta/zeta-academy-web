@@ -1,16 +1,15 @@
 /* File: src/pages/admin/AdminMenu.module.css */
-
 .adminMenuContainer {
     display: flex;
     justify-content: center;
-    padding: 20px;
+    padding: 40px;
 }
 
 .buttonContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 20px;
-    max-width: 1200px; /* Controla el ancho máximo del contenedor */
+    max-width: 1200px;
 }
 
 .adminButton {
@@ -18,28 +17,40 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 140px;
-    height: 140px;
-    background-color: #ffffff;
+    width: 200px;
+    height: 200px;
+    background-color: var(--color-dark); /* Fondo oscuro del botón */
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .adminButton:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: var(--color-primary-hover); /* Cambio de fondo en hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .buttonIcon {
-    font-size: 40px;
-    color: #4b4b4b;
+    font-size: 60px;
+    color: var(--color-secondary); /* Icono en color claro */
     margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+
+.adminButton:hover .buttonIcon {
+    color: var(--color-light-active); /* Cambio de color en el icono al hacer hover */
 }
 
 .adminButton span {
-    font-size: 14px;
-    color: #4b4b4b;
+    font-size: 20px;
+    color: var(--text-color); /* Texto en color blanco */
     text-align: center;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.adminButton:hover span {
+    color: var(--color-lighter); /* Cambio de color del texto al hacer hover */
 }

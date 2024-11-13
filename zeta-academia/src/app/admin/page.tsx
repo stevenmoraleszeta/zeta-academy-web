@@ -34,13 +34,6 @@ const AdminMenu: React.FC = () => {
                     </button>
                     <button
                         className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/tickets')}
-                    >
-                        <AiOutlineFileText className={styles.buttonIcon} />
-                        <span>Tickets</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
                         onClick={() => handleNavigation('/admin/proyectos-estudiantes')}
                     >
                         <AiOutlineProject className={styles.buttonIcon} />

@@ -16,7 +16,6 @@ const AdminUsers: React.FC = () => {
 
     // Definimos los campos a mostrar y editar en el modal
     const editFields = [
-        { label: 'Imagen', field: 'photoURL', type: 'image' },
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
         { 
@@ -34,11 +33,11 @@ const AdminUsers: React.FC = () => {
     return (
         <RequireAuth>
             <div className={styles.adminCoursesContainer}>
-                <h2>Gestión de Usuarios</h2>
                 <CrudMenu
                     collectionName="users"
                     displayFields={displayFields}
                     editFields={editFields}
+                    pageTitle='Gestión de Usuarios'
                 />
             </div>
         </RequireAuth>

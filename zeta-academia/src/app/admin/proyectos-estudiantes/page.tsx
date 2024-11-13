@@ -5,6 +5,26 @@ import CrudMenu from "@/components/crud-menu/CrudMenu";
 import useFetchData from "@/app/hooks/useFetchData";
 import { db } from "@/firebase/firebase";
 
+// Define a type for the user data
+type User = {
+    id: string;
+    displayName?: string;
+    email: string;
+    role: string;
+};
+
+// Define a type for the course data
+type Course = {
+    id: string;
+    title: string;
+};
+
+// Define a type for the data returned by useFetchData
+type CourseData = {
+    id: string;
+    title: string;
+};
+
 const StudentProjectsPage: React.FC = () => {
     const { data: adminUsersData } = useFetchData("users");
     const { data: courses } = useFetchData("onlineCourses");
@@ -12,8 +32,8 @@ const StudentProjectsPage: React.FC = () => {
 
     const adminUsers = adminUsersData
         ? adminUsersData
-            .filter(user => user.role === 'admin')
-            .map(user => ({
+            .filter((user: User) => user.role === 'admin')
+            .map((user: User) => ({
                 value: user.id,
                 label: user.displayName || user.email
             }))
@@ -31,7 +51,7 @@ const StudentProjectsPage: React.FC = () => {
         { label: "Description", field: "description", type: "textarea" },
         { label: "File", field: "fileUrl", type: "file" },
         { label: "Student Email", field: "studentEmail", type: "email" },
-        { label: "Course", field: "course", type: "select", selectType: "combobox", options: courses ? courses.map(course => ({ value: course.id, label: course.title })) : [] },
+        { label: "Course", field: "course", type: "select", selectType: "combobox", options: courses ? courses.map((course: CourseData) => ({ value: course.id, label: course.title })) : [] },
         { label: "Delivery Date", field: "deliveryDate", type: "date" },
         { label: "Review Date", field: "reviewDate", type: "date" },
         { label: "Reviewed By", field: "reviewedBy", type: "select", selectType: "combobox", options: adminUsers },
@@ -45,11 +65,11 @@ const StudentProjectsPage: React.FC = () => {
 
     return (
         <div>
-            <h1>Student Projects</h1>
             <CrudMenu
                 collectionName={collectionName}
                 displayFields={displayFields}
                 editFields={editFields}
+                pageTitle="Proyectos de Estudiantes"
             />
         </div>
     );

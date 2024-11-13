@@ -1,64 +1,122 @@
 .CRUDContainer {
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 1vh 5vw;
+}
+
+.CRUDContainer h1 {
+    color: var(--color-lighter);
 }
 
 .topBar {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Alinea el input y el botón horizontalmente */
+    justify-content: space-between;
+    align-items: center;
     gap: 10px;
     margin-bottom: 20px;
 }
 
-.topBar button {
-    background-color: var(--primary-color);
-    color: var(--text-color);
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.topBar button:hover:enabled {
-    background-color: var(--primary-color-darker);
-}
-
 .topBar input {
-    background-color: var(--component-dark);
-    color: var(--text-color);
-    border-radius: 5px;
+    flex: 1; /* Ocupa el máximo ancho posible */
+    width: 100%;
+    background-color: var(--color-dark);
+    color: var(--color-lighter);
     padding: 10px;
+    outline: none;
+    transition: border-color 0.3s;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.topBar input:focus {
+    border-color: var(--color-secondary);
 }
 
 .itemsSection {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
     justify-content: center;
+    padding-top: 20px;
 }
 
 .itemCard {
-    padding: 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    background-color: var(--component-dark);
-    flex: 1 1 calc(23% - 10px);
-    max-width: calc(23% - 10px);
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 20px;
+    border-radius: 10px;
+    background-image: linear-gradient(var(--color-dark), var(--color-primary-active)) ;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    text-align: left;
+    color: var(--text-color);
     position: relative;
 }
 
 .itemCard:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 10px var(--background-shadow);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .itemCard img {
-    max-width: 50%;
+    width: 200px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.fieldRow {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    width: 100%;
+    text-align: left;
+}
+
+.fieldRow label {
+    margin-bottom: 5px;
+    color: var(--color-lighter);
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.fieldRow input,
+.fieldRow select {
+    background-color: var(--color-dark-hover);
+    color: var(--text-color);
     border-radius: 5px;
-    margin-bottom: 10px;
+    padding: 10px;
+    outline: none;
+    transition: border-color 0.3s;
+    font-size: 1rem;
+}
+
+.fieldRow input:focus,
+.fieldRow select:focus {
+    border-color: var(--color-secondary);
+}
+
+.iconButtons {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.iconButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center; 
+    transition: color 0.3s ease;
+    color: var(--color-lighter);
+}
+
+.iconButton:hover {
+    background: none;
+    color: var(--color-secondary);
 }
 
 .modal {
@@ -67,147 +125,95 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--background-color-low-opacity);
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     padding: 20px;
     overflow-y: auto;
+    z-index: 1000;
 }
 
 .modalContent {
-    background: var(--component-dark);
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 700px;
+    background: var(--color-dark);
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 600px;
     width: 100%;
     color: var(--text-color);
-    box-shadow: 0 4px 10px var(--background-shadow);
-    margin-top: 7vh;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     max-height: 80vh;
     overflow-y: auto;
+    font-size: 1rem;
 }
 
-.fieldRow {
+.modalContent h2{
+    color: var(--color-primary);
+}
+
+.modalButtons {
     display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
 }
 
-.fieldRow label {
-    margin-bottom: 5px;
-    color: var(--text-color);
-}
-
-.fieldRow input {
-    background-color: var(--component-dark);
-    color: var(--text-color);
-    border-radius: 5px;
-    padding: 8px;
-}
-
-.fieldRow input[type="checkbox"] {
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    accent-color: var(--primary-color);
-    transition: background-color 0.3s;
-}
-
-.fieldRow input[type="checkbox"]:checked {
-    background-color: var(--secundary-color);
-}
-
-/* Añade una clase específica para los botones deshabilitados */
-.disabledButton {
-    background-color: var(--light-gray);
-    color: var(--text-color);
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-/* El resto del CSS sigue igual */
-.topBar button {
-    background-color: var(--primary-color);
-    color: var(--text-color);
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.topBar button:hover:enabled {
-    background-color: var(--primary-color-darker);
-}
-
-
-.deleteButton {
-    background-color: var(--red-color);
-    color: var(--text-color);
-    margin-top: 10px;
-}
-
-.deleteButton:hover {
-    background-color: var(--red-color-darker);
-}
-
+.cancelButton,
 .closeButton {
-    background-color: var(--light-gray);
+    background-color: var(--color-primary);
     color: var(--text-color);
-    margin-top: 10px;
-}
-
-.closeButton:hover {
-    background-color: var(--primary-color-darker);
-}
-
-.imagePreview {
-    max-width: 200px;
-    max-height: 200px;
-    margin-top: 10px;
-}
-
-.iconButtons {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    display: flex;
-    gap: 5px;
-}
-
-.iconButton {
-    background: none;
-    border: none;
+    padding: 10px 20px;
+    border-radius: 3px;
     cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.iconButton:hover {
-    opacity: 1;
+.cancelButton:hover,
+.closeButton:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
 }
 
-.iconButton svg {
-    width: 16px;
-    height: 16px;
+/* Responsividad */
+@media (max-width: 768px) {
+    .itemsSection {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    .itemCard {
+        padding: 15px;
+    }
+
+    .fieldRow input,
+    .fieldRow select {
+        padding: 8px;
+    }
+
+    .confirmButton,
+    .cancelButton,
+    .closeButton {
+        padding: 8px 16px;
+    }
 }
 
-.downloadLink {
-    display: inline-block;
-    margin-top: 5px;
-    padding: 5px 10px;
-    background-color: var(--primary-color);
-    color: var(--text-color);
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
+@media (max-width: 480px) {
+    .itemsSection {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
 
-.downloadLink:hover {
-    background-color: var(--primary-color-darker);
+    .modalContent {
+        padding: 20px;
+        max-width: 90vw;
+    }
+
+    .fieldRow input,
+    .fieldRow select {
+        padding: 6px;
+    }
+
+    .confirmButton,
+    .cancelButton,
+    .closeButton {
+        padding: 6px 12px;
+    }
 }

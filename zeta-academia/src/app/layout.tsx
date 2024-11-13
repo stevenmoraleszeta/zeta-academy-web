@@ -24,10 +24,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`app ${montserrat.className}`}>
         <AuthProvider>
-          <Navbar />
-          {children}
+          <div className="page-container">
+            <Navbar />
+            <main className="content">{children}</main>
+            <FooterZ />
+          </div>
         </AuthProvider>
-        <FooterZ />
       </body>
     </html>
   );
