@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getAuth, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
+import { useRouter } from "next/navigation";
 
 export default function CompleteInformation() {
     const { currentUser, updateCurrentUser } = useAuth();
@@ -19,6 +20,7 @@ export default function CompleteInformation() {
         pais: '',
     });
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         if (currentUser) {
@@ -54,6 +56,7 @@ export default function CompleteInformation() {
                     edad: userInfo.edad,
                     pais: userInfo.pais,
                 }, { merge: true });
+                router.push('/platform')
             }
         } catch (err) {
             console.log('Error al actualizar usuario: ' + err)
@@ -83,8 +86,8 @@ export default function CompleteInformation() {
                             <div className={styles.secondFieldsContainer}>
                                 <div className={styles.countryContainer}>
                                     <p>País</p>
-                                    <select name="" id="">
-                                        <option value="" disabled>Selecciona tu país</option>
+                                    <select name="pais" id="countrySelector" onChange={handleChange}>
+                                        <option disabled defaultValue={'Sin País'} selected>Seleccionar país</option>
                                         <option value="Costa Rica">Costa Rica</option>
                                         <option value="Nicaragua">Nicaragua</option>
                                         <option value="El Salvador">El Salvador</option>

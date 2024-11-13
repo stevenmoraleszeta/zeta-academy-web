@@ -2,52 +2,68 @@
 "use client"; // Indica que este es un Client Component para Next.js
 
 import Image from 'next/image';
-import styles from './userProfile.module.css'; // Importa los estilos modulares
+import styles from './userProfile.module.css';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getAuth, updateProfile, updateEmail, signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation'; // Para manejar la navegación en Next.js
+import { useRouter } from 'next/navigation';
 import RequireAuth from '../../components/RequireAuth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 function UserProfile() {
     const { currentUser, updateCurrentUser } = useAuth();
     const auth = getAuth();
     const storage = getStorage();
-    const router = useRouter(); // Reemplaza useNavigate de react-router-dom
+    const db = getFirestore();
+    const router = useRouter();
+
     const [userInfo, setUserInfo] = useState({
         displayName: '',
         email: '',
         photoURL: '',
         number: '',
         edad: '',
+        pais: '',
     });
     const [loading, setLoading] = useState(true);
     const [imageFile, setImageFile] = useState(null);
 
     useEffect(() => {
-        if (currentUser) {
-            setUserInfo({
-                displayName: currentUser.displayName || '',
-                email: currentUser.email || '',
-                photoURL: currentUser.photoURL || '',
-                number: currentUser.number || '',
-                edad: currentUser.edad || '',
-            });
-            setLoading(false);
-        }
+        const fetchUserData = async () => {
+            if (currentUser) {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    setUserInfo({
+                        displayName: currentUser.displayName || '',
+                        email: currentUser.email || '',
+                        photoURL: currentUser.photoURL || '',
+                        number: userDocSnap.data().number || '',
+                        edad: userDocSnap.data().edad || '',
+                        pais: userDocSnap.data().pais || '',
+                    });
+                } else {
+                    console.log('No se encontró el documento del usuario en Firestore');
+                }
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
     }, [currentUser]);
 
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            router.push('/home'); // Redirige usando el enrutador de Next.js
+            router.push('/home');
         } catch (error) {
             console.error('Failed to log out', error);
         }
     };
 
-    const handleChange = (e) => {
+    const handleChange = (e: any) => {
         const { name, value } = e.target;
         setUserInfo((prevInfo) => ({
             ...prevInfo,
@@ -55,18 +71,17 @@ function UserProfile() {
         }));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: any) => {
         if (e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
         try {
             let photoURL = userInfo.photoURL;
 
-            // Si se ha seleccionado una nueva imagen, subirla a Firebase Storage
             if (imageFile) {
                 const storageRef = ref(storage, `profileImages/${currentUser.uid}/${imageFile.name}`);
                 await uploadBytes(storageRef, imageFile);
@@ -78,11 +93,19 @@ function UserProfile() {
                     displayName: userInfo.displayName,
                     photoURL: photoURL,
                 });
+
                 if (userInfo.email !== auth.currentUser.email) {
                     await updateEmail(auth.currentUser, userInfo.email);
                 }
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userDocRef, {
+                    number: userInfo.number,
+                    edad: userInfo.edad,
+                    pais: userInfo.pais,
+                }, { merge: true });
+
                 updateCurrentUser({ ...auth.currentUser, photoURL });
-                router.push('/platform'); // Redirige a la plataforma después de la actualización
+                router.push('/platform');
             }
         } catch (error) {
             console.error('Error updating profile', error);
@@ -90,8 +113,8 @@ function UserProfile() {
     };
 
     if (!currentUser) {
-        router.push('/login'); // Redirige al login si no hay usuario autenticado
-        return null; // No renderiza nada mientras redirige
+        router.push('/login');
+        return null;
     }
 
     if (loading) {
@@ -104,7 +127,7 @@ function UserProfile() {
                 <form onSubmit={handleSubmit} className={styles.userProfileForm}>
                     <div className={styles.imgContainer}>
                         {userInfo.photoURL && (
-                            <Image alt='userProfileImage' src={userInfo.photoURL} width={500} height={500} className={styles.userImg}></Image>
+                            <Image alt='userProfileImage' src={userInfo.photoURL} width={500} height={500} className={styles.userImg} />
                         )}
                     </div>
                     <div className={styles.userInformationContainer}>
@@ -115,10 +138,9 @@ function UserProfile() {
                                 value={userInfo.displayName}
                                 onChange={handleChange}
                                 required
-
                                 className={styles.nameInput}
                             />
-                            <p className={styles.inputLabels}>Número teléfonico</p>
+                            <p className={styles.inputLabels}>Número telefónico</p>
                             <input
                                 type="number"
                                 name="number"
@@ -131,8 +153,14 @@ function UserProfile() {
                         <div className={styles.secondContainerInformation}>
                             <div className={styles.countryContainer}>
                                 <p className={styles.inputLabels}>País</p>
-                                <select name="country" id="countrySelect" className={styles.countrySelect}>
-                                    <option value="" selected disabled>Selecciona tu país</option>
+                                <select
+                                    name="pais"
+                                    id="countrySelect"
+                                    className={styles.countrySelect}
+                                    value={userInfo.pais}
+                                    onChange={handleChange}
+                                >
+                                    <option value="">Selecciona tu país</option>
                                     <option value="Costa Rica">Costa Rica</option>
                                     <option value="Nicaragua">Nicaragua</option>
                                     <option value="El Salvador">El Salvador</option>
@@ -143,7 +171,15 @@ function UserProfile() {
                             </div>
                             <div className={styles.ageContainer}>
                                 <p className={styles.inputLabels}>Edad</p>
-                                <input min={0} type="number" name='edad' value={userInfo.edad} required onChange={handleChange} className={styles.ageInput} />
+                                <input
+                                    min={0}
+                                    type="number"
+                                    name="edad"
+                                    value={userInfo.edad}
+                                    required
+                                    onChange={handleChange}
+                                    className={styles.ageInput}
+                                />
                             </div>
                         </div>
                         <button type="submit" className={styles.submitButton}>Guardar Cambios</button>
