@@ -63,7 +63,9 @@ const LiveCourses = () => {
       const withinPriceRange = course?.discountedPrice <= priceRange;
       const matchesCategory =
         !selectedCategory || course?.category === selectedCategory;
-      return matchesQuery && withinPriceRange && matchesCategory && !course.archived;
+      return (
+        matchesQuery && withinPriceRange && matchesCategory && !course.archived
+      );
     });
     setFilteredCourses(filtered);
   };
@@ -160,7 +162,13 @@ const LiveCourses = () => {
 
       <footer className={styles.footer}>
         <p>¿No ves el curso en vivo que buscas?</p>
+        <a
+          href="https://wa.link/qjqt2w"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
         <button className={styles.contactButton}>Contáctanos</button>
+        </a>
       </footer>
     </div>
   );
