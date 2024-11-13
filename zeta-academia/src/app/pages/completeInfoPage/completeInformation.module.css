@@ -96,6 +96,17 @@
     width: 100%;
     color: white;
     font-size: clamp(1.1vw, 17px, 1.6vw);
+    background-image: url('../../../assets/cursors/selectArrow.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+}
+
+.countryContainer select::-ms-expand {
+    display: none;
 }
 
 .ageContainer input {

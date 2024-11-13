@@ -57,11 +57,12 @@
     outline: none;
     background-color: transparent;
     font-size: clamp(2vw, 30px, 5vw);
-    text-align: justify;
+    font-weight: 600;
     color: white;
 
-    margin: 20px;
+    margin-bottom: 20px;
     margin-left: 0px;
+    padding-left: 0px;
 }
 
 .nameInput:focus {
@@ -71,17 +72,19 @@
     border-bottom: 2px solid #005F73;
 }
 
+.inputNumber {
+    color: white;
+    margin: 10px;
+    margin-left: 0px;
+    font-weight: 600;
+    font-size: clamp(.5vw, 24px, 1.1vw);
+}
+
 .inputLabels {
     color: #8CB7C0;
     margin: 15px;
     margin-left: 0px;
     font-size: clamp(1.2vw, 16px, 1.5vw);
-}
-
-.inputNumber {
-    color: white;
-    margin: 10px;
-    margin-left: 0px;
 }
 
 /* Second user's information container */
@@ -101,6 +104,18 @@
 
 .countrySelect {
     color: white;
+    font-size: clamp(.5vw, 24px, 1.1vw);
+    background-image: url('../../assets/cursors/selectArrow.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+}
+
+.countrySelect::-ms-expand {
+    display: none;
 }
 
 .ageContainer {
@@ -111,6 +126,7 @@
 .ageInput {
     width: 50%;
     color: white;
+    font-size: clamp(.5vw, 24px, 1.1vw);
 }
 
 .submitButton {
