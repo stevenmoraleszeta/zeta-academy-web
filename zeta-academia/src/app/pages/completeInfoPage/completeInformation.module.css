@@ -8,8 +8,8 @@
 }
 
 .formContainer {
-    width: 30%;
-    height: 80%;
+    width: 35%;
+    height: 85%;
     border-radius: 15px;
 
     background: linear-gradient(#002128, #00758E);
@@ -30,7 +30,7 @@
 }
 
 .instructionsContainer {
-    width: 90%;
+    width: 85%;
 
     display: flex;
     justify-content: center;
@@ -38,13 +38,36 @@
     flex-direction: column;
 }
 
+.instructions {
+    color: white;
+    font-size: clamp(1vw, 20px, 1.7vw);
+    font-weight: 600;
+    margin: 0px;
+}
+
 .zetaImgLogo {
     width: 20vw;
     height: auto;
+    margin: 0px;
 }
 
 .firstFieldsContainer {
-    width: 90%;
+    width: 85%;
+}
+
+.formLabelTxt {
+    color: #8CB7C0;
+    font-weight: 600;
+    font-size: clamp(1.2vw, 17px, 1.8vw);
+}
+
+.firstFieldsContainer input {
+    color: white;
+    font-size: clamp(1.2vw, 17px, 1.8vw);
+}
+
+.secondFieldsContainer input {
+    color: white;
 }
 
 .secondFieldsContainer {
@@ -54,11 +77,12 @@
     align-items: center;
     justify-content: center;
     flex-direction: row;
+
+    margin-bottom: 20px;
 }
 
 .countryContainer {
-    width: 50%;
-
+    width: 70%;
     margin-top: 10px;
     margin-right: 5px;
 }
@@ -70,10 +94,14 @@
 
 .countryContainer select {
     width: 100%;
+    color: white;
+    font-size: clamp(1.1vw, 17px, 1.6vw);
 }
 
 .ageContainer input {
     width: 40%;
+    color: white;
+    font-size: clamp(1.1vw, 17px, 1.6vw);
 }
 
 .completeBtn {

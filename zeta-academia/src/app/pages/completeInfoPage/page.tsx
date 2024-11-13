@@ -74,18 +74,18 @@ export default function CompleteInformation() {
                     <form onSubmit={handleSubmit} className={styles.form}>
                         <div className={styles.instructionsContainer}>
                             <Image alt="zetaLogo" src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogoCpp.PNG?alt=media&token=6b854bc7-b25f-4b5c-b2ba-b0298372b67e'} width={1000} height={1000} className={styles.zetaImgLogo}></Image>
-                            <p className={styles.instructions}>Bienvenido Steven Morales Fallas, porfavor rellena estos campos antes de continuar para mejorar la experiencia de usuario.</p>
+                            <p className={styles.instructions}>Bienvenido Steven Morales Fallas, por favor rellena estos campos antes de continuar para mejorar la experiencia de usuario.</p>
                         </div>
                         <div className={styles.firstFieldsContainer}>
                             <div className={styles.firstFieldsContainer}>
-                                <p>Nombre Completo</p>
+                                <p className={styles.formLabelTxt}>Nombre Completo</p>
                                 <input type="text" name="displayName" value={userInfo.displayName} onChange={handleChange} required />
-                                <p>Número Telefónico</p>
+                                <p className={styles.formLabelTxt}>Número Telefónico</p>
                                 <input type="number" name="number" value={userInfo.number} onChange={handleChange} required />
                             </div>
                             <div className={styles.secondFieldsContainer}>
                                 <div className={styles.countryContainer}>
-                                    <p>País</p>
+                                    <p className={styles.formLabelTxt}>País</p>
                                     <select name="pais" id="countrySelector" onChange={handleChange}>
                                         <option disabled defaultValue={'Sin País'} selected>Seleccionar país</option>
                                         <option value="Costa Rica">Costa Rica</option>
@@ -97,7 +97,7 @@ export default function CompleteInformation() {
                                     </select>
                                 </div>
                                 <div className={styles.ageContainer}>
-                                    <p>Edad</p>
+                                    <p className={styles.formLabelTxt}>Edad</p>
                                     <input min={0} type="number" name='edad' value={userInfo.edad} required onChange={handleChange} />
                                 </div>
                             </div>
