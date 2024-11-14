@@ -156,7 +156,7 @@ const LiveCourses = () => {
             />
           ))
         ) : (
-          <p>No live courses available.</p>
+          <p>No encuentro algo como lo que buscas, porfavor contáctanos.</p>
         )}
       </div>
 

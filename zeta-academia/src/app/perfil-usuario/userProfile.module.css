@@ -7,6 +7,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 10vh;
 
     font-weight: 600;
 }
@@ -23,17 +24,17 @@
 /* Image and container styling */
 
 .imgContainer {
-    width: 30%;
-    height: 35%;
-
+    height: 100%;
+    margin-top: 40px;
+    margin-right: 40px;
     display: flex;
-    justify-content: center;
     align-items: flex-start;
+    align-self: flex-start;
 }
 
 .userImg {
-    width: 250px;
-    height: 250px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -76,7 +77,7 @@
     color: white;
     margin: 10px;
     margin-left: 0px;
-    font-weight: 600;
+    font-weight: normal;
     font-size: clamp(.5vw, 24px, 1.1vw);
 }
 
@@ -129,8 +130,8 @@
     font-size: clamp(.5vw, 24px, 1.1vw);
 }
 
-.submitButton {
-    width: 31%;
+.submitButton, .logoutButton {
     font-weight: 600;
-    font-size: clamp(.5vw, 24px, 1.1vw);
+    font-size: clamp(0.395vw, 18.97px, 0.869vw);
+    margin-right: 10px;
 }

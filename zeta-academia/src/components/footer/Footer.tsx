@@ -85,7 +85,7 @@ function FooterZ() {
       <div className={styles.rightContainer}>
         <div className={styles.separator}></div>
         <div className={styles.navColumn}>
-          <a href="/cursos-en-linea">Cursos en línea</a>
+          <a href="/cursos-en-linea">Aprende en línea</a>
           <a href="/cursos-en-vivo">Cursos en vivo</a>
         </div>
 

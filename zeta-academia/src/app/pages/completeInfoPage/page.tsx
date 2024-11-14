@@ -99,7 +99,7 @@ export default function CompleteInformation() {
                             <div className={styles.secondFieldsContainer}>
                                 <div className={styles.countryContainer}>
                                     <p className={styles.formLabelTxt}>País</p>
-                                    <select name="pais" id="countrySelector" onChange={handleChange}>
+                                    <select name="pais" id="countrySelector" onChange={handleChange} defaultValue={userInfo.pais}>
                                         {countries.map((country) => (
                                             <option key={country.es} value={country.es}>
                                                 {country.es}

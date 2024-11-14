@@ -14,14 +14,13 @@ function Login() {
     useEffect(() => {
         if (currentUser && missingInfo) {
             router.push("/pages/completeInfoPage");
+        } else if (currentUser && !missingInfo){
+            router.push("/cursos-en-linea");
         }
     }, [currentUser, missingInfo, router]);
 
     return (
         <section>
-            {currentUser ? (
-                <p>Bienvenido, {currentUser.displayName}</p>
-            ) : (
                 <>
                     <div className={styles.loginMainContainer}>
                         <div className={styles.loginContainer}>
@@ -38,7 +37,7 @@ function Login() {
                         </div>
                     </div>
                 </>
-            )}
+            )
         </section>
     );
 }

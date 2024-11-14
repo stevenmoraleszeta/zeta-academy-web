@@ -183,10 +183,11 @@ function UserProfile() {
                             </div>
                         </div>
                         <button type="submit" className={styles.submitButton}>Guardar Cambios</button>
+                        <button type="button" onClick={handleLogout} className={styles.logoutButton}>
+                            Cerrar Sesión
+                        </button>
                     </div>
-                    <button type="button" onClick={handleLogout} className={styles.logoutButton}>
-                        Cerrar Sesión
-                    </button>
+
                 </form>
             </section>
         </RequireAuth>

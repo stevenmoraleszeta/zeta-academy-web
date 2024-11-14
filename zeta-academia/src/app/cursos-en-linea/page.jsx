@@ -158,7 +158,7 @@ const OnlineCourses = () => {
             />
           ))
         ) : (
-          <p>No courses available.</p>
+          <p>No encuentro algo como lo que buscas, porfavor contáctanos.</p>
         )}
       </div>
 
