@@ -10,6 +10,8 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useRouter } from "next/navigation";
 
+import countries from '../../../jsonFiles/paises.json';
+
 export default function CompleteInformation() {
     const { currentUser, updateCurrentUser } = useAuth();
     const auth = getAuth();
@@ -67,7 +69,7 @@ export default function CompleteInformation() {
                     edad: userInfo.edad,
                     pais: userInfo.pais,
                 }, { merge: true });
-                router.push('/platform')
+                router.push('/cursos-en-linea')
             }
         } catch (err) {
             console.log('Error al actualizar usuario: ' + err)
@@ -85,7 +87,7 @@ export default function CompleteInformation() {
                     <form onSubmit={handleSubmit} className={styles.form}>
                         <div className={styles.instructionsContainer}>
                             <Image alt="zetaLogo" src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogoCpp.PNG?alt=media&token=6b854bc7-b25f-4b5c-b2ba-b0298372b67e'} width={1000} height={1000} className={styles.zetaImgLogo}></Image>
-                            <p className={styles.instructions}>Bienvenido Steven Morales Fallas, por favor rellena estos campos antes de continuar para mejorar la experiencia de usuario.</p>
+                            <p className={styles.instructions}>Bienvenido {userInfo.displayName}, por favor rellena estos campos antes de continuar para mejorar la experiencia de usuario.</p>
                         </div>
                         <div className={styles.firstFieldsContainer}>
                             <div className={styles.firstFieldsContainer}>
@@ -98,13 +100,11 @@ export default function CompleteInformation() {
                                 <div className={styles.countryContainer}>
                                     <p className={styles.formLabelTxt}>País</p>
                                     <select name="pais" id="countrySelector" onChange={handleChange}>
-                                        <option disabled defaultValue={'Sin País'} selected>Seleccionar país</option>
-                                        <option value="Costa Rica">Costa Rica</option>
-                                        <option value="Nicaragua">Nicaragua</option>
-                                        <option value="El Salvador">El Salvador</option>
-                                        <option value="Colombia">Colombia</option>
-                                        <option value="México">México</option>
-                                        <option value="Estados Unidos">Estados Unidos</option>
+                                        {countries.map((country) => (
+                                            <option key={country.es} value={country.es}>
+                                                {country.es}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className={styles.ageContainer}>

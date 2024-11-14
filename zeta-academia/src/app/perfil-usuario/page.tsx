@@ -11,6 +11,8 @@ import RequireAuth from '../../components/RequireAuth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
+import countries from '../../jsonFiles/paises.json';
+
 function UserProfile() {
     const { currentUser, updateCurrentUser } = useAuth();
     const auth = getAuth();
@@ -160,13 +162,11 @@ function UserProfile() {
                                     value={userInfo.pais}
                                     onChange={handleChange}
                                 >
-                                    <option value="">Selecciona tu país</option>
-                                    <option value="Costa Rica">Costa Rica</option>
-                                    <option value="Nicaragua">Nicaragua</option>
-                                    <option value="El Salvador">El Salvador</option>
-                                    <option value="Colombia">Colombia</option>
-                                    <option value="México">México</option>
-                                    <option value="Estados Unidos">Estados Unidos</option>
+                                    {countries.map((country) => (
+                                        <option key={country.es} value={country.es}>
+                                            {country.es}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className={styles.ageContainer}>
