@@ -67,7 +67,7 @@ export function AuthProvider({ children }) {
                 setMissingInfo(false);
             }
 
-            
+
         } else {
             await setDoc(userDocRef, {
                 displayName: user.displayName,
@@ -75,7 +75,7 @@ export function AuthProvider({ children }) {
                 photoURL: user.photoURL,
                 role: "student",
                 pais: "",
-                numeroTel: "",
+                number: "",
                 edad: '',
             });
             setIsAdmin(false);
