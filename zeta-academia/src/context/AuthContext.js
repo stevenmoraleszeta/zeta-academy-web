@@ -66,6 +66,8 @@ export function AuthProvider({ children }) {
             } else {
                 setMissingInfo(false);
             }
+
+            
         } else {
             await setDoc(userDocRef, {
                 displayName: user.displayName,

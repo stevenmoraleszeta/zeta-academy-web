@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs, addDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { FaRegImage, FaPencilAlt } from "react-icons/fa";
+import { FaRegImage, FaPencilAlt, FaTrash, FaPlus, FaRegCircle, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
 
@@ -70,10 +70,22 @@ const CourseDetail = ({ params }) => {
     const fetchModules = async () => {
       const modulesRef = collection(db, "onlineCourses", courseId, "modules");
       const modulesSnapshot = await getDocs(modulesRef);
-      const fetchedModules = modulesSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const fetchedModules = await Promise.all(
+        modulesSnapshot.docs.map(async (doc) => {
+          const moduleData = doc.data();
+          const classesRef = collection(db, "onlineCourses", courseId, "modules", doc.id, "classes");
+          const classesSnapshot = await getDocs(classesRef);
+          const classes = classesSnapshot.docs.map((classDoc) => ({
+            id: classDoc.id,
+            ...classDoc.data(),
+          }));
+          return {
+            id: doc.id,
+            ...moduleData,
+            classes,
+          };
+        })
+      );
       setModules(fetchedModules);
     };
 
@@ -227,6 +239,78 @@ const CourseDetail = ({ params }) => {
       }));
     }
   };
+
+  const moveModule = async (index, direction) => {
+    setModules((prevModules) => {
+      const newModules = [...prevModules];
+      const [movedModule] = newModules.splice(index, 1);
+      newModules.splice(index + direction, 0, movedModule);
+
+      // Update the order in the database
+      newModules.forEach(async (module, newIndex) => {
+        try {
+          const moduleRef = doc(db, "onlineCourses", courseId, "modules", module.id);
+          await updateDoc(moduleRef, { order: newIndex });
+        } catch (error) {
+          console.error("Error updating module order:", error);
+        }
+      });
+
+      return newModules;
+    });
+  };
+
+  const moveClass = async (moduleId, classIndex, direction) => {
+    setModules((prevModules) =>
+      prevModules.map((module) => {
+        if (module.id === moduleId) {
+          const newClasses = [...module.classes];
+          const [movedClass] = newClasses.splice(classIndex, 1);
+          newClasses.splice(classIndex + direction, 0, movedClass);
+
+          // Update the order in the database
+          newClasses.forEach(async (cls, newIndex) => {
+            try {
+              const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", cls.id);
+              await updateDoc(classRef, { order: newIndex });
+            } catch (error) {
+              console.error("Error updating class order:", error);
+            }
+          });
+
+          return { ...module, classes: newClasses };
+        }
+        return module;
+      })
+    );
+  };
+
+  // Function to load modules and classes, sorted by order
+  const loadModules = async () => {
+    const modulesSnapshot = await getDocs(collection(db, "onlineCourses", courseId, "modules"));
+    const modules = modulesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Sort modules by order
+    modules.sort((a, b) => a.order - b.order);
+
+    // Load and sort classes for each module
+    for (let module of modules) {
+      const classesSnapshot = await getDocs(collection(db, "onlineCourses", courseId, "modules", module.id, "classes"));
+      const classes = classesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Sort classes by order
+      classes.sort((a, b) => a.order - b.order);
+
+      module.classes = classes;
+    }
+
+    setModules(modules);
+  };
+
+  // Call loadModules when the component mounts
+  useEffect(() => {
+    loadModules();
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -384,33 +468,60 @@ const CourseDetail = ({ params }) => {
         </div>
       )}
       <div className={styles.modules}>
-        {modules.map((module) => (
+        {modules.map((module, moduleIndex) => (
           <div key={module.id} className={styles.module}>
-            <input
-              type="text"
-              value={module.title}
-              onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
-              className={styles.moduleTitle}
-            />
-            <button onClick={() => deleteModule(module.id)}>Eliminar Módulo</button>
-            <button onClick={() => addClass(module.id)}>Añadir Clase</button>
+            <div className={styles.moduleHeader}>
+              <input
+                type="text"
+                value={module.title}
+                onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
+                className={styles.moduleTitle}
+              />
+              <div className={styles.moduleActions}>
+                <button onClick={() => moveModule(moduleIndex, -1)} disabled={moduleIndex === 0} className={styles.moveButton}>
+                  <FaArrowUp />
+                </button>
+                <button onClick={() => moveModule(moduleIndex, 1)} disabled={moduleIndex === modules.length - 1} className={styles.moveButton}>
+                  <FaArrowDown />
+                </button>
+                <button onClick={() => addClass(module.id)} title="Añadir Clase">
+                  <FaPlus />
+                </button>
+                <button onClick={() => deleteModule(module.id)} title="Eliminar Módulo">
+                  <FaTrash />
+                </button>
+              </div>
+            </div>
 
             <div className={styles.classes}>
-              {module.classes.map((cls) => (
+              {module.classes.map((cls, classIndex) => (
                 <div key={cls.id} className={styles.class}>
+                  <div className={styles.classCircle} />
                   <input
                     type="text"
                     value={cls.title}
                     onChange={(e) => handleClassTitleChange(module.id, cls.id, e.target.value)}
                     className={styles.classTitle}
                   />
-                  <button onClick={() => deleteClass(module.id, cls.id)}>Eliminar Clase</button>
+                  <div className={styles.moduleActions}>
+                    <button onClick={() => moveClass(module.id, classIndex, -1)} disabled={classIndex === 0} className={styles.moveButton}>
+                      <FaArrowUp />
+                    </button>
+                    <button onClick={() => moveClass(module.id, classIndex, 1)} disabled={classIndex === module.classes.length - 1} className={styles.moveButton}>
+                      <FaArrowDown />
+                    </button>
+                    <button onClick={() => deleteClass(module.id, cls.id)} className={styles.classAction} title="Eliminar Clase">
+                      <FaTrash />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         ))}
-        <button onClick={addModule}>Añadir Módulo</button>
+        <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+          <FaPlus />
+        </button>
       </div>
     </div>
   );
