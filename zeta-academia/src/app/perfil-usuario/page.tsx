@@ -107,7 +107,7 @@ function UserProfile() {
                 }, { merge: true });
 
                 updateCurrentUser({ ...auth.currentUser, photoURL });
-                router.push('/platform');
+                router.push('/cursos-en-linea');
             }
         } catch (error) {
             console.error('Error updating profile', error);
