@@ -117,4 +117,6 @@
 
 .completeBtn {
     width: 30%;
+    font-weight: 600;
+    font-size: clamp(.5vw, 24px, 1.1vw);
 }
