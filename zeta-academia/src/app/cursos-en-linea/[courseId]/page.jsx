@@ -10,7 +10,7 @@ import styles from "./page.module.css";
 
 const CourseDetail = ({ params }) => {
   const router = useRouter();
-  const courseId = params.id;
+  const courseId = params.courseId;
   const [course, setCourse] = useState({
     title: "Introducción a la Programación con Python",
     description: "Conviértete en programador con Python desde cero. No necesitarás conocimientos previos y cuenta con apoyo personalizado.",
@@ -307,6 +307,11 @@ const CourseDetail = ({ params }) => {
     setModules(modules);
   };
 
+  const handleClassClick = (moduleId, classId) => {
+    router.push(`/cursos-en-linea/${courseId}/${moduleId}/${classId}`);
+  };  
+
+
   // Call loadModules when the component mounts
   useEffect(() => {
     loadModules();
@@ -495,14 +500,9 @@ const CourseDetail = ({ params }) => {
 
             <div className={styles.classes}>
               {module.classes.map((cls, classIndex) => (
-                <div key={cls.id} className={styles.class}>
+                <div key={cls.id} className={styles.class} onClick={() => handleClassClick(module.id, cls.id)}>
                   <div className={styles.classCircle} />
-                  <input
-                    type="text"
-                    value={cls.title}
-                    onChange={(e) => handleClassTitleChange(module.id, cls.id, e.target.value)}
-                    className={styles.classTitle}
-                  />
+                  <span className={styles.classTitle}>{cls.title}</span>
                   <div className={styles.moduleActions}>
                     <button onClick={() => moveClass(module.id, classIndex, -1)} disabled={classIndex === 0} className={styles.moveButton}>
                       <FaArrowUp />

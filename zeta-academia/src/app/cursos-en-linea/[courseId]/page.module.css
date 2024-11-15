@@ -433,6 +433,7 @@
   height: auto;
   padding-left: 10px;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .class:hover{
@@ -446,6 +447,7 @@
   font-size: 1.2rem;
   padding: 0;
   margin: 15px 0 15px 0;
+  width: 100%;
 }
 
 /* Style for the circle icon */
