@@ -85,7 +85,7 @@
 
 
 .serviceContainer {
-    border-radius: 15px;
+    border-radius: 10px;
 
     display: flex;
     flex-direction: column;
