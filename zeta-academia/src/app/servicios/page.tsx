@@ -102,7 +102,7 @@ export default function Servicios() {
                                                 </h2>
                                             </div>
                                             <div className={styles.iconContainer}>
-                                                <Image className={styles.iconImg} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPersonNotifyIconOrange.png?alt=media&token=0af04a95-498f-430f-919b-f36e02c4e7cb'} alt="computerIconOrange" width={1000} height={1000}></Image>
+                                                <Image className={styles.iconBottomImgs} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPersonNotifyIconOrange.png?alt=media&token=0af04a95-498f-430f-919b-f36e02c4e7cb'} alt="computerIconOrange" width={1000} height={1000}></Image>
                                             </div>
                                         </>
                                     )}
@@ -129,7 +129,7 @@ export default function Servicios() {
                                                 </h2>
                                             </div>
                                             <div className={styles.iconContainer}>
-                                                <Image className={styles.iconImg} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdeaIconOrange.png?alt=media&token=bea543ee-a7f9-45da-ac66-df5b2839e067'} alt="computerIconOrange" width={1000} height={1000}></Image>
+                                                <Image className={styles.iconBottomImgs} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdeaIconOrange.png?alt=media&token=bea543ee-a7f9-45da-ac66-df5b2839e067'} alt="computerIconOrange" width={1000} height={1000}></Image>
                                             </div>
                                         </>
                                     )}
@@ -186,7 +186,7 @@ export default function Servicios() {
                                             </h2>
                                         </div>
                                         <div className={styles.iconContainer}>
-                                            <Image className={styles.iconImg} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FDefaulImageIconOrange.png?alt=media&token=8f51793e-c5a5-43f1-8b03-d0e317707840'} alt="computerIconOrange" width={1000} height={1000}></Image>
+                                            <Image className={styles.iconBottomImgs} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FDefaulImageIconOrange.png?alt=media&token=8f51793e-c5a5-43f1-8b03-d0e317707840'} alt="computerIconOrange" width={1000} height={1000}></Image>
                                         </div>
                                     </>
                                 )}
