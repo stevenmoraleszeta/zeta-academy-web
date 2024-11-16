@@ -133,14 +133,28 @@
 
     width: clamp(20vw, 410px, 35vw);
     height: clamp(30vh, 270px, 40vh);
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #cursosVivo {
     background: linear-gradient(220deg, #002128, #00B3D9);
 
     width: clamp(13vw, 410px, 17vw);
-    height: clamp(12vh, 270px, 25vh);
+    height: clamp(13vh, 270px, 26vh);
     margin-left: 5%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #clasesParticulares {
@@ -148,6 +162,13 @@
 
     width: clamp(21vw, 355px, 27vw);
     height: clamp(40vh, 325px, 50vh);
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #desarrolloSoftware {
@@ -156,6 +177,13 @@
     width: clamp(30vw, 374px, 40vw);
     height: clamp(40vh, 325px, 50vh);
     margin-left: 5%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #elaboracionProyectos {
@@ -164,6 +192,13 @@
     width: clamp(15vw, 267px, 20vw);
     height: clamp(45vh, 355px, 55vh);
     margin-left: 3%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #otro {
@@ -173,4 +208,33 @@
     height: clamp(15vh, 300px, 30vh);
 
     margin-top: 5%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* On hovered contented */
+
+.onHoveredText {
+    width: 70%;
+    font-size: clamp(1vw, 20px, 2vw);
+}
+
+.linkBtn {
+    padding: 10px;
+    border-radius: 3px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    background-color: var(--color-secondary);
+    font-size: 16px;
+    transition: background-color 0.3s;
+    font-weight: bold;
+    text-decoration: none;
 }
