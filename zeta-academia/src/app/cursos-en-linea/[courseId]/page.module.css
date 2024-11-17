@@ -5,7 +5,8 @@
   padding: 20px;
   border-radius: 10px;
   color: #ffffff;
-  text-align: left; /* Align text to the left */
+  text-align: left;
+  /* Align text to the left */
 }
 
 /* Title Input */
@@ -19,7 +20,8 @@
   outline: none;
   margin: 20px 0 15px 0;
   padding: 0;
-  text-align: left; /* Align input text to the left */
+  text-align: left;
+  /* Align input text to the left */
 }
 
 /* Remove outline on focus */
@@ -42,13 +44,15 @@
   margin-top: 20px;
   align-items: flex-start;
   padding: 10px 0;
-  flex-wrap: nowrap; /* Prevents wrapping so items stay side-by-side */
+  flex-wrap: nowrap;
+  /* Prevents wrapping so items stay side-by-side */
   height: 35vh;
 }
 
 /* Video Section */
 .courseVideo {
-  flex-shrink: 0; /* Prevents video from resizing */
+  flex-shrink: 0;
+  /* Prevents video from resizing */
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -61,15 +65,18 @@
   gap: 10px;
   font-size: 1vh;
   align-items: flex-start;
-  flex-grow: 1; /* Takes up remaining space next to the video */
+  flex-grow: 1;
+  /* Takes up remaining space next to the video */
   height: 100%;
 }
 
 /* Video Wrapper with Responsive 16:9 Aspect Ratio using viewport width */
 .videoWrapper {
   position: relative;
-  width: 35vw; /* Sets width to 40% of viewport width */
-  height: 35vh; /* Ensures 16:9 aspect ratio with viewport width */
+  width: 35vw;
+  /* Sets width to 40% of viewport width */
+  height: 35vh;
+  /* Ensures 16:9 aspect ratio with viewport width */
   overflow: hidden;
   border-radius: 8px;
   background-color: #000;
@@ -89,7 +96,8 @@
 .editVideoButton {
   position: absolute;
   bottom: 10px;
-  left: 10px; /* Align button to the left */
+  left: 10px;
+  /* Align button to the left */
   background-color: var(--color-primary);
   color: var(--text-color);
   padding: 6px 10px;
@@ -136,7 +144,8 @@
   font-size: 1.5vw;
   line-height: 1.4;
   resize: none;
-  text-align: left; /* Align text to the left */
+  text-align: left;
+  /* Align text to the left */
   height: 100%;
   font-weight: bold;
 }
@@ -145,21 +154,24 @@
 .priceContainer {
   display: flex;
   align-items: center;
-  gap: 5px; /* Minimal gap between the two price elements */
+  gap: 5px;
+  /* Minimal gap between the two price elements */
   font-size: 1.6vw;
   font-weight: bold;
 }
 
 /* Discounted Price */
 .discountedPrice {
-  color: #ff6200; /* Customize as needed */
+  color: #ff6200;
+  /* Customize as needed */
   display: flex;
   align-items: center;
 }
 
 /* Original Price */
 .originalPrice {
-  color: var(--color-primary); /* Customize as needed */
+  color: var(--color-primary);
+  /* Customize as needed */
   text-decoration: line-through;
   display: flex;
   align-items: center;
@@ -177,14 +189,17 @@
   padding: 0;
   text-align: left;
   font-weight: bold;
-  margin-left: 3px; /* Small spacing between the currency symbol and input */
-  appearance: none; /* Removes default styling in some browsers */
+  margin-left: 3px;
+  /* Small spacing between the currency symbol and input */
+  appearance: none;
+  /* Removes default styling in some browsers */
 }
 
 /* Optional: Placeholder styling for clarity */
 .discountedPriceInput::placeholder,
 .originalPriceInput::placeholder {
-  color: #ccc; /* Light gray for placeholder */
+  color: #ccc;
+  /* Light gray for placeholder */
 }
 
 
@@ -193,7 +208,8 @@
   display: flex;
   gap: 15px;
   margin-top: 15px;
-  justify-content: flex-start; /* Align buttons to the left */
+  justify-content: flex-start;
+  /* Align buttons to the left */
 }
 
 .enrollButton,
@@ -219,10 +235,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 1.8vw; /* Adjust the width and height as needed */
+  width: 1.8vw;
+  /* Adjust the width and height as needed */
   height: 1.8vw;
-  background-color: var(--color-secondary); /* White background */
-  border-radius: 50%; /* Makes it circular */
+  background-color: var(--color-secondary);
+  /* White background */
+  border-radius: 50%;
+  /* Makes it circular */
   cursor: pointer;
   align-self: center;
   transition: background-color 0.3s ease;
@@ -230,21 +249,26 @@
 
 /* Style for the icon inside the button */
 .editIcon {
-  color: var(--text-color); /* Orange color */
-  font-size: 0.8vw; /* Adjust size if needed */
+  color: var(--text-color);
+  /* Orange color */
+  font-size: 0.8vw;
+  /* Adjust size if needed */
 }
 
 /* Optional: hover effect */
 .iconWrapper:hover {
-  background-color: var(--color-secondary-hover); /* Slightly darker shade on hover */
+  background-color: var(--color-secondary-hover);
+  /* Slightly darker shade on hover */
 }
 
 /* Features Section */
 .features {
   display: grid;
   grid-template-columns: 0.6fr 1fr;
-  gap: 8px; /* Reduce el espacio entre los elementos */
-  margin-top: 2vh; /* Ajusta el espacio superior si es necesario */
+  gap: 8px;
+  /* Reduce el espacio entre los elementos */
+  margin-top: 2vh;
+  /* Ajusta el espacio superior si es necesario */
 }
 
 /* Feature Item */
@@ -252,7 +276,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 4px; /* Añade un margen inferior mínimo para separar cada feature ligeramente */
+  margin-bottom: 4px;
+  /* Añade un margen inferior mínimo para separar cada feature ligeramente */
 }
 
 /* Icon for Feature */
@@ -277,14 +302,17 @@
 
 /* Title Input with Slightly Smaller Font Size */
 .featureTitleInput {
-  font-size: 1.2vw; /* Ajuste de tamaño */
+  font-size: 1.2vw;
+  /* Ajuste de tamaño */
   font-weight: bold;
 }
 
 /* Description Input with Reduced Line Height */
 .featureDescriptionInput {
-  font-size: 1vw; /* Ajuste de tamaño */
-  line-height: 1.2; /* Reduce el interlineado para menor altura */
+  font-size: 1vw;
+  /* Ajuste de tamaño */
+  line-height: 1.2;
+  /* Reduce el interlineado para menor altura */
   color: var(--text-color);
 }
 
@@ -309,13 +337,15 @@
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
-  text-align: left; /* Align modal content to the left */
+  text-align: left;
+  /* Align modal content to the left */
 }
 
 .modalContent h3 {
   color: var(--text-color);
   margin-bottom: 15px;
-  text-align: left; /* Align header to the left */
+  text-align: left;
+  /* Align header to the left */
   font-weight: bold;
 }
 
@@ -332,7 +362,8 @@
   border: none;
   outline: none;
   padding: 3px;
-  text-align: left; /* Align input text to the left */
+  text-align: left;
+  /* Align input text to the left */
   margin-top: 3px;
   margin-bottom: 10px;
 }
@@ -341,7 +372,8 @@
   display: flex;
   gap: 10px;
   margin-top: 20px;
-  justify-content: flex-start; /* Align modal actions to the left */
+  justify-content: flex-start;
+  /* Align modal actions to the left */
 }
 
 .modalActions button {
@@ -366,7 +398,7 @@
   opacity: 0.9;
 }
 
-.modules{
+.modules {
   margin-top: 5vh;
 }
 
@@ -385,7 +417,7 @@
   margin-bottom: 10px;
 }
 
-.moduleTitle{
+.moduleTitle {
   background-color: transparent;
   color: var(--text-color);
   border: none;
@@ -395,7 +427,8 @@
   margin: 10px 0 10px 0;
 }
 
-.moduleTitle:focus, .classTitle:focus{
+.moduleTitle:focus,
+.classTitle:focus {
   outline: none;
   border: none;
   box-shadow: none;
@@ -436,11 +469,11 @@
   cursor: pointer;
 }
 
-.class:hover{
+.class:hover {
   background-color: var(--color-primary-hover);
 }
 
-.classTitle{
+.classTitle {
   background-color: transparent;
   color: var(--text-color);
   border: none;
@@ -452,24 +485,32 @@
 
 /* Style for the circle icon */
 .classCircle {
-  margin-right: 15px; /* Adjust spacing as needed */
+  margin-right: 15px;
+  /* Adjust spacing as needed */
   width: 0.8vw;
   height: 0.8vw;
-  border: 4px solid var(--text-color); /* Add border to simulate thickness */
-  border-radius: 50%; /* Ensure it remains circular */
+  border: 4px solid var(--text-color);
+  /* Add border to simulate thickness */
+  border-radius: 50%;
+  /* Ensure it remains circular */
 }
 
 /* Add Module Button */
-.addModuleButton, .modules button {
+.modules button {
   background: transparent;
-  border: none;
   cursor: pointer;
   color: var(--text-color);
   transition: color 0.3s ease;
   margin: 0;
 }
 
-.addModuleButton:hover, .modules button:hover{
+.modules button:hover {
   color: var(--color-secondary);
-  background: none;
+}
+
+.addModuleButton {
+  margin-top: 10vh;
+  width: 100%;
+  background-color: transparent;
+  border: dashed 5px var(--color-secondary) ;
 }
