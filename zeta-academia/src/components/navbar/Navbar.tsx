@@ -10,10 +10,12 @@ import defaultProfileImage from '../../assets/img/defaultProfileImage.jpg';
 
 // Importar estilos
 import styles from './Navbar.module.css'; // Los estilos globales pueden ir en _app.js
+import { usePathname } from 'next/navigation';
 
 function Navbar() {
     const { currentUser, isAdmin } = useAuth();
     const [profileImage, setProfileImage] = useState(null);
+    const pathName = usePathname();
 
     useEffect(() => {
         if (currentUser) {
@@ -23,27 +25,38 @@ function Navbar() {
         }
     }, [currentUser]);
 
+    const navItems = [
+        { path: '/cursos-en-linea', label: 'APRENDE EN LÍNEA' },
+        { path: '/cursos-en-vivo', label: 'CURSOS EN VIVO' },
+        { path: '/servicios', label: 'SERVICIOS' },
+    ];
+
     return (
         <div className={styles.topnav} id="myTopnav">
             <Link href={'/'} className={styles.imgLink}>
-                <Image alt='ZetaLogo' src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c" width={100} height={100} className={styles.zLogo}></Image>
+                <Image
+                    alt="ZetaLogo"
+                    src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c"
+                    width={100}
+                    height={100}
+                    className={styles.zLogo}
+                />
             </Link>
             <ul className={styles.navLinks}>
-                <li>
-                    <Link href="/cursos-en-linea" className={styles.navbarLink}>
-                        APRENDE EN LÍNEA
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/cursos-en-vivo" className={styles.navbarLink}>
-                        CURSOS EN VIVO
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/servicios" className={styles.navbarLink}>
-                        SERVICIOS
-                    </Link>
-                </li>
+                {navItems.map((item) => (
+                    <li key={item.path}>
+                        <Link
+                            href={item.path}
+                            className={
+                                pathName === item.path
+                                    ? styles.navbarLinkSelected
+                                    : styles.navbarLink
+                            }
+                        >
+                            {item.label}
+                        </Link>
+                    </li>
+                ))}
             </ul>
             <div className={styles.manageContainer}>
                 {isAdmin && currentUser && (
