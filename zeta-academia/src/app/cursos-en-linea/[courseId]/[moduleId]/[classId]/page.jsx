@@ -4,11 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaFilePdf, FaLink, FaChevronRight, FaCheck, FaChevronLeft, FaBook } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 
 const ClassDetail = () => {
     const router = useRouter();
+    const { currentUser } = useAuth();
     const { courseId, moduleId, classId } = useParams();
     const [classTitle, setClassTitle] = useState("");
     const [resources, setResources] = useState([]);
@@ -23,7 +25,7 @@ const ClassDetail = () => {
     const [isCompleted, setIsCompleted] = useState(false);
 
     useEffect(() => {
-        if (classId && courseId && moduleId) {
+        if (classId && courseId && moduleId && currentUser) {
             const fetchClassData = async () => {
                 try {
                     const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
@@ -33,7 +35,6 @@ const ClassDetail = () => {
                         const data = classSnapshot.data();
                         setClassTitle(data.title || "");
                         setResources(data.resources || []);
-                        setIsCompleted(data.completed || false); // Fetch and set the initial completion status
                     } else {
                         console.error("Class not found");
                         router.push("/cursos-en-linea");
@@ -43,23 +44,47 @@ const ClassDetail = () => {
                 }
             };
 
-            const fetchClassesInModule = async () => {
-                const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
-                const classesSnapshot = await getDocs(classesRef);
-                const classes = classesSnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+            const fetchCompletedStatus = async () => {
+                try {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const userSnapshot = await getDoc(userRef);
 
-                // Sort classes by order
-                classes.sort((a, b) => a.order - b.order);
-                setClassesInModule(classes);
+                    if (userSnapshot.exists()) {
+                        const userData = userSnapshot.data();
+                        const completedClasses = userData.completedClasses || [];
+                        setIsCompleted(completedClasses.includes(classId));
+                    } else {
+                        console.error("User document does not exist.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching completed status:", error);
+                }
             };
 
+            const fetchClassesInModule = async () => {
+                try {
+                    const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
+                    const classesSnapshot = await getDocs(classesRef);
+                    const classes = classesSnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    // Sort classes by order
+                    classes.sort((a, b) => a.order - b.order);
+                    setClassesInModule(classes);
+                } catch (error) {
+                    console.error("Error fetching classes in module:", error);
+                }
+            };
+
+            // Fetch all required data
             fetchClassData();
+            fetchCompletedStatus();
             fetchClassesInModule();
         }
-    }, [classId, courseId, moduleId]);
+    }, [classId, courseId, moduleId, currentUser]);
+
 
 
     const handleTitleChange = async (e) => {
@@ -191,14 +216,40 @@ const ClassDetail = () => {
 
     const handleCompleteClass = async () => {
         try {
-            const newCompletedStatus = !isCompleted; // Toggle the completed status
-            const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
-            await updateDoc(classRef, { completed: newCompletedStatus }); // Update Firestore
-            setIsCompleted(newCompletedStatus); // Update local state
+            if (!currentUser || !currentUser.uid) {
+                console.error("User is not authenticated or user object is missing.");
+                return;
+            }
+
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnapshot = await getDoc(userRef);
+
+            if (!userSnapshot.exists()) {
+                console.error("User document does not exist.");
+                return;
+            }
+
+            const userData = userSnapshot.data();
+            const completedClasses = userData.completedClasses || [];
+
+            if (isCompleted) {
+                const updatedClasses = completedClasses.filter((id) => id !== classId);
+                await updateDoc(userRef, { completedClasses: updatedClasses });
+            } else {
+                const updatedClasses = [...completedClasses, classId];
+                await updateDoc(userRef, { completedClasses: updatedClasses });
+            }
+
+            setIsCompleted(!isCompleted);
         } catch (error) {
-            console.error("Error updating class completion status:", error);
+            if (error.code === "permission-denied") {
+                console.error("Permission denied. Ensure Firestore rules allow this operation.");
+            } else {
+                console.error("Error updating completion status:", error);
+            }
         }
     };
+
 
 
     if (!Array.isArray(resources)) return <div>Loading...</div>;
