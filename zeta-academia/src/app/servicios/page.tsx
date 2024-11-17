@@ -61,7 +61,7 @@ export default function Servicios() {
                                                 </h2>
                                             </div>
                                             <div className={styles.iconContainer}>
-                                                <Link className={styles.linkBtn} href={''}>Contacto</Link>
+                                                <Link className={styles.linkBtn} href={'/cursos-en-vivo'}>Ver cursos</Link>
                                             </div>
                                         </>
                                     )}
@@ -90,7 +90,7 @@ export default function Servicios() {
                                                 </h2>
                                             </div>
                                             <div className={styles.iconContainer}>
-                                                <Link className={styles.linkBtn} href={''}>Contacto</Link>
+                                                <Link className={styles.linkBtn} href={'https://wa.link/q2kzi6'}>Contacto</Link>
                                             </div>
                                         </>
                                     )}
@@ -117,7 +117,7 @@ export default function Servicios() {
                                                 </h2>
                                             </div>
                                             <div className={styles.iconContainer}>
-                                                <Link className={styles.linkBtn} href={''}>Contacto</Link>
+                                                <Link className={styles.linkBtn} href={'https://wa.link/ackd1n'}>Contacto</Link>
                                             </div>
                                         </>
                                     )}
@@ -147,7 +147,7 @@ export default function Servicios() {
                                             </h2>
                                         </div>
                                         <div className={styles.iconContainer}>
-                                            <Link className={styles.linkBtn} href={''}>Contacto</Link>
+                                            <Link className={styles.linkBtn} href={'https://wa.link/ifz1ng'}>Contacto</Link>
                                         </div>
                                     </>
                                 )}
@@ -174,7 +174,7 @@ export default function Servicios() {
                                             </h2>
                                         </div>
                                         <div className={styles.iconContainer}>
-                                            <Link className={styles.linkBtn} href={''}>Contacto</Link>
+                                            <Link className={styles.linkBtn} href={'https://wa.link/qggv19'}>Contacto</Link>
                                         </div>
                                     </>
                                 )}
