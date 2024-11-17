@@ -1,0 +1,246 @@
+.servicesMainSection {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.elementsContainer {
+    width: 70%;
+    height: 90vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.zetaLogoContainer {
+    width: 100%;
+    height: fit-content;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.zetaLogoImg {
+    width: clamp(10vw, 400px, 15vw);
+    height: clamp(13vh, 120px, 23vh);
+    object-fit: contain;
+}
+
+.servicesContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.firstMainContainer {
+    width: 60%;
+    height: 100%;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.topContainer {
+    width: 100%;
+    height: 30%;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    flex-direction: row;
+}
+
+.bottomContainer {
+    width: 93%;
+    height: 55%;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    flex-direction: row;
+}
+
+.secondMainContainer {
+    width: 70%;
+    height: 100%;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
+.serviceContainer {
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.textContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    margin-left: 10%;
+}
+
+.textTitle {
+    width: 70%;
+    font-size: clamp(2vw, 25px, 2.5vw);
+}
+
+.iconContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    margin-right: 20%;
+    margin-bottom: 5%;
+}
+
+
+.iconImg {
+    width: clamp(7vw, 100px, 12vw);
+    height: clamp(7vh, 80px, 12vh);
+    object-fit: contain;
+}
+
+#aprendeLinea {
+    background: linear-gradient(90deg, #005F73, #00B3D9);
+
+    width: clamp(20vw, 410px, 35vw);
+    height: clamp(30vh, 270px, 40vh);
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#cursosVivo {
+    background: linear-gradient(220deg, #002128, #00B3D9);
+
+    width: clamp(13vw, 410px, 17vw);
+    height: clamp(20vh, 270px, 30vh);
+    margin-left: 5%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#clasesParticulares {
+    background: linear-gradient(45deg, #00181D, #005F73, #00B3D9);
+
+    width: clamp(21vw, 355px, 27vw);
+    height: clamp(40vh, 325px, 50vh);
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#desarrolloSoftware {
+    background: linear-gradient(45deg, #012F38, #00B3D9);
+
+    width: clamp(30vw, 374px, 40vw);
+    height: clamp(40vh, 325px, 50vh);
+    margin-left: 5%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#elaboracionProyectos {
+    background: linear-gradient(220deg, #000E11, #00657B, #00B3D9);
+
+    width: clamp(15vw, 267px, 20vw);
+    height: clamp(45vh, 355px, 55vh);
+    margin-left: 3%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#otro {
+    background: linear-gradient(320deg, #000E11, #00B3D9);
+
+    width: clamp(13vw, 410px, 17vw);
+    height: clamp(15vh, 300px, 30vh);
+
+    margin-top: 3%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconBottomImgs {
+    width: clamp(10vw, 100px, 15vw);
+    height: clamp(11vh, 80px, 13vh);
+    object-fit: contain;
+}
+
+/* On hovered contented */
+
+.onHoveredText {
+    width: 70%;
+    font-size: clamp(1vw, 20px, 2vw);
+}
+
+.linkBtn {
+    padding: 10px;
+    border-radius: 3px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    background-color: var(--color-secondary);
+    font-size: 16px;
+    transition: background-color 0.3s;
+    font-weight: bold;
+    text-decoration: none;
+}
