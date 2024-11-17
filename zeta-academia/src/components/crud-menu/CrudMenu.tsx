@@ -187,13 +187,11 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                 setFilteredData((prevData) =>
                     prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
                 );
-                alert("Elemento actualizado con éxito");
             } else {
                 const docRef = await addDoc(collection(db, collectionName), selectedItem);
                 const newItem = { ...selectedItem, id: docRef.id };
                 setData((prevData) => [...prevData, newItem]);
                 setFilteredData((prevData) => [...prevData, newItem]);
-                alert("Elemento agregado con éxito");
             }
             handleModalClose();
         } catch (error) {

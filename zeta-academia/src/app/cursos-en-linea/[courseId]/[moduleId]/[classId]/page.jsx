@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaFilePdf, FaLink, FaChevronRight, FaCheck, FaChevronLeft, FaBook } from "react-icons/fa";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 
@@ -12,7 +12,7 @@ const ClassDetail = () => {
     const { courseId, moduleId, classId } = useParams();
     const [classTitle, setClassTitle] = useState("");
     const [resources, setResources] = useState([]);
-
+    const [classesInModule, setClassesInModule] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newResourceType, setNewResourceType] = useState("");
     const [newResourceContent, setNewResourceContent] = useState("");
@@ -20,6 +20,7 @@ const ClassDetail = () => {
     const [videoStart, setVideoStart] = useState("");
     const [videoEnd, setVideoEnd] = useState("");
     const [editingIndex, setEditingIndex] = useState(null);
+    const [isCompleted, setIsCompleted] = useState(false);
 
     useEffect(() => {
         if (classId && courseId && moduleId) {
@@ -32,6 +33,7 @@ const ClassDetail = () => {
                         const data = classSnapshot.data();
                         setClassTitle(data.title || "");
                         setResources(data.resources || []);
+                        setIsCompleted(data.completed || false); // Fetch and set the initial completion status
                     } else {
                         console.error("Class not found");
                         router.push("/cursos-en-linea");
@@ -40,9 +42,25 @@ const ClassDetail = () => {
                     console.error("Error fetching class data:", error);
                 }
             };
+
+            const fetchClassesInModule = async () => {
+                const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
+                const classesSnapshot = await getDocs(classesRef);
+                const classes = classesSnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                // Sort classes by order
+                classes.sort((a, b) => a.order - b.order);
+                setClassesInModule(classes);
+            };
+
             fetchClassData();
+            fetchClassesInModule();
         }
     }, [classId, courseId, moduleId]);
+
 
     const handleTitleChange = async (e) => {
         const newTitle = e.target.value;
@@ -147,12 +165,46 @@ const ClassDetail = () => {
         return embedUrl.toString();
     };
 
+    const handleBackToSyllabus = () => {
+        router.push(`/cursos-en-linea/${courseId}`);
+    };
+
+    const handlePreviousClass = () => {
+        const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+        if (currentClassIndex > 0) {
+            const previousClassId = classesInModule[currentClassIndex - 1].id;
+            router.push(`/cursos-en-linea/${courseId}/${moduleId}/${previousClassId}`);
+        } else {
+            console.log("No previous class available.");
+        }
+    };
+
+    const handleNextClass = () => {
+        const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+        if (currentClassIndex < classesInModule.length - 1) {
+            const nextClassId = classesInModule[currentClassIndex + 1].id;
+            router.push(`/cursos-en-linea/${courseId}/${moduleId}/${nextClassId}`);
+        } else {
+            console.log("No next class available.");
+        }
+    };
+
+    const handleCompleteClass = async () => {
+        try {
+            const newCompletedStatus = !isCompleted; // Toggle the completed status
+            const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
+            await updateDoc(classRef, { completed: newCompletedStatus }); // Update Firestore
+            setIsCompleted(newCompletedStatus); // Update local state
+        } catch (error) {
+            console.error("Error updating class completion status:", error);
+        }
+    };
+
+
     if (!Array.isArray(resources)) return <div>Loading...</div>;
 
     return (
         <div className={styles.classDetailContainer}>
-            <h1>Class Detail Editor</h1>
-
             <div className={styles.titleContainer}>
                 <input
                     type="text"
@@ -178,28 +230,51 @@ const ClassDetail = () => {
                             <FaArrowDown onClick={() => handleMoveResource(index, "down")} className={styles.icon} />
                         </div>
                         {resource.type === "videoUrl" && (
-                            <>
+                            <div className={styles.videoWrapper}>
                                 <iframe
                                     src={generateYouTubeEmbedUrl(resource.content, resource.start, resource.end)}
                                     title={`Video ${index + 1}`}
                                     className={styles.videoFrame}
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                ></iframe>
+                                />
                                 <p>
                                     Start: {resource.start || "0"} seconds | End: {resource.end || "Full Video"} seconds
                                 </p>
-                            </>
+                            </div>
                         )}
                         {resource.type === "imageUrl" && (
-                            <img src={resource.content} alt={resource.title || "Image"} className={styles.imagePreview} />
+                            <>
+                                <img src={resource.content} alt={resource.title || "Image"} className={styles.imagePreview} />
+                            </>
                         )}
-                        {(resource.type === "link" || resource.type === "pdfUrl") && (
-                            <a href={resource.content} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                                {resource.title || "Unnamed Resource"}
+                        {resource.type === "link" && (
+                            <a
+                                href={resource.content}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`${styles.resourceButton}`}
+                            >
+                                <FaLink className={styles.resourceButtonIcon} />
+                                {resource.title || "Unnamed Link"}
                             </a>
                         )}
-                        {resource.type === "title" || resource.type === "text" ? <p>{resource.content}</p> : null}
+                        {resource.type === "pdfUrl" && (
+                            <a
+                                href={resource.content}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`${styles.resourceButton}`}
+                            >
+                                <FaFilePdf className={styles.resourceButtonIcon} />
+                                {resource.title || "Unnamed PDF"}
+                            </a>
+                        )}
+                        {resource.type === "title" && (
+                            <p className={styles.titleResource}>{resource.content}</p>
+                        )}
+                        {resource.type === "text" && (
+                            <p className={styles.textResource}>{resource.content}</p>
+                        )}
+
                     </div>
                 ))}
             </div>
@@ -226,7 +301,7 @@ const ClassDetail = () => {
                         </label>
                         <label>
                             Enter Content:
-                            <input
+                            <textarea
                                 type="text"
                                 value={newResourceContent}
                                 onChange={(e) => setNewResourceContent(e.target.value)}
@@ -275,6 +350,23 @@ const ClassDetail = () => {
                     </div>
                 </div>
             )}
+            <div className={styles.fixedBar}>
+                <button className={styles.syllabusButton} onClick={handleBackToSyllabus}>
+                    <FaBook /> Volver al temario
+                </button>
+                <button className={styles.backButton} onClick={handlePreviousClass}>
+                    <FaChevronLeft /> Clase anterior
+                </button>
+                <button
+                    className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ''}`}
+                    onClick={handleCompleteClass}
+                >
+                    <FaCheck /> {isCompleted ? "Clase completada" : "Completar clase"}
+                </button>
+                <button className={styles.nextButton} onClick={handleNextClass}>
+                    Clase siguiente <FaChevronRight />
+                </button>
+            </div>
         </div>
     );
 };

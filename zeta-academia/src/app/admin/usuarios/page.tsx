@@ -6,18 +6,23 @@ import CrudMenu from '@/components/crud-menu/CrudMenu';
 import RequireAuth from '@/components/RequireAuth';
 
 const AdminUsers: React.FC = () => {
-    // Definimos los campos a mostrar en la vista de lista
+    // Fields to display in the list view
     const displayFields = [
         { label: 'Imagen', field: 'photoURL', type: 'image' },
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
-        { label: 'Rol', field: 'role'},
+        { label: 'Rol', field: 'role' },
     ];
 
-    // Definimos los campos a mostrar y editar en el modal
+    // Fields to display and edit in the modal
     const editFields = [
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
+        { label: 'Edad', field: 'edad', type: 'number' },
+        { 
+            label: 'País', 
+            field: 'pais', 
+        },
         { 
             label: 'Rol', 
             field: 'role', 
@@ -27,7 +32,7 @@ const AdminUsers: React.FC = () => {
                 { label: 'Student', value: 'student' },
                 { label: 'Admin', value: 'admin' }
             ]
-        },
+        }
     ];
 
     return (

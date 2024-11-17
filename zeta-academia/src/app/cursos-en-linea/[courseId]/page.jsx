@@ -210,8 +210,12 @@ const CourseDetail = ({ params }) => {
   };
 
   const addClass = async (moduleId) => {
-    const newClass = { title: "Nueva Clase" };
+    const module = modules.find((mod) => mod.id === moduleId);
+    const nextOrder = module ? module.classes.length : 0; // Get the next order based on existing classes
+
+    const newClass = { title: "Nueva Clase", order: nextOrder }; // Set the default order attribute
     const classRef = await addDoc(collection(db, "onlineCourses", courseId, "modules", moduleId, "classes"), newClass);
+
     setModules((prevModules) =>
       prevModules.map((module) => {
         if (module.id === moduleId) {
@@ -224,6 +228,7 @@ const CourseDetail = ({ params }) => {
       })
     );
   };
+
 
   const deleteClass = async (moduleId, classId) => {
     if (confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
@@ -309,7 +314,7 @@ const CourseDetail = ({ params }) => {
 
   const handleClassClick = (moduleId, classId) => {
     router.push(`/cursos-en-linea/${courseId}/${moduleId}/${classId}`);
-  };  
+  };
 
 
   // Call loadModules when the component mounts
@@ -504,19 +509,41 @@ const CourseDetail = ({ params }) => {
                   <div className={styles.classCircle} />
                   <span className={styles.classTitle}>{cls.title}</span>
                   <div className={styles.moduleActions}>
-                    <button onClick={() => moveClass(module.id, classIndex, -1)} disabled={classIndex === 0} className={styles.moveButton}>
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        moveClass(module.id, classIndex, -1);
+                      }}
+                      disabled={classIndex === 0}
+                      className={styles.moveButton}
+                    >
                       <FaArrowUp />
                     </button>
-                    <button onClick={() => moveClass(module.id, classIndex, 1)} disabled={classIndex === module.classes.length - 1} className={styles.moveButton}>
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        moveClass(module.id, classIndex, 1);
+                      }}
+                      disabled={classIndex === module.classes.length - 1}
+                      className={styles.moveButton}
+                    >
                       <FaArrowDown />
                     </button>
-                    <button onClick={() => deleteClass(module.id, cls.id)} className={styles.classAction} title="Eliminar Clase">
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        deleteClass(module.id, cls.id);
+                      }}
+                      className={styles.classAction}
+                      title="Eliminar Clase"
+                    >
                       <FaTrash />
                     </button>
                   </div>
                 </div>
               ))}
             </div>
+
           </div>
         ))}
         <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
