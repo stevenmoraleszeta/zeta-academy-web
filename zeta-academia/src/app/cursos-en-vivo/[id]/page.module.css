@@ -8,7 +8,9 @@
   text-align: left; /* Align text to the left */
 }
 
-/* Title Input */
+/* Title */
+
+.titleText,
 .titleInput {
   width: 100%;
   font-size: 2vw;
@@ -21,6 +23,7 @@
   padding: 0;
   text-align: left; /* Align input text to the left */
 }
+
 
 /* Remove outline on focus */
 .titleInput:focus,
@@ -125,6 +128,7 @@
 }
 
 /* Adjusted Description Input */
+.descriptionText,
 .descriptionInput {
   width: 35vw;
   background: transparent;
@@ -166,6 +170,8 @@
 }
 
 /* Input Fields for Prices */
+.discountedPriceText,
+.originalPriceText,
 .discountedPriceInput,
 .originalPriceInput {
   width: 7vw;
@@ -263,6 +269,7 @@
 }
 
 /* Title and Description Inputs */
+
 .featureTitleInput,
 .featureDescriptionInput {
   width: 100%;
