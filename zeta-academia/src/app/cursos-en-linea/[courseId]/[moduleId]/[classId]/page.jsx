@@ -21,6 +21,7 @@ const ClassDetail = () => {
     const [videoEnd, setVideoEnd] = useState("");
     const [editingIndex, setEditingIndex] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
 
     useEffect(() => {
         if (classId && courseId && moduleId) {
@@ -48,12 +49,19 @@ const ClassDetail = () => {
                 const classesSnapshot = await getDocs(classesRef);
                 const classes = classesSnapshot.docs.map((doc) => ({
                     id: doc.id,
-                    ...doc.data()
+                    ...doc.data(),
                 }));
 
-                // Sort classes by order
                 classes.sort((a, b) => a.order - b.order);
                 setClassesInModule(classes);
+
+                const currentClassIndex = classes.findIndex((cls) => cls.id === classId);
+                if (currentClassIndex > 0) {
+                    const previousClass = classes[currentClassIndex - 1];
+                    setIsPreviousClassCompleted(previousClass.completed || false);
+                } else {
+                    setIsPreviousClassCompleted(true);
+                }
             };
 
             fetchClassData();
@@ -191,10 +199,20 @@ const ClassDetail = () => {
 
     const handleCompleteClass = async () => {
         try {
-            const newCompletedStatus = !isCompleted; // Toggle the completed status
+            const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+            if (currentClassIndex > 0) {
+                const previousClass = classesInModule[currentClassIndex - 1];
+
+                if (!previousClass.completed) {
+                    console.error("La clase anterior no está completada. Completa la clase anterior antes de continuar.");
+                    return;
+                }
+            }
+
+            const newCompletedStatus = !isCompleted;
             const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
-            await updateDoc(classRef, { completed: newCompletedStatus }); // Update Firestore
-            setIsCompleted(newCompletedStatus); // Update local state
+            await updateDoc(classRef, { completed: newCompletedStatus });
+            setIsCompleted(newCompletedStatus);
         } catch (error) {
             console.error("Error updating class completion status:", error);
         }
@@ -363,7 +381,7 @@ const ClassDetail = () => {
 
                 <button
                     className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ''}`}
-                    onClick={handleCompleteClass}
+                    onClick={handleCompleteClass} disabled={!isPreviousClassCompleted}
                 >
                     <FaCheck /> {isCompleted ? "Clase completada" : "Completar clase"}
                 </button>
