@@ -354,18 +354,24 @@ const ClassDetail = () => {
                 <button className={styles.syllabusButton} onClick={handleBackToSyllabus}>
                     <FaBook /> Volver al temario
                 </button>
-                <button className={styles.backButton} onClick={handlePreviousClass}>
-                    <FaChevronLeft /> Clase anterior
-                </button>
+
+                {classesInModule.findIndex(cls => cls.id === classId) > 0 && (
+                    <button className={styles.backButton} onClick={handlePreviousClass}>
+                        <FaChevronLeft /> Clase anterior
+                    </button>
+                )}
+
                 <button
                     className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ''}`}
                     onClick={handleCompleteClass}
                 >
                     <FaCheck /> {isCompleted ? "Clase completada" : "Completar clase"}
                 </button>
-                <button className={styles.nextButton} onClick={handleNextClass}>
-                    Clase siguiente <FaChevronRight />
-                </button>
+                {classesInModule.findIndex(cls => cls.id === classId) < classesInModule.length - 1 && (
+                    <button className={styles.nextButton} onClick={handleNextClass}>
+                        Clase siguiente <FaChevronRight />
+                    </button>
+                )}
             </div>
         </div>
     );
