@@ -25,93 +25,98 @@ const ClassDetail = () => {
     const [isCompleted, setIsCompleted] = useState(false);
     const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
     const [courseName, setCourseName] = useState("");
+    const [completedClasses, setCompletedClasses] = useState([]);
 
     useEffect(() => {
-    if (classId && courseId && moduleId && currentUser) {
-        const fetchClassData = async () => {
-            try {
-                const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
-                const classSnapshot = await getDoc(classRef);
+        if (classId && courseId && moduleId && currentUser) {
+            const fetchClassData = async () => {
+                try {
+                    const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
+                    const classSnapshot = await getDoc(classRef);
 
-                if (classSnapshot.exists()) {
-                    const data = classSnapshot.data();
-                    setClassTitle(data.title || "");
-                    setResources(data.resources || []);
-                } else {
-                    console.error("Class not found");
-                    router.push("/cursos-en-linea");
+                    if (classSnapshot.exists()) {
+                        const data = classSnapshot.data();
+                        setClassTitle(data.title || "");
+                        setResources(data.resources || []);
+                    } else {
+                        console.error("Class not found");
+                        router.push("/cursos-en-linea");
+                    }
+                } catch (error) {
+                    console.error("Error fetching class data:", error);
                 }
-            } catch (error) {
-                console.error("Error fetching class data:", error);
-            }
-        };
+            };
 
-        const fetchCompletedStatus = async () => {
-            try {
-                const userRef = doc(db, "users", currentUser.uid);
-                const userSnapshot = await getDoc(userRef);
+            const fetchCompletedStatus = async () => {
+                try {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const userSnapshot = await getDoc(userRef);
 
-                if (userSnapshot.exists()) {
-                    const userData = userSnapshot.data();
-                    const completedClasses = userData.completedClasses || [];
-                    setIsCompleted(completedClasses.includes(classId));
-                } else {
-                    console.error("User document does not exist.");
+                    if (userSnapshot.exists()) {
+                        const userData = userSnapshot.data();
+                        const completedClasses = userData.completedClasses || [];
+                        setCompletedClasses(completedClasses); // Actualiza el estado global
+                        setIsCompleted(completedClasses.includes(classId));
+                    } else {
+                        console.error("User document does not exist.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching completed status:", error);
                 }
-            } catch (error) {
-                console.error("Error fetching completed status:", error);
-            }
-        };
+            };
 
-        const fetchClassesInModule = async () => {
-            try {
-                const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
-                const classesSnapshot = await getDocs(classesRef);
-                const classes = classesSnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
+            const fetchClassesInModule = async () => {
+                try {
+                    const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
+                    const classesSnapshot = await getDocs(classesRef);
+                    const classes = classesSnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
 
-                // Sort classes by order
-                classes.sort((a, b) => a.order - b.order);
-                setClassesInModule(classes);
-
-                // Check if the previous class is completed
-                const currentClassIndex = classes.findIndex((cls) => cls.id === classId);
-                if (currentClassIndex > 0) {
-                    const previousClass = classes[currentClassIndex - 1];
-                    setIsPreviousClassCompleted(previousClass.completed || false);
-                } else {
-                    setIsPreviousClassCompleted(true); // First class or no previous class
+                    // Ordena las clases por su propiedad "order"
+                    classes.sort((a, b) => a.order - b.order);
+                    setClassesInModule(classes);
+                } catch (error) {
+                    console.error("Error fetching classes in module:", error);
                 }
-            } catch (error) {
-                console.error("Error fetching classes in module:", error);
-            }
-        };
+            };
 
-        const fetchCourseName = async () => {
-            try {
-                const courseRef = doc(db, "onlineCourses", courseId);
-                const courseSnapshot = await getDoc(courseRef);
-                if (courseSnapshot.exists()) {
-                    const courseData = courseSnapshot.data();
-                    setCourseName(courseData?.title || "Nombre del Curso no disponible");
-                } else {
-                    console.error("Course document not found.");
+            const fetchCourseName = async () => {
+                try {
+                    const courseRef = doc(db, "onlineCourses", courseId);
+                    const courseSnapshot = await getDoc(courseRef);
+                    if (courseSnapshot.exists()) {
+                        const courseData = courseSnapshot.data();
+                        setCourseName(courseData?.title || "Nombre del Curso no disponible");
+                    } else {
+                        console.error("Course document not found.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching course name:", error);
                 }
-            } catch (error) {
-                console.error("Error fetching course name:", error);
-            }
-        };
+            };
 
-        // Fetch all required data
-        fetchClassData();
-        fetchCompletedStatus();
-        fetchClassesInModule();
-        fetchCourseName();
-    }
-}, [classId, courseId, moduleId, currentUser]);
-  
+            // Fetch all required data
+            fetchClassData();
+            fetchCompletedStatus();
+            fetchClassesInModule();
+            fetchCourseName();
+        }
+    }, [classId, courseId, moduleId, currentUser]);
+
+    useEffect(() => {
+        if (classesInModule.length > 0 && completedClasses.length > 0) {
+            const currentClassIndex = classesInModule.findIndex((cls) => cls.id === classId);
+            if (currentClassIndex > 0) {
+                const previousClassId = classesInModule[currentClassIndex - 1].id;
+                setIsPreviousClassCompleted(completedClasses.includes(previousClassId));
+            } else {
+                setIsPreviousClassCompleted(true);
+            }
+        }
+    }, [classesInModule, completedClasses, classId]);
+
 
     const handleTitleChange = async (e) => {
         const newTitle = e.target.value;
@@ -249,56 +254,46 @@ const ClassDetail = () => {
     };
 
     const handleCompleteClass = async () => {
-    try {
-        // Check if user is authenticated
-        if (!currentUser || !currentUser.uid) {
-            console.error("User is not authenticated or user object is missing.");
-            return;
-        }
-
-        // Fetch the current user's data
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnapshot = await getDoc(userRef);
-
-        if (!userSnapshot.exists()) {
-            console.error("User document does not exist.");
-            return;
-        }
-
-        const userData = userSnapshot.data();
-        const completedClasses = userData.completedClasses || [];
-
-        // Check if the previous class is completed
-        const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
-        if (currentClassIndex > 0) {
-            const previousClass = classesInModule[currentClassIndex - 1];
-
-            if (!previousClass.completed && !completedClasses.includes(previousClass.id)) {
-                console.error("La clase anterior no está completada. Completa la clase anterior antes de continuar.");
+        try {
+            if (!currentUser || !currentUser.uid) {
+                console.error("Usuario no autenticado.");
                 return;
             }
-        }
 
-        // Update the completion status
-        const newCompletedStatus = !isCompleted;
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnapshot = await getDoc(userRef);
 
-        if (newCompletedStatus) {
-            const updatedClasses = [...completedClasses, classId];
+            if (!userSnapshot.exists()) {
+                console.error("Documento de usuario no encontrado.");
+                return;
+            }
+
+            const userData = userSnapshot.data();
+            const completedClasses = userData.completedClasses || [];
+
+            const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+            if (currentClassIndex > 0) {
+                const previousClassId = classesInModule[currentClassIndex - 1].id;
+                if (!completedClasses.includes(previousClassId)) {
+                    console.error("La clase anterior no está completada.");
+                    return;
+                }
+            }
+
+            const newCompletedStatus = !isCompleted;
+
+            const updatedClasses = newCompletedStatus
+                ? [...completedClasses, classId]
+                : completedClasses.filter(id => id !== classId);
+
             await updateDoc(userRef, { completedClasses: updatedClasses });
-        } else {
-            const updatedClasses = completedClasses.filter((id) => id !== classId);
-            await updateDoc(userRef, { completedClasses: updatedClasses });
-        }
 
-        setIsCompleted(newCompletedStatus);
-    } catch (error) {
-        if (error.code === "permission-denied") {
-            console.error("Permission denied. Ensure Firestore rules allow this operation.");
-        } else {
-            console.error("Error updating completion status:", error);
+            setIsCompleted(newCompletedStatus);
+            setCompletedClasses(updatedClasses);
+        } catch (error) {
+            console.error("Error actualizando el estado de la clase:", error);
         }
-    }
-};
+    };
 
 
     const handleSendProjectClick = () => {
