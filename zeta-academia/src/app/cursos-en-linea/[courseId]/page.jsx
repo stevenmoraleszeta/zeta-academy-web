@@ -12,15 +12,8 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import {
-  FaRegImage,
-  FaPencilAlt,
-  FaTrash,
-  FaPlus,
-  FaRegCircle,
-  FaArrowUp,
-  FaArrowDown,
-} from "react-icons/fa";
+import { FaRegImage, FaPencilAlt, FaTrash, FaPlus, FaRegCircle, FaArrowUp, FaArrowDown, FaCheck } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
@@ -75,6 +68,7 @@ const CourseDetail = ({ params }) => {
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [modules, setModules] = useState([]);
   const { currentUser, isAdmin } = useAuth();
+  const [completedClasses, setCompletedClasses] = useState([]);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -93,41 +87,70 @@ const CourseDetail = ({ params }) => {
     };
 
     const fetchModules = async () => {
-      const modulesRef = collection(db, "onlineCourses", courseId, "modules");
-      const modulesSnapshot = await getDocs(modulesRef);
-      const fetchedModules = await Promise.all(
-        modulesSnapshot.docs.map(async (doc) => {
-          const moduleData = doc.data();
-          const classesRef = collection(
-            db,
-            "onlineCourses",
-            courseId,
-            "modules",
-            doc.id,
-            "classes"
-          );
-          const classesSnapshot = await getDocs(classesRef);
-          const classes = classesSnapshot.docs.map((classDoc) => ({
-            id: classDoc.id,
-            ...classDoc.data(),
-          }));
-          return {
-            id: doc.id,
-            ...moduleData,
-            classes,
-          };
-        })
-      );
-      setModules(fetchedModules);
+      try {
+        const modulesSnapshot = await getDocs(
+          collection(db, "onlineCourses", courseId, "modules")
+        );
+        const fetchedModules = await Promise.all(
+          modulesSnapshot.docs.map(async (moduleDoc) => {
+            const moduleData = moduleDoc.data();
+            const classesSnapshot = await getDocs(
+              collection(db, "onlineCourses", courseId, "modules", moduleDoc.id, "classes")
+            );
+            const classes = classesSnapshot.docs.map((classDoc) => ({
+              id: classDoc.id,
+              ...classDoc.data(),
+            }));
+            return {
+              id: moduleDoc.id,
+              ...moduleData,
+              classes,
+            };
+          })
+        );
+        setModules(fetchedModules);
+      } catch (error) {
+        console.error("Error fetching modules:", error);
+      }
     };
 
     fetchCourse();
     fetchModules();
   }, [courseId]);
 
-  const handleEnrollClick = () => {
-    console.log("Inscripción realizada");
-  };
+  useEffect(() => {
+    const fetchCompletedClasses = async () => {
+      if (!currentUser) return; // Ensure currentUser exists
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          console.log("Completed classes fetched:", userData.completedClasses); // Debugging
+          setCompletedClasses(userData.completedClasses || []);
+        }
+      } catch (error) {
+        console.error("Error fetching completed classes:", error);
+      }
+    };
+
+    fetchCompletedClasses();
+  }, [currentUser]);
+
+
+  useEffect(() => {
+    if (completedClasses.length > 0 && modules.length > 0) {
+      setModules((prevModules) =>
+        prevModules.map((module) => ({
+          ...module,
+          classes: module.classes.map((cls) => ({
+            ...cls,
+            completed: completedClasses.includes(cls.id), // Set based on user data
+          })),
+        }))
+      );
+    }
+  }, [completedClasses]);
 
   const handleFieldChange = async (field, value) => {
     const updatedCourse = { ...course, [field]: value };
@@ -425,234 +448,217 @@ const CourseDetail = ({ params }) => {
   }, []);
 
   return (
-    <div className={styles.container}>
-      {isAdmin ? (
-        <input
-          type="text"
-          value={course.title || ""}
-          onChange={(e) => handleFieldChange("title", e.target.value)}
-          className={styles.titleInput}
-        />
-      ) : (
-        <span className={styles.titleText}>
-          {course.title || "Sin título disponible"}
-        </span>
-      )}
+  <div className={styles.container}>
+    {isAdmin ? (
+      <input
+        type="text"
+        value={course.title || ""}
+        onChange={(e) => handleFieldChange("title", e.target.value)}
+        className={styles.titleInput}
+      />
+    ) : (
+      <span className={styles.titleText}>
+        {course.title || "Sin título disponible"}
+      </span>
+    )}
 
-      <div className={styles.courseMainContent}>
-        <div className={styles.courseVideo}>
-          <div className={styles.videoWrapper}>
-            {course.videoUrl ? (
-              <iframe
-                src={course.videoUrl}
-                title="Course video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            ) : (
-              <div className={styles.videoPlaceholder}>Video no disponible</div>
-            )}
-
-            {isAdmin ? (
-              <button
-                className={styles.editVideoButton}
-                onClick={openVideoModal}
-              >
-                <FaPencilAlt /> Editar Video
-              </button>
-            ) : (
-              <p></p>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.courseInfo}>
-          {isAdmin ? (
-            <textarea
-              value={course.description || ""}
-              onChange={(e) => handleFieldChange("description", e.target.value)}
-              className={styles.descriptionInput}
-            />
+    <div className={styles.courseMainContent}>
+      <div className={styles.courseVideo}>
+        <div className={styles.videoWrapper}>
+          {course.videoUrl ? (
+            <iframe
+              src={course.videoUrl}
+              title="Course video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
           ) : (
-            <p className={styles.descriptionText}>
-              {course.description || "Descripción no disponible"}
-            </p>
+            <div className={styles.videoPlaceholder}>Video no disponible</div>
           )}
 
-          <div className={styles.priceContainer}>
-            <span className={styles.discountedPrice}>
-              ₡
-              {isAdmin ? (
-                <input
-                  type="number"
-                  value={course.discountedPrice || ""}
-                  onChange={(e) =>
-                    handleFieldChange("discountedPrice", +e.target.value)
-                  }
-                  className={styles.discountedPriceInput}
-                />
-              ) : (
-                <span className={styles.discountedPriceInput}>
-                  {course.discountedPrice || "No disponible"}
-                </span>
-              )}
-            </span>
-            <span className={styles.originalPrice}>
-              ₡
-              {isAdmin ? (
-                <input
-                  type="number"
-                  value={course.originalPrice || ""}
-                  onChange={(e) =>
-                    handleFieldChange("originalPrice", +e.target.value)
-                  }
-                  className={styles.originalPriceInput}
-                />
-              ) : (
-                <span className={styles.originalPriceInput}>
-                  {course.originalPrice || "No disponible"}
-                </span>
-              )}
-            </span>
-          </div>
+          {isAdmin && (
+            <button className={styles.editVideoButton} onClick={openVideoModal}>
+              <FaPencilAlt /> Editar Video
+            </button>
+          )}
+        </div>
+      </div>
 
-          <div className={styles.buttonContainer}>
-            <button className={styles.enrollButton} onClick={handleEnrollClick}>
-              Inscríbete
-            </button>
-            <button
-              className={styles.contactButton}
-              onClick={handleContactClick}
-            >
-              Contáctanos
-            </button>
+      <div className={styles.courseInfo}>
+        {isAdmin ? (
+          <textarea
+            value={course.description || ""}
+            onChange={(e) => handleFieldChange("description", e.target.value)}
+            className={styles.descriptionInput}
+          />
+        ) : (
+          <p className={styles.descriptionText}>
+            {course.description || "Descripción no disponible"}
+          </p>
+        )}
+
+        <div className={styles.priceContainer}>
+          <span className={styles.discountedPrice}>
+            ₡
             {isAdmin ? (
-              <div className={styles.iconWrapper} onClick={openModal}>
-                <FaRegImage className={styles.editIcon} />
-              </div>
+              <input
+                type="number"
+                value={course.discountedPrice || ""}
+                onChange={(e) =>
+                  handleFieldChange("discountedPrice", +e.target.value)
+                }
+                className={styles.discountedPriceInput}
+              />
             ) : (
-              <div className={styles.iconWrapper}>
-                <FaRegImage className={styles.editIcon} />
-              </div>
+              <span className={styles.discountedPriceInput}>
+                {course.discountedPrice || "No disponible"}
+              </span>
+            )}
+          </span>
+          <span className={styles.originalPrice}>
+            ₡
+            {isAdmin ? (
+              <input
+                type="number"
+                value={course.originalPrice || ""}
+                onChange={(e) =>
+                  handleFieldChange("originalPrice", +e.target.value)
+                }
+                className={styles.originalPriceInput}
+              />
+            ) : (
+              <span className={styles.originalPriceInput}>
+                {course.originalPrice || "No disponible"}
+              </span>
+            )}
+          </span>
+        </div>
+
+        <div className={styles.buttonContainer}>
+          <button className={styles.enrollButton} onClick={handleEnrollClick}>
+            Inscríbete
+          </button>
+          <button className={styles.contactButton} onClick={handleContactClick}>
+            Contáctanos
+          </button>
+          {isAdmin && (
+            <div className={styles.iconWrapper} onClick={openModal}>
+              <FaRegImage className={styles.editIcon} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <div className={styles.features}>
+      {(course.features || []).map((feature, index) => (
+        <div key={index} className={styles.feature}>
+          <img
+            src={feature.iconUrl}
+            alt={`Icono de ${feature.title}`}
+            className={styles.featureIcon}
+          />
+          <div>
+            {isAdmin ? (
+              <>
+                <input
+                  type="text"
+                  value={feature.title}
+                  onChange={(e) => {
+                    const updatedFeatures = [...course.features];
+                    updatedFeatures[index].title = e.target.value;
+                    handleFieldChange("features", updatedFeatures);
+                  }}
+                  className={styles.featureTitleInput}
+                />
+                <textarea
+                  value={feature.description}
+                  onChange={(e) => {
+                    const updatedFeatures = [...course.features];
+                    updatedFeatures[index].description = e.target.value;
+                    handleFieldChange("features", updatedFeatures);
+                  }}
+                  className={styles.featureDescriptionInput}
+                />
+              </>
+            ) : (
+              <>
+                <div className={styles.featureTitleInput}>
+                  {feature.title || "Título no disponible"}
+                </div>
+                <div className={styles.featureDescriptionInput}>
+                  {feature.description || "Descripción no disponible"}
+                </div>
+              </>
             )}
           </div>
         </div>
-      </div>
+      ))}
+    </div>
 
-      <div className={styles.features}>
-        {(course.features || []).map((feature, index) => (
-          <div key={index} className={styles.feature}>
-            {/* Icono de la característica */}
-            <img
-              src={feature.iconUrl}
-              alt={`Icono de ${feature.title}`}
-              className={styles.featureIcon}
+    {isModalOpen && (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <h3>Edit URLs</h3>
+          <label>
+            Image URL:
+            <input
+              type="text"
+              value={currentUrl}
+              onChange={handleUrlChange}
+              placeholder="Enter new image URL"
+              className={styles.modalInput}
             />
-            <div>
-              {/* Administradores: campos editables */}
-              {isAdmin ? (
-                <>
-                  <input
-                    type="text"
-                    value={feature.title}
-                    onChange={(e) => {
-                      const updatedFeatures = [...course.features];
-                      updatedFeatures[index].title = e.target.value;
-                      handleFieldChange("features", updatedFeatures);
-                    }}
-                    className={styles.featureTitleInput}
-                  />
-                  <textarea
-                    value={feature.description}
-                    onChange={(e) => {
-                      const updatedFeatures = [...course.features];
-                      updatedFeatures[index].description = e.target.value;
-                      handleFieldChange("features", updatedFeatures);
-                    }}
-                    className={styles.featureDescriptionInput}
-                  />
-                </>
-              ) : (
-                // Usuarios normales: solo vista
-                <>
-                  <div className={styles.featureTitleInput}>
-                    {feature.title || "Título no disponible"}
-                  </div>
-                  <div className={styles.featureDescriptionInput}>
-                    {feature.description || "Descripción no disponible"}
-                  </div>
-                </>
-              )}
-            </div>
+          </label>
+          <label>
+            Course Icon URL:
+            <input
+              type="text"
+              value={currentIconUrl}
+              onChange={handleIconUrlChange}
+              placeholder="Enter new icon URL"
+              className={styles.modalInput}
+            />
+          </label>
+          <div className={styles.modalActions}>
+            <button onClick={saveUrls}>Save</button>
+            <button onClick={closeModal}>Cancel</button>
           </div>
-        ))}
+        </div>
       </div>
+    )}
 
-      {/* Modal for Editing Image URL and Course Icon */}
-      {isModalOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>Edit URLs</h3>
-            <label>
-              Image URL:
-              <input
-                type="text"
-                value={currentUrl}
-                onChange={handleUrlChange}
-                placeholder="Enter new image URL"
-                className={styles.modalInput}
-              />
-            </label>
-            <label>
-              Course Icon URL:
-              <input
-                type="text"
-                value={currentIconUrl}
-                onChange={handleIconUrlChange}
-                placeholder="Enter new icon URL"
-                className={styles.modalInput}
-              />
-            </label>
-            <div className={styles.modalActions}>
-              <button onClick={saveUrls}>Save</button>
-              <button onClick={closeModal}>Cancel</button>
-            </div>
+    {isVideoModalOpen && (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <h3>Edit Video URL</h3>
+          <label>
+            Video URL:
+            <input
+              type="text"
+              value={newVideoUrl}
+              onChange={handleVideoUrlChange}
+              placeholder="Enter new video URL"
+              className={styles.modalInput}
+            />
+          </label>
+          <div className={styles.modalActions}>
+            <button onClick={saveVideoUrl}>Save</button>
+            <button onClick={closeVideoModal}>Cancel</button>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
-      {/* Modal for Editing Video URL */}
-      {isVideoModalOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>Edit Video URL</h3>
-            <label>
-              Video URL:
-              <input
-                type="text"
-                value={newVideoUrl}
-                onChange={handleVideoUrlChange}
-                placeholder="Enter new video URL"
-                className={styles.modalInput}
-              />
-            </label>
-            <div className={styles.modalActions}>
-              <button onClick={saveVideoUrl}>Save</button>
-              <button onClick={closeVideoModal}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-      <div className={styles.modules}>
-        {modules.map((module, moduleIndex) => (
+    <div className={styles.modules}>
+      {modules.length > 0 ? (
+        modules.map((module, moduleIndex) => (
           <div key={module.id} className={styles.module}>
             <div className={styles.moduleHeader}>
               <input
                 type="text"
                 value={module.title}
-                onChange={(e) =>
-                  handleModuleTitleChange(module.id, e.target.value)
-                }
+                onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
                 className={styles.moduleTitle}
               />
               <div className={styles.moduleActions}>
@@ -670,10 +676,7 @@ const CourseDetail = ({ params }) => {
                 >
                   <FaArrowDown />
                 </button>
-                <button
-                  onClick={() => addClass(module.id)}
-                  title="Añadir Clase"
-                >
+                <button onClick={() => addClass(module.id)} title="Añadir Clase">
                   <FaPlus />
                 </button>
                 <button
@@ -686,61 +689,66 @@ const CourseDetail = ({ params }) => {
             </div>
 
             <div className={styles.classes}>
-              {module.classes.map((cls, classIndex) => (
-                <div
-                  key={cls.id}
-                  className={styles.class}
-                  onClick={() => handleClassClick(module.id, cls.id)}
-                >
-                  <div className={styles.classCircle} />
-                  <span className={styles.classTitle}>{cls.title}</span>
-                  <div className={styles.moduleActions}>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        moveClass(module.id, classIndex, -1);
-                      }}
-                      disabled={classIndex === 0}
-                      className={styles.moveButton}
-                    >
-                      <FaArrowUp />
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        moveClass(module.id, classIndex, 1);
-                      }}
-                      disabled={classIndex === module.classes.length - 1}
-                      className={styles.moveButton}
-                    >
-                      <FaArrowDown />
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        deleteClass(module.id, cls.id);
-                      }}
-                      className={styles.classAction}
-                      title="Eliminar Clase"
-                    >
-                      <FaTrash />
-                    </button>
+              {module.classes && module.classes.length > 0 ? (
+                module.classes.map((cls, classIndex) => (
+                  <div
+                    key={`${module.id}-${cls.id}`}
+                    className={cls.completed ? styles.completedClass : styles.class}
+                    onClick={() => handleClassClick(module.id, cls.id)}
+                  >
+                    <div className={styles.classCircle}>
+                      {cls.completed && <FaCheck />}
+                    </div>
+                    <span className={styles.classTitle}>{cls.title}</span>
+                    <div className={styles.moduleActions}>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          moveClass(module.id, classIndex, -1);
+                        }}
+                        disabled={classIndex === 0}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowUp />
+                      </button>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          moveClass(module.id, classIndex, 1);
+                        }}
+                        disabled={classIndex === module.classes.length - 1}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowDown />
+                      </button>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          deleteClass(module.id, cls.id);
+                        }}
+                        className={styles.classAction}
+                        title="Eliminar Clase"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p>No hay clases en este módulo.</p>
+              )}
             </div>
           </div>
-        ))}
-        <button
-          onClick={addModule}
-          className={styles.addModuleButton}
-          title="Añadir Módulo"
-        >
-          <FaPlus />
-        </button>
-      </div>
+        ))
+      ) : (
+        <p>No hay módulos disponibles.</p>
+      )}
+      <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+        <FaPlus />
+      </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default CourseDetail;
