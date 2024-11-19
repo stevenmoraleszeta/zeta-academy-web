@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
-import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaFilePdf, FaLink, FaChevronRight, FaCheck, FaChevronLeft, FaBook } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaFilePdf, FaLink, FaChevronRight, FaCheck, FaChevronLeft, FaBook, FaWhatsapp } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 
 const ClassDetail = () => {
     const router = useRouter();
+    const { currentUser } = useAuth();
     const { courseId, moduleId, classId } = useParams();
     const [classTitle, setClassTitle] = useState("");
     const [resources, setResources] = useState([]);
@@ -22,29 +24,47 @@ const ClassDetail = () => {
     const [editingIndex, setEditingIndex] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
     const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
+    const [courseName, setCourseName] = useState("");
 
     useEffect(() => {
-        if (classId && courseId && moduleId) {
-            const fetchClassData = async () => {
-                try {
-                    const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
-                    const classSnapshot = await getDoc(classRef);
+    if (classId && courseId && moduleId && currentUser) {
+        const fetchClassData = async () => {
+            try {
+                const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
+                const classSnapshot = await getDoc(classRef);
 
-                    if (classSnapshot.exists()) {
-                        const data = classSnapshot.data();
-                        setClassTitle(data.title || "");
-                        setResources(data.resources || []);
-                        setIsCompleted(data.completed || false); // Fetch and set the initial completion status
-                    } else {
-                        console.error("Class not found");
-                        router.push("/cursos-en-linea");
-                    }
-                } catch (error) {
-                    console.error("Error fetching class data:", error);
+                if (classSnapshot.exists()) {
+                    const data = classSnapshot.data();
+                    setClassTitle(data.title || "");
+                    setResources(data.resources || []);
+                } else {
+                    console.error("Class not found");
+                    router.push("/cursos-en-linea");
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching class data:", error);
+            }
+        };
 
-            const fetchClassesInModule = async () => {
+        const fetchCompletedStatus = async () => {
+            try {
+                const userRef = doc(db, "users", currentUser.uid);
+                const userSnapshot = await getDoc(userRef);
+
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.data();
+                    const completedClasses = userData.completedClasses || [];
+                    setIsCompleted(completedClasses.includes(classId));
+                } else {
+                    console.error("User document does not exist.");
+                }
+            } catch (error) {
+                console.error("Error fetching completed status:", error);
+            }
+        };
+
+        const fetchClassesInModule = async () => {
+            try {
                 const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
                 const classesSnapshot = await getDocs(classesRef);
                 const classes = classesSnapshot.docs.map((doc) => ({
@@ -52,23 +72,46 @@ const ClassDetail = () => {
                     ...doc.data(),
                 }));
 
+                // Sort classes by order
                 classes.sort((a, b) => a.order - b.order);
                 setClassesInModule(classes);
 
+                // Check if the previous class is completed
                 const currentClassIndex = classes.findIndex((cls) => cls.id === classId);
                 if (currentClassIndex > 0) {
                     const previousClass = classes[currentClassIndex - 1];
                     setIsPreviousClassCompleted(previousClass.completed || false);
                 } else {
-                    setIsPreviousClassCompleted(true);
+                    setIsPreviousClassCompleted(true); // First class or no previous class
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching classes in module:", error);
+            }
+        };
 
-            fetchClassData();
-            fetchClassesInModule();
-        }
-    }, [classId, courseId, moduleId]);
+        const fetchCourseName = async () => {
+            try {
+                const courseRef = doc(db, "onlineCourses", courseId);
+                const courseSnapshot = await getDoc(courseRef);
+                if (courseSnapshot.exists()) {
+                    const courseData = courseSnapshot.data();
+                    setCourseName(courseData?.title || "Nombre del Curso no disponible");
+                } else {
+                    console.error("Course document not found.");
+                }
+            } catch (error) {
+                console.error("Error fetching course name:", error);
+            }
+        };
 
+        // Fetch all required data
+        fetchClassData();
+        fetchCompletedStatus();
+        fetchClassesInModule();
+        fetchCourseName();
+    }
+}, [classId, courseId, moduleId, currentUser]);
+  
 
     const handleTitleChange = async (e) => {
         const newTitle = e.target.value;
@@ -130,11 +173,18 @@ const ClassDetail = () => {
     };
 
     const handleRemoveResource = (index) => {
-        const updatedResources = [...resources];
-        updatedResources.splice(index, 1);
-        updatedResources.forEach((resource, idx) => (resource.order = idx));
-        setResources(updatedResources);
-        saveResourcesToFirestore(updatedResources);
+        const resource = resources[index];
+        const confirmDelete = window.confirm(
+            `¿Estás seguro de que deseas eliminar el recurso "${resource.title || resource.content || "Sin título"}"?`
+        );
+
+        if (confirmDelete) {
+            const updatedResources = [...resources];
+            updatedResources.splice(index, 1);
+            updatedResources.forEach((resource, idx) => (resource.order = idx));
+            setResources(updatedResources);
+            saveResourcesToFirestore(updatedResources);
+        }
     };
 
     const handleMoveResource = (index, direction) => {
@@ -161,8 +211,8 @@ const ClassDetail = () => {
     };
 
     const generateYouTubeEmbedUrl = (url, start, end) => {
-        const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)|youtu\.be\/([^&]+)/);
-        const videoId = videoIdMatch ? videoIdMatch[1] || videoIdMatch[2] : null;
+        const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+        const videoId = videoIdMatch ? videoIdMatch[1] : null;
 
         if (!videoId) return url;
 
@@ -172,6 +222,7 @@ const ClassDetail = () => {
 
         return embedUrl.toString();
     };
+
 
     const handleBackToSyllabus = () => {
         router.push(`/cursos-en-linea/${courseId}`);
@@ -198,23 +249,90 @@ const ClassDetail = () => {
     };
 
     const handleCompleteClass = async () => {
-        try {
-            const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
-            if (currentClassIndex > 0) {
-                const previousClass = classesInModule[currentClassIndex - 1];
+    try {
+        // Check if user is authenticated
+        if (!currentUser || !currentUser.uid) {
+            console.error("User is not authenticated or user object is missing.");
+            return;
+        }
 
-                if (!previousClass.completed) {
-                    console.error("La clase anterior no está completada. Completa la clase anterior antes de continuar.");
-                    return;
-                }
+        // Fetch the current user's data
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (!userSnapshot.exists()) {
+            console.error("User document does not exist.");
+            return;
+        }
+
+        const userData = userSnapshot.data();
+        const completedClasses = userData.completedClasses || [];
+
+        // Check if the previous class is completed
+        const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+        if (currentClassIndex > 0) {
+            const previousClass = classesInModule[currentClassIndex - 1];
+
+            if (!previousClass.completed && !completedClasses.includes(previousClass.id)) {
+                console.error("La clase anterior no está completada. Completa la clase anterior antes de continuar.");
+                return;
+            }
+        }
+
+        // Update the completion status
+        const newCompletedStatus = !isCompleted;
+
+        if (newCompletedStatus) {
+            const updatedClasses = [...completedClasses, classId];
+            await updateDoc(userRef, { completedClasses: updatedClasses });
+        } else {
+            const updatedClasses = completedClasses.filter((id) => id !== classId);
+            await updateDoc(userRef, { completedClasses: updatedClasses });
+        }
+
+        setIsCompleted(newCompletedStatus);
+    } catch (error) {
+        if (error.code === "permission-denied") {
+            console.error("Permission denied. Ensure Firestore rules allow this operation.");
+        } else {
+            console.error("Error updating completion status:", error);
+        }
+    }
+};
+
+
+    const handleSendProjectClick = () => {
+        const message = encodeURIComponent(
+            `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
+        );
+        const phone = "+50661304830";
+        const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+        window.open(whatsappUrl, "_blank");
+    };
+
+    const restartVideo = (index) => {
+        const iframe = document.getElementById(`video-${index}`);
+        if (iframe && resources[index]) {
+            const resource = resources[index];
+            const videoIdMatch = resource.content.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+            const videoId = videoIdMatch ? videoIdMatch[1] : null;
+
+            if (!videoId) {
+                console.error("El ID del video no se pudo extraer correctamente.");
+                return;
             }
 
-            const newCompletedStatus = !isCompleted;
-            const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
-            await updateDoc(classRef, { completed: newCompletedStatus });
-            setIsCompleted(newCompletedStatus);
-        } catch (error) {
-            console.error("Error updating class completion status:", error);
+            // Generar una URL válida para YouTube con los parámetros necesarios
+            const embedUrl = new URL(`https://www.youtube.com/embed/${videoId}`);
+            embedUrl.searchParams.set("start", resource.start || "0");
+            if (resource.end) {
+                embedUrl.searchParams.set("end", resource.end);
+            }
+
+            // Establecer la URL generada al iframe
+            iframe.src = embedUrl.toString();
+        } else {
+            console.error("El iframe o recurso no existe.");
         }
     };
 
@@ -253,11 +371,15 @@ const ClassDetail = () => {
                                     src={generateYouTubeEmbedUrl(resource.content, resource.start, resource.end)}
                                     title={`Video ${index + 1}`}
                                     className={styles.videoFrame}
-                                />
-                                <p>
-                                    Start: {resource.start || "0"} seconds | End: {resource.end || "Full Video"} seconds
-                                </p>
+                                    id={`video-${index}`}
+                                    allow="autoplay; encrypted-media; fullscreen"
+                                    allowfullscreen
+                                ></iframe>
+                                <button onClick={() => restartVideo(index)} className={styles.restartButton}>
+                                    Reiniciar Video
+                                </button>
                             </div>
+
                         )}
                         {resource.type === "imageUrl" && (
                             <>
@@ -292,7 +414,15 @@ const ClassDetail = () => {
                         {resource.type === "text" && (
                             <p className={styles.textResource}>{resource.content}</p>
                         )}
-
+                        {resource.type === "sendProject" && (
+                            <button
+                                className={styles.sendProjectButton}
+                                onClick={handleSendProjectClick}
+                            >
+                                <FaWhatsapp className={styles.sendProjectIcon} />
+                                {resource.content || "Enviar Proyecto"}
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
@@ -301,73 +431,76 @@ const ClassDetail = () => {
                 Add Resource
             </button>
 
-            {isModalOpen && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent}>
-                        <h3>{editingIndex !== null ? "Modify Resource" : "Add New Resource"}</h3>
-                        <label>
-                            Select Resource Type:
-                            <select value={newResourceType} onChange={(e) => setNewResourceType(e.target.value)} className={styles.modalSelect}>
-                                <option value="">Select Type</option>
-                                <option value="title">Title</option>
-                                <option value="text">Text</option>
-                                <option value="videoUrl">Video URL</option>
-                                <option value="imageUrl">Image URL</option>
-                                <option value="link">Link</option>
-                                <option value="pdfUrl">PDF URL</option>
-                            </select>
-                        </label>
-                        <label>
-                            Enter Content:
-                            <textarea
-                                type="text"
-                                value={newResourceContent}
-                                onChange={(e) => setNewResourceContent(e.target.value)}
-                                className={styles.modalInput}
-                                placeholder="Enter content"
-                            />
-                        </label>
-                        {(newResourceType === "link" || newResourceType === "pdfUrl") && (
+            {
+                isModalOpen && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modalContent}>
+                            <h3>{editingIndex !== null ? "Modify Resource" : "Add New Resource"}</h3>
                             <label>
-                                Enter Title:
-                                <input
+                                Select Resource Type:
+                                <select value={newResourceType} onChange={(e) => setNewResourceType(e.target.value)} className={styles.modalSelect}>
+                                    <option value="">Select Type</option>
+                                    <option value="title">Title</option>
+                                    <option value="text">Text</option>
+                                    <option value="videoUrl">Video URL</option>
+                                    <option value="imageUrl">Image URL</option>
+                                    <option value="link">Link</option>
+                                    <option value="pdfUrl">PDF URL</option>
+                                    <option value="sendProject">Send Project</option>
+                                </select>
+                            </label>
+                            <label>
+                                Enter Content:
+                                <textarea
                                     type="text"
-                                    value={newResourceTitle}
-                                    onChange={(e) => setNewResourceTitle(e.target.value)}
+                                    value={newResourceContent}
+                                    onChange={(e) => setNewResourceContent(e.target.value)}
                                     className={styles.modalInput}
-                                    placeholder="Enter title for the resource"
+                                    placeholder="Enter content"
                                 />
                             </label>
-                        )}
-                        {newResourceType === "videoUrl" && (
-                            <>
+                            {(newResourceType === "link" || newResourceType === "pdfUrl") && (
                                 <label>
-                                    Start Time (seconds):
+                                    Enter Title:
                                     <input
-                                        type="number"
-                                        value={videoStart}
-                                        onChange={(e) => setVideoStart(e.target.value)}
+                                        type="text"
+                                        value={newResourceTitle}
+                                        onChange={(e) => setNewResourceTitle(e.target.value)}
                                         className={styles.modalInput}
+                                        placeholder="Enter title for the resource"
                                     />
                                 </label>
-                                <label>
-                                    End Time (seconds):
-                                    <input
-                                        type="number"
-                                        value={videoEnd}
-                                        onChange={(e) => setVideoEnd(e.target.value)}
-                                        className={styles.modalInput}
-                                    />
-                                </label>
-                            </>
-                        )}
-                        <div className={styles.modalActions}>
-                            <button onClick={handleSaveResource}>{editingIndex !== null ? "Save Changes" : "Add"}</button>
-                            <button onClick={closeModal}>Cancel</button>
+                            )}
+                            {newResourceType === "videoUrl" && (
+                                <>
+                                    <label>
+                                        Start Time (seconds):
+                                        <input
+                                            type="number"
+                                            value={videoStart}
+                                            onChange={(e) => setVideoStart(e.target.value)}
+                                            className={styles.modalInput}
+                                        />
+                                    </label>
+                                    <label>
+                                        End Time (seconds):
+                                        <input
+                                            type="number"
+                                            value={videoEnd}
+                                            onChange={(e) => setVideoEnd(e.target.value)}
+                                            className={styles.modalInput}
+                                        />
+                                    </label>
+                                </>
+                            )}
+                            <div className={styles.modalActions}>
+                                <button onClick={handleSaveResource}>{editingIndex !== null ? "Save Changes" : "Add"}</button>
+                                <button onClick={closeModal}>Cancel</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
             <div className={styles.fixedBar}>
                 <button className={styles.syllabusButton} onClick={handleBackToSyllabus}>
                     <FaBook /> Volver al temario
@@ -391,7 +524,7 @@ const ClassDetail = () => {
                     </button>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

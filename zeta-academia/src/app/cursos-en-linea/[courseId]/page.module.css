@@ -495,6 +495,23 @@
   /* Ensure it remains circular */
 }
 
+.completedClass {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  background-color: var(--color-primary);
+  height: auto;
+  padding-left: 10px;
+  border-radius: 5px;
+  color: var(--text-color-light);
+}
+
+.completedClass .classCircle {
+  background-color: var(--text-color);
+  color: var(--color-primary);
+}
+
 /* Add Module Button */
 .modules button {
   background: transparent;

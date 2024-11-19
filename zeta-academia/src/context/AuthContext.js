@@ -6,7 +6,6 @@ import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore"; // Importar funciones de Firestore
 import { db } from "../firebase/firebase"; // Importar la instancia de Firestore
-import { useRouter } from "next/navigation";
 
 
 // Crear el contexto de autenticación

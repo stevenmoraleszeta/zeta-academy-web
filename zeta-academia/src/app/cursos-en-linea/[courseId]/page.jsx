@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs, addDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { FaRegImage, FaPencilAlt, FaTrash, FaPlus, FaRegCircle, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaRegImage, FaPencilAlt, FaTrash, FaPlus, FaRegCircle, FaArrowUp, FaArrowDown, FaCheck } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
 
@@ -50,6 +51,9 @@ const CourseDetail = ({ params }) => {
   const [currentIconUrl, setCurrentIconUrl] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [modules, setModules] = useState([]);
+  const [completedClasses, setCompletedClasses] = useState([]);
+  const { currentUser } = useAuth();
+
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -68,30 +72,71 @@ const CourseDetail = ({ params }) => {
     };
 
     const fetchModules = async () => {
-      const modulesRef = collection(db, "onlineCourses", courseId, "modules");
-      const modulesSnapshot = await getDocs(modulesRef);
-      const fetchedModules = await Promise.all(
-        modulesSnapshot.docs.map(async (doc) => {
-          const moduleData = doc.data();
-          const classesRef = collection(db, "onlineCourses", courseId, "modules", doc.id, "classes");
-          const classesSnapshot = await getDocs(classesRef);
-          const classes = classesSnapshot.docs.map((classDoc) => ({
-            id: classDoc.id,
-            ...classDoc.data(),
-          }));
-          return {
-            id: doc.id,
-            ...moduleData,
-            classes,
-          };
-        })
-      );
-      setModules(fetchedModules);
+      try {
+        const modulesSnapshot = await getDocs(
+          collection(db, "onlineCourses", courseId, "modules")
+        );
+        const fetchedModules = await Promise.all(
+          modulesSnapshot.docs.map(async (moduleDoc) => {
+            const moduleData = moduleDoc.data();
+            const classesSnapshot = await getDocs(
+              collection(db, "onlineCourses", courseId, "modules", moduleDoc.id, "classes")
+            );
+            const classes = classesSnapshot.docs.map((classDoc) => ({
+              id: classDoc.id,
+              ...classDoc.data(),
+            }));
+            return {
+              id: moduleDoc.id,
+              ...moduleData,
+              classes,
+            };
+          })
+        );
+        setModules(fetchedModules);
+      } catch (error) {
+        console.error("Error fetching modules:", error);
+      }
     };
 
     fetchCourse();
     fetchModules();
   }, [courseId]);
+
+  useEffect(() => {
+    const fetchCompletedClasses = async () => {
+      if (!currentUser) return; // Ensure currentUser exists
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          console.log("Completed classes fetched:", userData.completedClasses); // Debugging
+          setCompletedClasses(userData.completedClasses || []);
+        }
+      } catch (error) {
+        console.error("Error fetching completed classes:", error);
+      }
+    };
+
+    fetchCompletedClasses();
+  }, [currentUser]);
+
+
+  useEffect(() => {
+    if (completedClasses.length > 0 && modules.length > 0) {
+      setModules((prevModules) =>
+        prevModules.map((module) => ({
+          ...module,
+          classes: module.classes.map((cls) => ({
+            ...cls,
+            completed: completedClasses.includes(cls.id), // Set based on user data
+          })),
+        }))
+      );
+    }
+  }, [completedClasses]);
+
 
   const handleFieldChange = async (field, value) => {
     const updatedCourse = { ...course, [field]: value };
@@ -478,74 +523,99 @@ const CourseDetail = ({ params }) => {
         </div>
       )}
       <div className={styles.modules}>
-        {modules.map((module, moduleIndex) => (
-          <div key={module.id} className={styles.module}>
-            <div className={styles.moduleHeader}>
-              <input
-                type="text"
-                value={module.title}
-                onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
-                className={styles.moduleTitle}
-              />
-              <div className={styles.moduleActions}>
-                <button onClick={() => moveModule(moduleIndex, -1)} disabled={moduleIndex === 0} className={styles.moveButton}>
-                  <FaArrowUp />
-                </button>
-                <button onClick={() => moveModule(moduleIndex, 1)} disabled={moduleIndex === modules.length - 1} className={styles.moveButton}>
-                  <FaArrowDown />
-                </button>
-                <button onClick={() => addClass(module.id)} title="Añadir Clase">
-                  <FaPlus />
-                </button>
-                <button onClick={() => deleteModule(module.id)} title="Eliminar Módulo">
-                  <FaTrash />
-                </button>
+        {modules.length > 0 ? (
+          modules.map((module, moduleIndex) => (
+            <div key={module.id} className={styles.module}>
+              <div className={styles.moduleHeader}>
+                <input
+                  type="text"
+                  value={module.title}
+                  onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
+                  className={styles.moduleTitle}
+                />
+                <div className={styles.moduleActions}>
+                  <button
+                    onClick={() => moveModule(moduleIndex, -1)}
+                    disabled={moduleIndex === 0}
+                    className={styles.moveButton}
+                  >
+                    <FaArrowUp />
+                  </button>
+                  <button
+                    onClick={() => moveModule(moduleIndex, 1)}
+                    disabled={moduleIndex === modules.length - 1}
+                    className={styles.moveButton}
+                  >
+                    <FaArrowDown />
+                  </button>
+                  <button onClick={() => addClass(module.id)} title="Añadir Clase">
+                    <FaPlus />
+                  </button>
+                  <button
+                    onClick={() => deleteModule(module.id)}
+                    title="Eliminar Módulo"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.classes}>
+                {module.classes && module.classes.length > 0 ? (
+                  module.classes.map((cls, classIndex) => (
+                    <div
+                      key={`${module.id}-${cls.id}`}
+                      className={cls.completed ? styles.completedClass : styles.class}
+                      onClick={() => handleClassClick(module.id, cls.id)}
+                    >
+                      <div className={styles.classCircle}>
+                        {cls.completed && <FaCheck />}
+                      </div>
+                      <span className={styles.classTitle}>{cls.title}</span>
+
+                      <div className={styles.moduleActions}>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            moveClass(module.id, classIndex, -1);
+                          }}
+                          disabled={classIndex === 0}
+                          className={styles.moveButton}
+                        >
+                          <FaArrowUp />
+                        </button>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            moveClass(module.id, classIndex, 1);
+                          }}
+                          disabled={classIndex === module.classes.length - 1}
+                          className={styles.moveButton}
+                        >
+                          <FaArrowDown />
+                        </button>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            deleteClass(module.id, cls.id);
+                          }}
+                          className={styles.classAction}
+                          title="Eliminar Clase"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>No hay clases en este módulo.</p>
+                )}
               </div>
             </div>
-
-            <div className={styles.classes}>
-              {module.classes.map((cls, classIndex) => (
-                <div key={cls.id} className={styles.class} onClick={() => handleClassClick(module.id, cls.id)}>
-                  <div className={styles.classCircle} />
-                  <span className={styles.classTitle}>{cls.title}</span>
-                  <div className={styles.moduleActions}>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        moveClass(module.id, classIndex, -1);
-                      }}
-                      disabled={classIndex === 0}
-                      className={styles.moveButton}
-                    >
-                      <FaArrowUp />
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        moveClass(module.id, classIndex, 1);
-                      }}
-                      disabled={classIndex === module.classes.length - 1}
-                      className={styles.moveButton}
-                    >
-                      <FaArrowDown />
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        deleteClass(module.id, cls.id);
-                      }}
-                      className={styles.classAction}
-                      title="Eliminar Clase"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No hay módulos disponibles.</p>
+        )}
         <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
           <FaPlus />
         </button>
