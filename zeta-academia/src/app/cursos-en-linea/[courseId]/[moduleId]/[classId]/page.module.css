@@ -80,26 +80,50 @@
     resize: vertical;
 }
 
-/* Video Wrapper - 200% larger with maintained 16:9 aspect ratio */
+/* Video Wrapper - 16:9 aspect ratio, button below the iframe */
 .videoWrapper {
     position: relative;
     width: 60vw;
-    height: 60vh;
+    height: auto; /* Allow height to adapt for the button */
     overflow: hidden;
     border-radius: 8px;
     background-color: #000;
+    display: flex;
+    flex-direction: column; /* Stack iframe and button vertically */
+    align-items: center; /* Center content horizontally */
+    gap: 10px; /* Add space between iframe and button */
 }
 
 /* Video Frame inside the wrapper */
 .videoFrame {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100%; /* Take full width of the wrapper */
+    aspect-ratio: 16 / 9; /* Maintain 16:9 aspect ratio */
     border: none;
     object-fit: cover;
 }
+
+/* Restart Button below the iframe */
+.restartButton {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: var(--color-secondary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Button hover effect */
+.restartButton:hover {
+    background-color: var(--color-secondary-hover);
+    transform: scale(1.1);
+}
+
 
 
 /* Image Preview */
@@ -168,6 +192,37 @@
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+/* Botón personalizado para Enviar Proyecto */
+.sendProjectButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 22px; /* Tamaño del botón */
+    font-size: 1.5rem; /* Texto 50% más grande */
+    font-weight: bold;
+    color: #ffffff; /* Blanco */
+    background-color: var(--color-secondary); /* Naranja brillante */
+    border: none;
+    border-radius: 8px; /* Bordes redondeados */
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    text-decoration: none;
+    width: fit-content; /* Ajusta al contenido */
+}
+
+/* Efecto hover para el botón */
+.sendProjectButton:hover {
+    background-color: var(--color-secondary-hover); /* Naranja más vivo */
+    transform: scale(1.1); /* Aumentar tamaño al pasar el mouse */
+}
+
+/* Ícono personalizado para Enviar Proyecto */
+.sendProjectIcon {
+    font-size: 2rem; /* Tamaño del ícono */
+    margin-right: 8px; /* Espaciado entre el ícono y el texto */
+}
+
 
 .addButton{
     margin-top: 10vh;

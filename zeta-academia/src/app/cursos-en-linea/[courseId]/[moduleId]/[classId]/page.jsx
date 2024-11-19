@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
-import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaFilePdf, FaLink, FaChevronRight, FaCheck, FaChevronLeft, FaBook } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaFilePdf, FaLink, FaChevronRight, FaCheck, FaChevronLeft, FaBook, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
@@ -23,6 +23,7 @@ const ClassDetail = () => {
     const [videoEnd, setVideoEnd] = useState("");
     const [editingIndex, setEditingIndex] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [courseName, setCourseName] = useState("");
 
     useEffect(() => {
         if (classId && courseId && moduleId && currentUser) {
@@ -78,10 +79,26 @@ const ClassDetail = () => {
                 }
             };
 
+            const fetchCourseName = async () => {
+                try {
+                    const courseRef = doc(db, "onlineCourses", courseId);
+                    const courseSnapshot = await getDoc(courseRef);
+                    if (courseSnapshot.exists()) {
+                        const courseData = courseSnapshot.data();
+                        setCourseName(courseData?.title || "Nombre del Curso no disponible");
+                    } else {
+                        console.error("Course document not found.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching course name:", error);
+                }
+            };
+
             // Fetch all required data
             fetchClassData();
             fetchCompletedStatus();
             fetchClassesInModule();
+            fetchCourseName();
         }
     }, [classId, courseId, moduleId, currentUser]);
 
@@ -147,11 +164,18 @@ const ClassDetail = () => {
     };
 
     const handleRemoveResource = (index) => {
-        const updatedResources = [...resources];
-        updatedResources.splice(index, 1);
-        updatedResources.forEach((resource, idx) => (resource.order = idx));
-        setResources(updatedResources);
-        saveResourcesToFirestore(updatedResources);
+        const resource = resources[index];
+        const confirmDelete = window.confirm(
+            `¿Estás seguro de que deseas eliminar el recurso "${resource.title || resource.content || "Sin título"}"?`
+        );
+
+        if (confirmDelete) {
+            const updatedResources = [...resources];
+            updatedResources.splice(index, 1);
+            updatedResources.forEach((resource, idx) => (resource.order = idx));
+            setResources(updatedResources);
+            saveResourcesToFirestore(updatedResources);
+        }
     };
 
     const handleMoveResource = (index, direction) => {
@@ -178,8 +202,8 @@ const ClassDetail = () => {
     };
 
     const generateYouTubeEmbedUrl = (url, start, end) => {
-        const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)|youtu\.be\/([^&]+)/);
-        const videoId = videoIdMatch ? videoIdMatch[1] || videoIdMatch[2] : null;
+        const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+        const videoId = videoIdMatch ? videoIdMatch[1] : null;
 
         if (!videoId) return url;
 
@@ -189,6 +213,7 @@ const ClassDetail = () => {
 
         return embedUrl.toString();
     };
+
 
     const handleBackToSyllabus = () => {
         router.push(`/cursos-en-linea/${courseId}`);
@@ -250,6 +275,40 @@ const ClassDetail = () => {
         }
     };
 
+    const handleSendProjectClick = () => {
+        const message = encodeURIComponent(
+            `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
+        );
+        const phone = "+50661304830";
+        const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+        window.open(whatsappUrl, "_blank");
+    };
+
+    const restartVideo = (index) => {
+        const iframe = document.getElementById(`video-${index}`);
+        if (iframe && resources[index]) {
+            const resource = resources[index];
+            const videoIdMatch = resource.content.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+            const videoId = videoIdMatch ? videoIdMatch[1] : null;
+
+            if (!videoId) {
+                console.error("El ID del video no se pudo extraer correctamente.");
+                return;
+            }
+
+            // Generar una URL válida para YouTube con los parámetros necesarios
+            const embedUrl = new URL(`https://www.youtube.com/embed/${videoId}`);
+            embedUrl.searchParams.set("start", resource.start || "0");
+            if (resource.end) {
+                embedUrl.searchParams.set("end", resource.end);
+            }
+
+            // Establecer la URL generada al iframe
+            iframe.src = embedUrl.toString();
+        } else {
+            console.error("El iframe o recurso no existe.");
+        }
+    };
 
 
     if (!Array.isArray(resources)) return <div>Loading...</div>;
@@ -286,11 +345,15 @@ const ClassDetail = () => {
                                     src={generateYouTubeEmbedUrl(resource.content, resource.start, resource.end)}
                                     title={`Video ${index + 1}`}
                                     className={styles.videoFrame}
-                                />
-                                <p>
-                                    Start: {resource.start || "0"} seconds | End: {resource.end || "Full Video"} seconds
-                                </p>
+                                    id={`video-${index}`}
+                                    allow="autoplay; encrypted-media; fullscreen"
+                                    allowfullscreen
+                                ></iframe>
+                                <button onClick={() => restartVideo(index)} className={styles.restartButton}>
+                                    Reiniciar Video
+                                </button>
                             </div>
+
                         )}
                         {resource.type === "imageUrl" && (
                             <>
@@ -325,7 +388,15 @@ const ClassDetail = () => {
                         {resource.type === "text" && (
                             <p className={styles.textResource}>{resource.content}</p>
                         )}
-
+                        {resource.type === "sendProject" && (
+                            <button
+                                className={styles.sendProjectButton}
+                                onClick={handleSendProjectClick}
+                            >
+                                <FaWhatsapp className={styles.sendProjectIcon} />
+                                {resource.content || "Enviar Proyecto"}
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
@@ -334,73 +405,76 @@ const ClassDetail = () => {
                 Add Resource
             </button>
 
-            {isModalOpen && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent}>
-                        <h3>{editingIndex !== null ? "Modify Resource" : "Add New Resource"}</h3>
-                        <label>
-                            Select Resource Type:
-                            <select value={newResourceType} onChange={(e) => setNewResourceType(e.target.value)} className={styles.modalSelect}>
-                                <option value="">Select Type</option>
-                                <option value="title">Title</option>
-                                <option value="text">Text</option>
-                                <option value="videoUrl">Video URL</option>
-                                <option value="imageUrl">Image URL</option>
-                                <option value="link">Link</option>
-                                <option value="pdfUrl">PDF URL</option>
-                            </select>
-                        </label>
-                        <label>
-                            Enter Content:
-                            <textarea
-                                type="text"
-                                value={newResourceContent}
-                                onChange={(e) => setNewResourceContent(e.target.value)}
-                                className={styles.modalInput}
-                                placeholder="Enter content"
-                            />
-                        </label>
-                        {(newResourceType === "link" || newResourceType === "pdfUrl") && (
+            {
+                isModalOpen && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modalContent}>
+                            <h3>{editingIndex !== null ? "Modify Resource" : "Add New Resource"}</h3>
                             <label>
-                                Enter Title:
-                                <input
+                                Select Resource Type:
+                                <select value={newResourceType} onChange={(e) => setNewResourceType(e.target.value)} className={styles.modalSelect}>
+                                    <option value="">Select Type</option>
+                                    <option value="title">Title</option>
+                                    <option value="text">Text</option>
+                                    <option value="videoUrl">Video URL</option>
+                                    <option value="imageUrl">Image URL</option>
+                                    <option value="link">Link</option>
+                                    <option value="pdfUrl">PDF URL</option>
+                                    <option value="sendProject">Send Project</option>
+                                </select>
+                            </label>
+                            <label>
+                                Enter Content:
+                                <textarea
                                     type="text"
-                                    value={newResourceTitle}
-                                    onChange={(e) => setNewResourceTitle(e.target.value)}
+                                    value={newResourceContent}
+                                    onChange={(e) => setNewResourceContent(e.target.value)}
                                     className={styles.modalInput}
-                                    placeholder="Enter title for the resource"
+                                    placeholder="Enter content"
                                 />
                             </label>
-                        )}
-                        {newResourceType === "videoUrl" && (
-                            <>
+                            {(newResourceType === "link" || newResourceType === "pdfUrl") && (
                                 <label>
-                                    Start Time (seconds):
+                                    Enter Title:
                                     <input
-                                        type="number"
-                                        value={videoStart}
-                                        onChange={(e) => setVideoStart(e.target.value)}
+                                        type="text"
+                                        value={newResourceTitle}
+                                        onChange={(e) => setNewResourceTitle(e.target.value)}
                                         className={styles.modalInput}
+                                        placeholder="Enter title for the resource"
                                     />
                                 </label>
-                                <label>
-                                    End Time (seconds):
-                                    <input
-                                        type="number"
-                                        value={videoEnd}
-                                        onChange={(e) => setVideoEnd(e.target.value)}
-                                        className={styles.modalInput}
-                                    />
-                                </label>
-                            </>
-                        )}
-                        <div className={styles.modalActions}>
-                            <button onClick={handleSaveResource}>{editingIndex !== null ? "Save Changes" : "Add"}</button>
-                            <button onClick={closeModal}>Cancel</button>
+                            )}
+                            {newResourceType === "videoUrl" && (
+                                <>
+                                    <label>
+                                        Start Time (seconds):
+                                        <input
+                                            type="number"
+                                            value={videoStart}
+                                            onChange={(e) => setVideoStart(e.target.value)}
+                                            className={styles.modalInput}
+                                        />
+                                    </label>
+                                    <label>
+                                        End Time (seconds):
+                                        <input
+                                            type="number"
+                                            value={videoEnd}
+                                            onChange={(e) => setVideoEnd(e.target.value)}
+                                            className={styles.modalInput}
+                                        />
+                                    </label>
+                                </>
+                            )}
+                            <div className={styles.modalActions}>
+                                <button onClick={handleSaveResource}>{editingIndex !== null ? "Save Changes" : "Add"}</button>
+                                <button onClick={closeModal}>Cancel</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
             <div className={styles.fixedBar}>
                 <button className={styles.syllabusButton} onClick={handleBackToSyllabus}>
                     <FaBook /> Volver al temario
@@ -418,7 +492,7 @@ const ClassDetail = () => {
                     Clase siguiente <FaChevronRight />
                 </button>
             </div>
-        </div>
+        </div >
     );
 };
 
