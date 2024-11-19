@@ -23,86 +23,95 @@ const ClassDetail = () => {
     const [videoEnd, setVideoEnd] = useState("");
     const [editingIndex, setEditingIndex] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
     const [courseName, setCourseName] = useState("");
 
     useEffect(() => {
-        if (classId && courseId && moduleId && currentUser) {
-            const fetchClassData = async () => {
-                try {
-                    const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
-                    const classSnapshot = await getDoc(classRef);
+    if (classId && courseId && moduleId && currentUser) {
+        const fetchClassData = async () => {
+            try {
+                const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
+                const classSnapshot = await getDoc(classRef);
 
-                    if (classSnapshot.exists()) {
-                        const data = classSnapshot.data();
-                        setClassTitle(data.title || "");
-                        setResources(data.resources || []);
-                    } else {
-                        console.error("Class not found");
-                        router.push("/cursos-en-linea");
-                    }
-                } catch (error) {
-                    console.error("Error fetching class data:", error);
+                if (classSnapshot.exists()) {
+                    const data = classSnapshot.data();
+                    setClassTitle(data.title || "");
+                    setResources(data.resources || []);
+                } else {
+                    console.error("Class not found");
+                    router.push("/cursos-en-linea");
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching class data:", error);
+            }
+        };
 
-            const fetchCompletedStatus = async () => {
-                try {
-                    const userRef = doc(db, "users", currentUser.uid);
-                    const userSnapshot = await getDoc(userRef);
+        const fetchCompletedStatus = async () => {
+            try {
+                const userRef = doc(db, "users", currentUser.uid);
+                const userSnapshot = await getDoc(userRef);
 
-                    if (userSnapshot.exists()) {
-                        const userData = userSnapshot.data();
-                        const completedClasses = userData.completedClasses || [];
-                        setIsCompleted(completedClasses.includes(classId));
-                    } else {
-                        console.error("User document does not exist.");
-                    }
-                } catch (error) {
-                    console.error("Error fetching completed status:", error);
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.data();
+                    const completedClasses = userData.completedClasses || [];
+                    setIsCompleted(completedClasses.includes(classId));
+                } else {
+                    console.error("User document does not exist.");
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching completed status:", error);
+            }
+        };
 
-            const fetchClassesInModule = async () => {
-                try {
-                    const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
-                    const classesSnapshot = await getDocs(classesRef);
-                    const classes = classesSnapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
+        const fetchClassesInModule = async () => {
+            try {
+                const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
+                const classesSnapshot = await getDocs(classesRef);
+                const classes = classesSnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
 
-                    // Sort classes by order
-                    classes.sort((a, b) => a.order - b.order);
-                    setClassesInModule(classes);
-                } catch (error) {
-                    console.error("Error fetching classes in module:", error);
+                // Sort classes by order
+                classes.sort((a, b) => a.order - b.order);
+                setClassesInModule(classes);
+
+                // Check if the previous class is completed
+                const currentClassIndex = classes.findIndex((cls) => cls.id === classId);
+                if (currentClassIndex > 0) {
+                    const previousClass = classes[currentClassIndex - 1];
+                    setIsPreviousClassCompleted(previousClass.completed || false);
+                } else {
+                    setIsPreviousClassCompleted(true); // First class or no previous class
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching classes in module:", error);
+            }
+        };
 
-            const fetchCourseName = async () => {
-                try {
-                    const courseRef = doc(db, "onlineCourses", courseId);
-                    const courseSnapshot = await getDoc(courseRef);
-                    if (courseSnapshot.exists()) {
-                        const courseData = courseSnapshot.data();
-                        setCourseName(courseData?.title || "Nombre del Curso no disponible");
-                    } else {
-                        console.error("Course document not found.");
-                    }
-                } catch (error) {
-                    console.error("Error fetching course name:", error);
+        const fetchCourseName = async () => {
+            try {
+                const courseRef = doc(db, "onlineCourses", courseId);
+                const courseSnapshot = await getDoc(courseRef);
+                if (courseSnapshot.exists()) {
+                    const courseData = courseSnapshot.data();
+                    setCourseName(courseData?.title || "Nombre del Curso no disponible");
+                } else {
+                    console.error("Course document not found.");
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching course name:", error);
+            }
+        };
 
-            // Fetch all required data
-            fetchClassData();
-            fetchCompletedStatus();
-            fetchClassesInModule();
-            fetchCourseName();
-        }
-    }, [classId, courseId, moduleId, currentUser]);
-
-
+        // Fetch all required data
+        fetchClassData();
+        fetchCompletedStatus();
+        fetchClassesInModule();
+        fetchCourseName();
+    }
+}, [classId, courseId, moduleId, currentUser]);
+  
 
     const handleTitleChange = async (e) => {
         const newTitle = e.target.value;
@@ -240,40 +249,57 @@ const ClassDetail = () => {
     };
 
     const handleCompleteClass = async () => {
-        try {
-            if (!currentUser || !currentUser.uid) {
-                console.error("User is not authenticated or user object is missing.");
+    try {
+        // Check if user is authenticated
+        if (!currentUser || !currentUser.uid) {
+            console.error("User is not authenticated or user object is missing.");
+            return;
+        }
+
+        // Fetch the current user's data
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (!userSnapshot.exists()) {
+            console.error("User document does not exist.");
+            return;
+        }
+
+        const userData = userSnapshot.data();
+        const completedClasses = userData.completedClasses || [];
+
+        // Check if the previous class is completed
+        const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+        if (currentClassIndex > 0) {
+            const previousClass = classesInModule[currentClassIndex - 1];
+
+            if (!previousClass.completed && !completedClasses.includes(previousClass.id)) {
+                console.error("La clase anterior no está completada. Completa la clase anterior antes de continuar.");
                 return;
-            }
-
-            const userRef = doc(db, "users", currentUser.uid);
-            const userSnapshot = await getDoc(userRef);
-
-            if (!userSnapshot.exists()) {
-                console.error("User document does not exist.");
-                return;
-            }
-
-            const userData = userSnapshot.data();
-            const completedClasses = userData.completedClasses || [];
-
-            if (isCompleted) {
-                const updatedClasses = completedClasses.filter((id) => id !== classId);
-                await updateDoc(userRef, { completedClasses: updatedClasses });
-            } else {
-                const updatedClasses = [...completedClasses, classId];
-                await updateDoc(userRef, { completedClasses: updatedClasses });
-            }
-
-            setIsCompleted(!isCompleted);
-        } catch (error) {
-            if (error.code === "permission-denied") {
-                console.error("Permission denied. Ensure Firestore rules allow this operation.");
-            } else {
-                console.error("Error updating completion status:", error);
             }
         }
-    };
+
+        // Update the completion status
+        const newCompletedStatus = !isCompleted;
+
+        if (newCompletedStatus) {
+            const updatedClasses = [...completedClasses, classId];
+            await updateDoc(userRef, { completedClasses: updatedClasses });
+        } else {
+            const updatedClasses = completedClasses.filter((id) => id !== classId);
+            await updateDoc(userRef, { completedClasses: updatedClasses });
+        }
+
+        setIsCompleted(newCompletedStatus);
+    } catch (error) {
+        if (error.code === "permission-denied") {
+            console.error("Permission denied. Ensure Firestore rules allow this operation.");
+        } else {
+            console.error("Error updating completion status:", error);
+        }
+    }
+};
+
 
     const handleSendProjectClick = () => {
         const message = encodeURIComponent(
@@ -479,18 +505,24 @@ const ClassDetail = () => {
                 <button className={styles.syllabusButton} onClick={handleBackToSyllabus}>
                     <FaBook /> Volver al temario
                 </button>
-                <button className={styles.backButton} onClick={handlePreviousClass}>
-                    <FaChevronLeft /> Clase anterior
-                </button>
+
+                {classesInModule.findIndex(cls => cls.id === classId) > 0 && (
+                    <button className={styles.backButton} onClick={handlePreviousClass}>
+                        <FaChevronLeft /> Clase anterior
+                    </button>
+                )}
+
                 <button
                     className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ''}`}
-                    onClick={handleCompleteClass}
+                    onClick={handleCompleteClass} disabled={!isPreviousClassCompleted}
                 >
                     <FaCheck /> {isCompleted ? "Clase completada" : "Completar clase"}
                 </button>
-                <button className={styles.nextButton} onClick={handleNextClass}>
-                    Clase siguiente <FaChevronRight />
-                </button>
+                {classesInModule.findIndex(cls => cls.id === classId) < classesInModule.length - 1 && (
+                    <button className={styles.nextButton} onClick={handleNextClass}>
+                        Clase siguiente <FaChevronRight />
+                    </button>
+                )}
             </div>
         </div >
     );
