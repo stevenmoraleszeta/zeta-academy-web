@@ -46,7 +46,7 @@
 
     border-radius: 4px;
     padding: 0px;
-    font-size: clamp(.9vw, 24px, 2vw);
+    font-size: clamp(1vw, 18px, 1.6vw);
     cursor: pointer;
 
     color: white;

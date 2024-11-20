@@ -10,7 +10,7 @@ import styles from "./page.module.css";
 
 const ClassDetail = () => {
     const router = useRouter();
-    const { currentUser } = useAuth();
+    const { currentUser, isAdmin } = useAuth();
     const { courseId, moduleId, classId } = useParams();
     const [classTitle, setClassTitle] = useState("");
     const [resources, setResources] = useState([]);
@@ -26,84 +26,110 @@ const ClassDetail = () => {
     const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
     const [courseName, setCourseName] = useState("");
     const [completedClasses, setCompletedClasses] = useState([]);
+    const [isRestricted, setIsRestricted] = useState(false);
+    const [isEnrolled, setIsEnrolled] = useState(false);
 
     useEffect(() => {
-        if (classId && courseId && moduleId && currentUser) {
-            const fetchClassData = async () => {
-                try {
-                    const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
-                    const classSnapshot = await getDoc(classRef);
-
-                    if (classSnapshot.exists()) {
-                        const data = classSnapshot.data();
-                        setClassTitle(data.title || "");
-                        setResources(data.resources || []);
-                    } else {
-                        console.error("Class not found");
-                        router.push("/cursos-en-linea");
-                    }
-                } catch (error) {
-                    console.error("Error fetching class data:", error);
+        const fetchClassData = async () => {
+            try {
+                const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
+                const classSnapshot = await getDoc(classRef);
+    
+                if (classSnapshot.exists()) {
+                    const data = classSnapshot.data();
+                    setClassTitle(data.title || "");
+                    setResources(data.resources || []);
+                    setIsRestricted(data.restricted || false);
+                } else {
+                    console.error("Class not found");
+                    router.push("/cursos-en-linea");
                 }
-            };
-
-            const fetchCompletedStatus = async () => {
-                try {
-                    const userRef = doc(db, "users", currentUser.uid);
-                    const userSnapshot = await getDoc(userRef);
-
-                    if (userSnapshot.exists()) {
-                        const userData = userSnapshot.data();
-                        const completedClasses = userData.completedClasses || [];
-                        setCompletedClasses(completedClasses); // Actualiza el estado global
-                        setIsCompleted(completedClasses.includes(classId));
-                    } else {
-                        console.error("User document does not exist.");
-                    }
-                } catch (error) {
-                    console.error("Error fetching completed status:", error);
+            } catch (error) {
+                console.error("Error fetching class data:", error);
+            }
+        };
+    
+        const checkEnrollment = async () => {
+            if (!currentUser) return;
+    
+            try {
+                const userRef = doc(db, "users", currentUser.uid);
+                const userSnap = await getDoc(userRef);
+    
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    setIsEnrolled(userData.enrolledCourses?.includes(courseId) || false);
                 }
-            };
-
-            const fetchClassesInModule = async () => {
-                try {
-                    const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
-                    const classesSnapshot = await getDocs(classesRef);
-                    const classes = classesSnapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-
-                    // Ordena las clases por su propiedad "order"
-                    classes.sort((a, b) => a.order - b.order);
-                    setClassesInModule(classes);
-                } catch (error) {
-                    console.error("Error fetching classes in module:", error);
+            } catch (error) {
+                console.error("Error checking enrollment:", error);
+            }
+        };
+    
+        const fetchCompletedStatus = async () => {
+            if (!currentUser) return;
+    
+            try {
+                const userRef = doc(db, "users", currentUser.uid);
+                const userSnapshot = await getDoc(userRef);
+    
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.data();
+                    const completedClasses = userData.completedClasses || [];
+                    setCompletedClasses(completedClasses); // Actualiza el estado global
+                    setIsCompleted(completedClasses.includes(classId));
+                } else {
+                    console.error("User document does not exist.");
                 }
-            };
-
-            const fetchCourseName = async () => {
-                try {
-                    const courseRef = doc(db, "onlineCourses", courseId);
-                    const courseSnapshot = await getDoc(courseRef);
-                    if (courseSnapshot.exists()) {
-                        const courseData = courseSnapshot.data();
-                        setCourseName(courseData?.title || "Nombre del Curso no disponible");
-                    } else {
-                        console.error("Course document not found.");
-                    }
-                } catch (error) {
-                    console.error("Error fetching course name:", error);
+            } catch (error) {
+                console.error("Error fetching completed status:", error);
+            }
+        };
+    
+        const fetchClassesInModule = async () => {
+            try {
+                const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
+                const classesSnapshot = await getDocs(classesRef);
+                const classes = classesSnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+    
+                // Ordena las clases por su propiedad "order"
+                classes.sort((a, b) => a.order - b.order);
+                setClassesInModule(classes);
+            } catch (error) {
+                console.error("Error fetching classes in module:", error);
+            }
+        };
+    
+        const fetchCourseName = async () => {
+            try {
+                const courseRef = doc(db, "onlineCourses", courseId);
+                const courseSnapshot = await getDoc(courseRef);
+                if (courseSnapshot.exists()) {
+                    const courseData = courseSnapshot.data();
+                    setCourseName(courseData?.title || "Nombre del Curso no disponible");
+                } else {
+                    console.error("Course document not found.");
                 }
-            };
-
-            // Fetch all required data
+            } catch (error) {
+                console.error("Error fetching course name:", error);
+            }
+        };
+    
+        // Fetch all required data
+        if (classId && courseId && moduleId) {
             fetchClassData();
-            fetchCompletedStatus();
             fetchClassesInModule();
             fetchCourseName();
+    
+            if (currentUser) {
+                fetchCompletedStatus();
+                checkEnrollment();
+            }
         }
     }, [classId, courseId, moduleId, currentUser]);
+    
 
     useEffect(() => {
         if (classesInModule.length > 0 && completedClasses.length > 0) {
@@ -331,6 +357,38 @@ const ClassDetail = () => {
         }
     };
 
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        router.push(`/cursos-en-linea/${courseId}`);
+    };
+
+    if (isRestricted) {
+        if (!currentUser) {
+            return (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <h3>Acceso Restringido</h3>
+                        <p>Debe iniciar sesión para ver esta clase.</p>
+                        <button onClick={handleCloseModal} className={styles.modalButton}>
+                            Volver al temario
+                        </button>
+                    </div>
+                </div>
+            );
+        } else if (!isAdmin && !isEnrolled) {
+            return (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <h3>Acceso Restringido</h3>
+                        <p>Debe matricularse para ver esta clase.</p>
+                        <button onClick={handleCloseModal} className={styles.modalButton}>
+                            Volver al temario
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+    }    
 
     if (!Array.isArray(resources)) return <div>Loading...</div>;
 
