@@ -643,21 +643,21 @@ const CourseDetail = ({ params }) => {
             </span>
           </div>
 
-          <div className={styles.buttonContainer}>
-            <button className={styles.enrollButton} onClick={handleEnrollClick}>
-              Inscríbete
-            </button>
-            <button className={styles.contactButton} onClick={handleContactClick}>
-              Contáctanos
-            </button>
-            {isAdmin && (
-              <div className={styles.iconWrapper} onClick={openModal}>
-                <FaRegImage className={styles.editIcon} />
-              </div>
-            )}
-          </div>
+        <div className={styles.buttonContainer}>
+          <button className={styles.enrollButton} onClick={handleEnrollClick}>
+            Inscríbete
+          </button>
+          <button className={styles.contactButton} onClick={handleContactClick}>
+            Contáctanos
+          </button>
+          {isAdmin && (
+            <div className={styles.iconWrapper} onClick={openModal}>
+              <FaRegImage className={styles.editIcon} />
+            </div>
+          )}
         </div>
       </div>
+    </div>
 
       <div className={styles.features}>
         {(course.features || []).map((feature, index) => (
@@ -797,68 +797,67 @@ const CourseDetail = ({ params }) => {
                 </div>
               </div>
 
-              <div className={styles.classes}>
-                {module.classes && module.classes.length > 0 ? (
-                  module.classes.map((cls, classIndex) => (
-                    <div
-                      key={cls.id}
-                      className={`${cls.completed ? styles.completedClass : ""} ${cls.highlight ? styles.secondaryClass : styles.class
-                        }`}
-                      onClick={() => handleClassClick(module.id, cls.id)}
-                    >
-                      <div className={styles.classCircle}>
-                        {cls.completed && <FaCheck />}
-                      </div>
-                      <span className={styles.classTitle}>{cls.title}</span>
-                      <div className={styles.moduleActions}>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveClass(module.id, classIndex, -1);
-                          }}
-                          disabled={classIndex === 0}
-                          className={styles.moveButton}
-                        >
-                          <FaArrowUp />
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveClass(module.id, classIndex, 1);
-                          }}
-                          disabled={classIndex === module.classes.length - 1}
-                          className={styles.moveButton}
-                        >
-                          <FaArrowDown />
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            deleteClass(module.id, cls.id);
-                          }}
-                          className={styles.classAction}
-                          title="Eliminar Clase"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
+            <div className={styles.classes}>
+              {module.classes && module.classes.length > 0 ? (
+                module.classes.map((cls, classIndex) => (
+                  <div
+                    key={`${module.id}-${cls.id}`}
+                    className={cls.completed ? styles.completedClass : styles.class}
+                    onClick={() => handleClassClick(module.id, cls.id)}
+                  >
+                    <div className={styles.classCircle}>
+                      {cls.completed && <FaCheck />}
                     </div>
-                  ))
-                ) : (
-                  <p>No hay clases en este módulo.</p>
-                )}
-              </div>
+                    <span className={styles.classTitle}>{cls.title}</span>
+                    <div className={styles.moduleActions}>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          moveClass(module.id, classIndex, -1);
+                        }}
+                        disabled={classIndex === 0}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowUp />
+                      </button>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          moveClass(module.id, classIndex, 1);
+                        }}
+                        disabled={classIndex === module.classes.length - 1}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowDown />
+                      </button>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          deleteClass(module.id, cls.id);
+                        }}
+                        className={styles.classAction}
+                        title="Eliminar Clase"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No hay clases en este módulo.</p>
+              )}
             </div>
-          ))
-        ) : (
-          <p>No hay módulos disponibles.</p>
-        )}
-        <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
-          <FaPlus />
-        </button>
-      </div>
+          </div>
+        ))
+      ) : (
+        <p>No hay módulos disponibles.</p>
+      )}
+      <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+        <FaPlus />
+      </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default CourseDetail;
