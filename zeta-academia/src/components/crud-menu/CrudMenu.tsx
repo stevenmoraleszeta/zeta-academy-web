@@ -8,6 +8,8 @@ import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
+import { FaTrash, FaClone } from 'react-icons/fa';
+
 
 
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
@@ -16,9 +18,10 @@ interface CrudMenuProps {
     displayFields: { label: string; field: string; type?: string; selectType?: string }[];
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
+    pageTitle: string;
 }
 
-const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, itemActions = [] }) => {
+const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [] }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -117,7 +120,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                 },
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        setSelectedItem((prevItem) => ({
+                        setSelectedItem((prevItem: any) => ({
                             ...prevItem,
                             imageUrl: downloadURL,
                         }));
@@ -153,7 +156,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                 },
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        setSelectedItem((prevItem) => ({
+                        setSelectedItem((prevItem: any) => ({
                             ...prevItem,
                             archivoUrl: downloadURL,
                         }));
@@ -184,13 +187,11 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                 setFilteredData((prevData) =>
                     prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
                 );
-                alert("Elemento actualizado con éxito");
             } else {
                 const docRef = await addDoc(collection(db, collectionName), selectedItem);
                 const newItem = { ...selectedItem, id: docRef.id };
                 setData((prevData) => [...prevData, newItem]);
                 setFilteredData((prevData) => [...prevData, newItem]);
-                alert("Elemento agregado con éxito");
             }
             handleModalClose();
         } catch (error) {
@@ -198,25 +199,20 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
     };
 
-    const handleDelete = async () => {
-        if (!selectedItem || !selectedItem.id) return;
+    const handleDeleteItem = async (item: any) => {
+        const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este elemento?");
+        if (!confirmDelete) return;
 
         try {
-            const itemRef = doc(db, collectionName, selectedItem.id);
+            const itemRef = doc(db, collectionName, item.id);
             await deleteDoc(itemRef);
-            setData((prevData) => prevData.filter((i) => i.id !== selectedItem.id));
-            setFilteredData((prevData) => prevData.filter((i) => i.id !== selectedItem.id));
+            setData((prevData) => prevData.filter((i) => i.id !== item.id));
+            setFilteredData((prevData) => prevData.filter((i) => i.id !== item.id));
             alert("Elemento eliminado con éxito");
-            handleModalClose();
         } catch (error) {
             console.error("Error al eliminar el elemento:", error);
             alert("Error al eliminar el elemento");
         }
-    };
-
-    const handleDeleteItem = (item: any) => {
-        setItemToDelete(item);
-        setIsConfirmModalOpen(true);
     };
 
     const confirmDelete = async () => {
@@ -237,22 +233,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
     };
 
-    const handleDuplicate = async (item: any) => {
-        const { id, ...itemWithoutId } = item;
-        const newItem = { ...itemWithoutId, createdAt: new Date() };
-        
-        try {
-            const docRef = await addDoc(collection(db, collectionName), newItem);
-            const duplicatedItem = { ...newItem, id: docRef.id };
-            setData((prevData) => [...prevData, duplicatedItem]);
-            setFilteredData((prevData) => [...prevData, duplicatedItem]);
-            alert("Elemento duplicado con éxito");
-        } catch (error) {
-            console.error("Error al duplicar el elemento:", error);
-            alert("Error al duplicar el elemento");
-        }
-    };
-
     const handleFileDownload = (fileUrl: string, fileName: string) => {
         const link = document.createElement('a');
         link.href = fileUrl;
@@ -268,14 +248,15 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
 
     return (
         <div className={styles.CRUDContainer}>
+            <h1 className={styles.pageTitle}>{pageTitle}</h1>
             <section className={styles.topBar}>
-                <button onClick={handleAddClick}>Agregar</button>
                 <input
                     type="text"
                     placeholder="Buscar..."
                     value={searchTerm}
                     onChange={handleSearchChange}
                 />
+                <button onClick={handleAddClick}>Agregar</button>
             </section>
             <section className={styles.itemsSection}>
                 {filteredData.length > 0 ? (
@@ -294,34 +275,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                     </div>
                                 ))}
                             </div>
-                            <div className={styles.actionButtons}>
-                                {itemActions.map((action, index) => (
-                                    <button
-                                        key={index}
-                                        className={styles.actionButton}
-                                        onClick={(e) => {
-                                            e.stopPropagation(); // Evita que el clic se propague al contenedor del ítem
-                                            action.handler(item);
-                                        }}
-                                    >
-                                        {action.label}
-                                    </button>
-                                ))}
-                            </div>
                             <div className={styles.iconButtons}>
-                                <button
-                                    className={styles.iconButton}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDuplicate(item);
-                                    }}
-                                    title="Duplicar"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                    </svg>
-                                </button>
                                 <button
                                     className={styles.iconButton}
                                     onClick={(e) => {
@@ -330,12 +284,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                     }}
                                     title="Eliminar"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                    </svg>
+                                    <FaTrash size={20} />
                                 </button>
                             </div>
                         </div>
@@ -351,7 +300,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                         <h2>{isEditMode ? "Editar Elemento" : "Agregar Nuevo Elemento"}</h2>
                         {editFields.map(({ label, field, type, selectType, options }) => (
                             <div key={field} className={styles.fieldRow}>
-                                <label>{label}:</label>
+                                <label>{label}</label>
                                 {type === 'file' ? (
                                     <>
                                         <input
@@ -409,6 +358,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 )}
                             </div>
                         ))}
+                        <div className={styles.modalButtons}>
                         <button
                             onClick={handleSave}
                             disabled={isUploadingImage}
@@ -417,6 +367,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                             {isEditMode ? "Actualizar" : "Guardar"}
                         </button>
                         <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
+                        </div>
                     </div>
                 </div>
             )}

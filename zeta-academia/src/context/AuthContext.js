@@ -7,6 +7,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore"; // Importar funciones de Firestore
 import { db } from "../firebase/firebase"; // Importar la instancia de Firestore
 
+
 // Crear el contexto de autenticación
 const AuthContext = createContext();
 
@@ -19,7 +20,8 @@ export function useAuth() {
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false); 
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [missingInfo, setMissingInfo] = useState(false);
 
     // Manejar el cambio de estado de autenticación
     useEffect(() => {
@@ -48,25 +50,37 @@ export function AuthProvider({ children }) {
     };
 
     const checkUserInFirestore = async (user) => {
-        const userDocRef = doc(db, "users", user.uid); 
+        const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
             const userData = userDoc.data();
             if (userData.role === "admin") {
-                setIsAdmin(true); 
+                setIsAdmin(true);
             } else {
                 setIsAdmin(false);
             }
+            if (!userData.pais || !userData.number || !userData.edad) {
+                setMissingInfo(true);
+            } else {
+                setMissingInfo(false);
+            }
+
+
         } else {
             await setDoc(userDocRef, {
                 displayName: user.displayName,
                 email: user.email,
                 photoURL: user.photoURL,
-                role: "student" 
+                role: "student",
+                pais: "",
+                number: "",
+                edad: '',
             });
-            setIsAdmin(true); 
+            setIsAdmin(false);
+            setMissingInfo(true);
             console.log("Usuario agregado a Firestore");
+            router.push("/completeInformation");
         }
     };
 
@@ -74,7 +88,8 @@ export function AuthProvider({ children }) {
         currentUser,
         loginWithGoogle,
         updateCurrentUser: setCurrentUser,
-        isAdmin, 
+        isAdmin,
+        missingInfo,
     };
 
     return (

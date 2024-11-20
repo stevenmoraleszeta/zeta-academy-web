@@ -21,7 +21,7 @@ const OnlineCourses = () => {
 
   useEffect(() => {
     if (courses && courses.length > 0) {
-      const activeCourses = courses.filter(course => !course.archived);
+      const activeCourses = courses.filter((course) => !course.archived);
       const prices = activeCourses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 1000) * 1000;
       const maxCoursePrice = Math.ceil(Math.max(...prices) / 1000) * 1000;
@@ -50,16 +50,23 @@ const OnlineCourses = () => {
   };
 
   const handleCategoryChange = (category) => {
-    setSelectedCategory((prevCategory) => (prevCategory === category ? "" : category));
+    setSelectedCategory((prevCategory) =>
+      prevCategory === category ? "" : category
+    );
   };
 
   const handleFilter = () => {
     if (!courses) return;
     const filtered = courses.filter((course) => {
-      const matchesQuery = course?.title?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesQuery = course?.title
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
       const withinPriceRange = course?.discountedPrice <= priceRange;
-      const matchesCategory = !selectedCategory || course?.category === selectedCategory;
-      return matchesQuery && withinPriceRange && matchesCategory && !course.archived;
+      const matchesCategory =
+        !selectedCategory || course?.category === selectedCategory;
+      return (
+        matchesQuery && withinPriceRange && matchesCategory && !course.archived
+      );
     });
     setFilteredCourses(filtered);
   };
@@ -84,7 +91,9 @@ const OnlineCourses = () => {
 
   const handleCourseArchived = (courseId) => {
     // Actualiza el estado de filteredCourses excluyendo el curso archivado
-    setFilteredCourses((prevCourses) => prevCourses.filter((course) => course.id !== courseId));
+    setFilteredCourses((prevCourses) =>
+      prevCourses.filter((course) => course.id !== courseId)
+    );
   };
 
   return (
@@ -102,20 +111,22 @@ const OnlineCourses = () => {
       <div className={styles.filters}>
         <div className={styles.filterOptions}>
           <button
-            className={`${styles.filterButton} ${selectedCategory === 'Programación' ? styles.activeFilter : ''}`}
+            className={`${styles.filterButton} ${
+              selectedCategory === "Programación" ? styles.activeFilter : ""
+            }`}
             onClick={() => handleCategoryChange("Programación")}
           >
             Programación
           </button>
           <button
-            className={`${styles.filterButton} ${selectedCategory === 'Ofimática' ? styles.activeFilter : ''}`}
+            className={`${styles.filterButton} ${
+              selectedCategory === "Ofimática" ? styles.activeFilter : ""
+            }`}
             onClick={() => handleCategoryChange("Ofimática")}
           >
             Ofimática
           </button>
           <div className={styles.sliderContainer}>
-            <span>₡</span>
-            <span>{priceRange}</span>
             <input
               type="range"
               min={minPrice}
@@ -125,9 +136,13 @@ const OnlineCourses = () => {
               onChange={handlePriceChange}
               className={styles.slider}
             />
+            <span>₡</span>
+            <span>{priceRange}</span>
           </div>
         </div>
-        <button className={styles.addButton} onClick={handleAddCourse}>Agregar curso</button>
+        <button className={styles.addButton} onClick={handleAddCourse}>
+          Agregar curso
+        </button>
       </div>
 
       {loading && <p>Loading courses...</p>}
@@ -143,13 +158,19 @@ const OnlineCourses = () => {
             />
           ))
         ) : (
-          <p>No courses available.</p>
+          <p>No encuentro algo como lo que buscas, porfavor contáctanos.</p>
         )}
       </div>
 
       <footer className={styles.footer}>
         <p>¿No ves el curso que buscas?</p>
-        <button className={styles.contactButton}>Contáctanos</button>
+        <a
+          href="https://wa.link/hvutf8"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <button className={styles.contactButton}>Contáctanos</button>
+        </a>
       </footer>
     </div>
   );

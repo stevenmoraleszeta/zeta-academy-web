@@ -63,7 +63,9 @@ const LiveCourses = () => {
       const withinPriceRange = course?.discountedPrice <= priceRange;
       const matchesCategory =
         !selectedCategory || course?.category === selectedCategory;
-      return matchesQuery && withinPriceRange && matchesCategory && !course.archived;
+      return (
+        matchesQuery && withinPriceRange && matchesCategory && !course.archived
+      );
     });
     setFilteredCourses(filtered);
   };
@@ -123,8 +125,6 @@ const LiveCourses = () => {
             Ofimática
           </button>
           <div className={styles.sliderContainer}>
-            <span>₡</span>
-            <span>{priceRange}</span>
             <input
               type="range"
               min={minPrice}
@@ -134,6 +134,8 @@ const LiveCourses = () => {
               onChange={handlePriceChange}
               className={styles.slider}
             />
+            <span>₡</span>
+            <span>{priceRange}</span>
           </div>
         </div>
         <button className={styles.addButton} onClick={handleAddCourse}>
@@ -154,13 +156,19 @@ const LiveCourses = () => {
             />
           ))
         ) : (
-          <p>No live courses available.</p>
+          <p>No encuentro algo como lo que buscas, porfavor contáctanos.</p>
         )}
       </div>
 
       <footer className={styles.footer}>
         <p>¿No ves el curso en vivo que buscas?</p>
+        <a
+          href="https://wa.link/qjqt2w"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
         <button className={styles.contactButton}>Contáctanos</button>
+        </a>
       </footer>
     </div>
   );

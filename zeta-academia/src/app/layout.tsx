@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "../components/navbar/Navbar";
+import FooterZ from "@/components/footer/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { Montserrat } from 'next/font/google';
 
@@ -23,8 +24,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`app ${montserrat.className}`}>
         <AuthProvider>
-          <Navbar />
-          {children}
+          <div className="page-container">
+            <Navbar />
+            <main className="content">{children}</main>
+            <FooterZ />
+          </div>
         </AuthProvider>
       </body>
     </html>

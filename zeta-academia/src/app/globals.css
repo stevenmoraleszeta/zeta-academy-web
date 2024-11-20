@@ -20,15 +20,25 @@
   --color-secondary-hover: #b84600;
 }
 
-body,
-html {
+html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
   overflow-x: hidden;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 400;
   background-color: var(--color-black);
   color: var(--text-color);
+}
+
+/* Estilos del contenedor principal para distribuir el contenido */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* El contenido principal ocupa el espacio restante */
+.content {
+  flex: 1;
 }
 
 /* General text styles */
@@ -94,6 +104,7 @@ button {
   background-color: var(--color-secondary);
   font-size: 16px;
   transition: background-color 0.3s;
+  font-weight: bold;
 }
 
 button:hover {
