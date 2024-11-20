@@ -509,10 +509,31 @@
   color: var(--text-color-light);
 }
 
+.completedClass:hover{
+  background-color: var(--color-primary-hover);
+}
+
 .completedClass .classCircle {
   background-color: var(--text-color);
   color: var(--color-primary);
 }
+
+.secondaryClass {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  background-color: var(--color-secondary);
+  height: auto;
+  padding-left: 10px;
+  border-radius: 5px;
+  color: var(--text-color-light);
+}
+
+.secondaryClass:hover {
+  background-color: var(--color-secondary-hover); /* Add a hover effect */
+}
+
 
 /* Add Module Button */
 .modules button {
