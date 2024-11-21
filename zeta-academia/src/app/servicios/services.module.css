@@ -28,8 +28,8 @@
 }
 
 .zetaLogoImg {
-    width: clamp(10vw, 400px, 15vw);
-    height: clamp(13vh, 120px, 23vh);
+    width: clamp(8.5vw, 340px, 12.75vw);
+    height: clamp(11.05vh, 102px, 19.55vh);
     object-fit: contain;
 }
 
@@ -39,27 +39,27 @@
 
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: start;
     flex-direction: row;
 }
 
 .firstMainContainer {
-    width: 60%;
     height: 100%;
 
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     justify-content: center;
     flex-direction: column;
+    padding-right: 2vw;
 }
 
 .topContainer {
-    width: 100%;
     height: 30%;
+    width: 100%;
 
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: end;
     flex-direction: row;
 }
 
@@ -74,7 +74,6 @@
 }
 
 .secondMainContainer {
-    width: 70%;
     height: 100%;
 
     display: flex;
@@ -86,10 +85,11 @@
 
 .serviceContainer {
     border-radius: 10px;
+    width: 100%;
 
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
 }
 
@@ -102,11 +102,13 @@
     align-items: flex-start;
 
     margin-left: 10%;
+    margin-top: 2%;
 }
 
 .textTitle {
     width: 70%;
-    font-size: clamp(2vw, 25px, 2.5vw);
+    font-size: clamp(1.86vw, 23.25px, 2.325vw);
+    margin-top: 5%;
 }
 
 .iconContainer {
@@ -123,16 +125,16 @@
 
 
 .iconImg {
-    width: clamp(7vw, 100px, 12vw);
-    height: clamp(7vh, 80px, 12vh);
+    width: clamp(6.51vw, 93px, 11.16vw); /* 7% reduction */
+    height: clamp(6.51vh, 74.4px, 11.16vh); /* 7% reduction */
     object-fit: contain;
 }
 
 #aprendeLinea {
     background: linear-gradient(90deg, #005F73, #00B3D9);
 
-    width: clamp(20vw, 410px, 35vw);
-    height: clamp(30vh, 270px, 40vh);
+    width: clamp(18.6vw, 381.3px, 32.55vw);
+    height: clamp(19.902vh, 268.677px, 29.853vh);
 
     border-radius: 10px;
 
@@ -145,8 +147,8 @@
 #cursosVivo {
     background: linear-gradient(220deg, #002128, #00B3D9);
 
-    width: clamp(13vw, 410px, 17vw);
-    height: clamp(20vh, 270px, 30vh);
+    width: clamp(12.09vw, 381.3px, 15.81vw);
+    height: clamp(19.902vh, 268.677px, 29.853vh);
     margin-left: 5%;
 
     border-radius: 10px;
@@ -160,8 +162,8 @@
 #clasesParticulares {
     background: linear-gradient(45deg, #00181D, #005F73, #00B3D9);
 
-    width: clamp(21vw, 355px, 27vw);
-    height: clamp(40vh, 325px, 50vh);
+    width: clamp(19.53vw, 330.15px, 25.11vw);
+    height: clamp(37.2vh, 302.25px, 46.5vh);
 
     border-radius: 10px;
 
@@ -174,8 +176,8 @@
 #desarrolloSoftware {
     background: linear-gradient(45deg, #012F38, #00B3D9);
 
-    width: clamp(30vw, 374px, 40vw);
-    height: clamp(40vh, 325px, 50vh);
+    width: clamp(23.715vw, 295.647px, 31.62vw);
+    height: clamp(37.2vh, 302.25px, 46.5vh);
     margin-left: 5%;
 
     border-radius: 10px;
@@ -189,8 +191,8 @@
 #elaboracionProyectos {
     background: linear-gradient(220deg, #000E11, #00657B, #00B3D9);
 
-    width: clamp(15vw, 267px, 20vw);
-    height: clamp(45vh, 355px, 55vh);
+    width: clamp(13.95vw, 248.31px, 18.6vw);
+    height: clamp(41.85vh, 330.15px, 51.15vh);
     margin-left: 3%;
 
     border-radius: 10px;
@@ -204,8 +206,8 @@
 #otro {
     background: linear-gradient(320deg, #000E11, #00B3D9);
 
-    width: clamp(13vw, 410px, 17vw);
-    height: clamp(15vh, 300px, 30vh);
+    width: clamp(12.09vw, 381.3px, 15.81vw);
+    height: clamp(13.95vh, 279px, 27.9vh);
 
     margin-top: 3%;
 
@@ -218,16 +220,16 @@
 }
 
 .iconBottomImgs {
-    width: clamp(10vw, 100px, 15vw);
-    height: clamp(11vh, 80px, 13vh);
+    width: clamp(9vw, 90px, 13.5vw);
+    height: clamp(9.9vh, 72px, 11.7vh);
     object-fit: contain;
 }
 
 /* On hovered contented */
 
 .onHoveredText {
-    width: 70%;
-    font-size: clamp(1vw, 20px, 2vw);
+    width: 63%;
+    font-size: clamp(0.9vw, 18px, 1.8vw);
 }
 
 .linkBtn {

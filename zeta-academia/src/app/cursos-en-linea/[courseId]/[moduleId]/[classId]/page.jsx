@@ -393,7 +393,7 @@ const ClassDetail = () => {
     if (!Array.isArray(resources)) return <div>Loading...</div>;
 
     return (
-        <div className={styles.classDetailContainer}>
+        <div className={styles.classDetailContainer}> 
             <div className={styles.titleContainer}>
                 <input
                     type="text"

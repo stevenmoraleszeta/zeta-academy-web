@@ -23,22 +23,24 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  overflow-x: hidden;
+  height: 100%; /* Correcto */
+  overflow-x: hidden; /* Correcto */
+  overflow-y: auto; /* Asegura que se pueda desplazar verticalmente */
   background-color: var(--color-black);
   color: var(--text-color);
 }
 
-/* Estilos del contenedor principal para distribuir el contenido */
 .page-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-y: auto; /* Asegura que sea desplazable */
 }
 
-/* El contenido principal ocupa el espacio restante */
 .content {
   flex: 1;
+  overflow-y: auto; /* Asegura que este contenedor sea desplazable */
+  height: 100%; /* Opcional si necesitas ajustar la altura */
 }
 
 /* General text styles */

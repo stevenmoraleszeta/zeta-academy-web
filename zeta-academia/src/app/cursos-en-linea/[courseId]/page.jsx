@@ -189,7 +189,7 @@ const CourseDetail = ({ params }) => {
     const loadCourseData = async () => {
       try {
         setModules([]); // Reinicia el estado antes de cargar los datos.
-  
+
         let userCompletedClasses = [];
         if (currentUser) {
           const userRef = doc(db, "users", currentUser.uid);
@@ -198,11 +198,11 @@ const CourseDetail = ({ params }) => {
             userCompletedClasses = userSnap.data().completedClasses || [];
           }
         }
-  
+
         const modulesSnapshot = await getDocs(
           collection(db, "onlineCourses", courseId, "modules")
         );
-  
+
         const fetchedModules = await Promise.all(
           modulesSnapshot.docs.map(async (moduleDoc) => {
             const moduleData = moduleDoc.data();
@@ -216,14 +216,14 @@ const CourseDetail = ({ params }) => {
                 "classes"
               )
             );
-  
+
             const classes = classesSnapshot.docs.map((classDoc) => ({
               id: classDoc.id,
               ...classDoc.data(),
             }));
-  
+
             classes.sort((a, b) => a.order - b.order); // Ordena las clases por `order`.
-  
+
             return {
               id: moduleDoc.id,
               ...moduleData,
@@ -231,43 +231,43 @@ const CourseDetail = ({ params }) => {
             };
           })
         );
-  
+
         fetchedModules.sort((a, b) => a.order - b.order); // Ordena los módulos por `order`.
-  
+
         // Encuentra la primera clase incompleta globalmente.
         let firstHighlightFound = false;
-  
+
         const updatedModules = fetchedModules.map((module) => {
           const updatedClasses = module.classes.map((cls) => {
             const isCompleted = userCompletedClasses.includes(cls.id);
-  
+
             if (!isCompleted && !firstHighlightFound) {
               firstHighlightFound = true;
               return { ...cls, completed: false, highlight: true };
             }
-  
+
             return { ...cls, completed: isCompleted, highlight: false };
           });
-  
+
           return {
             ...module,
             classes: updatedClasses,
           };
         });
-  
+
         setModules(updatedModules);
       } catch (error) {
         console.error("Error loading course data:", error);
       }
     };
-  
+
     const checkEnrollment = async () => {
       if (!currentUser) return;
-  
+
       try {
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
-  
+
         if (userSnap.exists()) {
           const userData = userSnap.data();
           setIsEnrolled(userData.enrolledCourses?.includes(courseId) || false);
@@ -276,7 +276,7 @@ const CourseDetail = ({ params }) => {
         console.error("Error checking enrollment:", error);
       }
     };
-  
+
     checkEnrollment();
     loadCourseData();
   }, [currentUser, courseId]);
@@ -296,7 +296,7 @@ const CourseDetail = ({ params }) => {
       console.error("Error al actualizar el título del módulo:", error);
     }
   }, 500);
-  
+
 
   const handleModuleTitleChange = (moduleId, newTitle) => {
     setModules((prevModules) =>
