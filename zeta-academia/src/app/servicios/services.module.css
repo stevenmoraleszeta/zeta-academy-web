@@ -22,8 +22,9 @@
     width: 100%;
     height: fit-content;
 
+    padding-left: 10vw;
     display: flex;
-    align-items: flex-start;
+    align-items: end;
     justify-content: flex-start;
 }
 
