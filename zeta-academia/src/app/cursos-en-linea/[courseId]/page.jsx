@@ -17,7 +17,6 @@ import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
 
-
 const CourseDetail = ({ params }) => {
   const router = useRouter();
   const courseId = params.courseId;
@@ -96,7 +95,14 @@ const CourseDetail = ({ params }) => {
           modulesSnapshot.docs.map(async (moduleDoc) => {
             const moduleData = moduleDoc.data();
             const classesSnapshot = await getDocs(
-              collection(db, "onlineCourses", courseId, "modules", moduleDoc.id, "classes")
+              collection(
+                db,
+                "onlineCourses",
+                courseId,
+                "modules",
+                moduleDoc.id,
+                "classes"
+              )
             );
             const classes = classesSnapshot.docs.map((classDoc) => ({
               id: classDoc.id,
@@ -290,6 +296,15 @@ const CourseDetail = ({ params }) => {
       console.error("Error al actualizar el título del módulo:", error);
     }
   }, 500);
+  
+  const handleEnrollClick = () => {
+    const phoneNumber = "+50661304830"; // Reemplaza con tu número de teléfono
+    const message = `Hola, estoy interesado/a en inscribirme al curso en vivo ${course.title}.`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  };
 
   const handleModuleTitleChange = (moduleId, newTitle) => {
     setModules((prevModules) =>
@@ -584,6 +599,7 @@ const CourseDetail = ({ params }) => {
   useEffect(() => {
     loadModules();
   }, []);
+
 
   const handleEnrollClick = async () => {
     if (!currentUser) {
