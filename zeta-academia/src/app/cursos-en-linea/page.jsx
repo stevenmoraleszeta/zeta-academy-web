@@ -8,6 +8,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
+import { useAuth } from "@/context/AuthContext";
 
 const OnlineCourses = () => {
   const router = useRouter();
@@ -18,6 +19,7 @@ const OnlineCourses = () => {
   const [maxPrice, setMaxPrice] = useState(10000);
   const [priceRange, setPriceRange] = useState(maxPrice);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     if (courses && courses.length > 0) {
@@ -140,9 +142,11 @@ const OnlineCourses = () => {
             <span>{priceRange}</span>
           </div>
         </div>
-        <button className={styles.addButton} onClick={handleAddCourse}>
-          Agregar curso
-        </button>
+        {isAdmin ? (
+          <button className={styles.addButton} onClick={handleAddCourse}>
+            Agregar curso
+          </button>
+        ) : null}
       </div>
 
       {loading && <p>Loading courses...</p>}

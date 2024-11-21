@@ -333,9 +333,7 @@ const CourseDetail = ({ params }) => {
                 <FaRegImage className={styles.editIcon} />
               </div>
             ) : (
-              <div className={styles.iconWrapper}>
-                <FaRegImage className={styles.editIcon} />
-              </div>
+              null
             )}
           </div>
         </div>
