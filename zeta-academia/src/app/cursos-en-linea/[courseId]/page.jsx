@@ -12,16 +12,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import {
-  FaRegImage,
-  FaPencilAlt,
-  FaTrash,
-  FaPlus,
-  FaRegCircle,
-  FaArrowUp,
-  FaArrowDown,
-  FaCheck,
-} from "react-icons/fa";
+import { FaRegImage, FaPencilAlt, FaTrash, FaPlus, FaArrowUp, FaArrowDown, FaCheck, FaLock, FaLockOpen } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
@@ -76,8 +67,9 @@ const CourseDetail = ({ params }) => {
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [modules, setModules] = useState([]);
   const { currentUser, isAdmin } = useAuth();
-  const [completedClasses, setCompletedClasses] = useState([]);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
+  // Fetch course details
   useEffect(() => {
     const fetchCourse = async () => {
       const docRef = doc(db, "onlineCourses", courseId);
@@ -129,20 +121,61 @@ const CourseDetail = ({ params }) => {
       }
     };
 
+    const fetchModulesAndClasses = async () => {
+      try {
+        const modulesSnapshot = await getDocs(
+          collection(db, "onlineCourses", courseId, "modules")
+        );
+
+        const fetchedModules = await Promise.all(
+          modulesSnapshot.docs.map(async (moduleDoc) => {
+            const moduleData = moduleDoc.data();
+            const classesSnapshot = await getDocs(
+              collection(
+                db,
+                "onlineCourses",
+                courseId,
+                "modules",
+                moduleDoc.id,
+                "classes"
+              )
+            );
+
+            const classes = classesSnapshot.docs.map((classDoc) => ({
+              id: classDoc.id,
+              ...classDoc.data(),
+            }));
+
+            classes.sort((a, b) => a.order - b.order); // Sort classes by order within the module
+            return {
+              id: moduleDoc.id,
+              ...moduleData,
+              classes,
+            };
+          })
+        );
+
+        fetchedModules.sort((a, b) => a.order - b.order); // Sort modules by order
+        setModules(fetchedModules);
+      } catch (error) {
+        console.error("Error fetching modules and classes:", error);
+      }
+    };
+
     fetchCourse();
     fetchModules();
+    fetchModulesAndClasses();
   }, [courseId]);
 
+  // Fetch completed classes for the current user
   useEffect(() => {
     const fetchCompletedClasses = async () => {
-      if (!currentUser) return; // Ensure currentUser exists
+      if (!currentUser) return;
       try {
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           const userData = userSnap.data();
-          console.log("Completed classes fetched:", userData.completedClasses); // Debugging
-          setCompletedClasses(userData.completedClasses || []);
         }
       } catch (error) {
         console.error("Error fetching completed classes:", error);
@@ -153,18 +186,100 @@ const CourseDetail = ({ params }) => {
   }, [currentUser]);
 
   useEffect(() => {
-    if (completedClasses.length > 0 && modules.length > 0) {
-      setModules((prevModules) =>
-        prevModules.map((module) => ({
-          ...module,
-          classes: module.classes.map((cls) => ({
-            ...cls,
-            completed: completedClasses.includes(cls.id), // Set based on user data
-          })),
-        }))
-      );
-    }
-  }, [completedClasses]);
+    const loadCourseData = async () => {
+      try {
+        setModules([]); // Reinicia el estado antes de cargar los datos.
+  
+        let userCompletedClasses = [];
+        if (currentUser) {
+          const userRef = doc(db, "users", currentUser.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            userCompletedClasses = userSnap.data().completedClasses || [];
+          }
+        }
+  
+        const modulesSnapshot = await getDocs(
+          collection(db, "onlineCourses", courseId, "modules")
+        );
+  
+        const fetchedModules = await Promise.all(
+          modulesSnapshot.docs.map(async (moduleDoc) => {
+            const moduleData = moduleDoc.data();
+            const classesSnapshot = await getDocs(
+              collection(
+                db,
+                "onlineCourses",
+                courseId,
+                "modules",
+                moduleDoc.id,
+                "classes"
+              )
+            );
+  
+            const classes = classesSnapshot.docs.map((classDoc) => ({
+              id: classDoc.id,
+              ...classDoc.data(),
+            }));
+  
+            classes.sort((a, b) => a.order - b.order); // Ordena las clases por `order`.
+  
+            return {
+              id: moduleDoc.id,
+              ...moduleData,
+              classes,
+            };
+          })
+        );
+  
+        fetchedModules.sort((a, b) => a.order - b.order); // Ordena los módulos por `order`.
+  
+        // Encuentra la primera clase incompleta globalmente.
+        let firstHighlightFound = false;
+  
+        const updatedModules = fetchedModules.map((module) => {
+          const updatedClasses = module.classes.map((cls) => {
+            const isCompleted = userCompletedClasses.includes(cls.id);
+  
+            if (!isCompleted && !firstHighlightFound) {
+              firstHighlightFound = true;
+              return { ...cls, completed: false, highlight: true };
+            }
+  
+            return { ...cls, completed: isCompleted, highlight: false };
+          });
+  
+          return {
+            ...module,
+            classes: updatedClasses,
+          };
+        });
+  
+        setModules(updatedModules);
+      } catch (error) {
+        console.error("Error loading course data:", error);
+      }
+    };
+  
+    const checkEnrollment = async () => {
+      if (!currentUser) return;
+  
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+  
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setIsEnrolled(userData.enrolledCourses?.includes(courseId) || false);
+        }
+      } catch (error) {
+        console.error("Error checking enrollment:", error);
+      }
+    };
+  
+    checkEnrollment();
+    loadCourseData();
+  }, [currentUser, courseId]);
 
   const handleFieldChange = async (field, value) => {
     const updatedCourse = { ...course, [field]: value };
@@ -220,23 +335,6 @@ const CourseDetail = ({ params }) => {
     500
   );
 
-  const handleClassTitleChange = (moduleId, classId, newTitle) => {
-    setModules((prevModules) =>
-      prevModules.map((module) => {
-        if (module.id === moduleId) {
-          return {
-            ...module,
-            classes: module.classes.map((cls) =>
-              cls.id === classId ? { ...cls, title: newTitle } : cls
-            ),
-          };
-        }
-        return module;
-      })
-    );
-    debouncedUpdateClassTitle(moduleId, classId, newTitle);
-  };
-
   const handleContactClick = () => {
     const phoneNumber = "+50661304830";
     const message = `Hola, estoy interesado/a en el curso en línea ${course.title}.`;
@@ -255,7 +353,7 @@ const CourseDetail = ({ params }) => {
   const openVideoModal = () => {
     setNewVideoUrl(
       course.videoUrl ||
-        "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
+      "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
     );
     setIsVideoModalOpen(true);
   };
@@ -465,10 +563,74 @@ const CourseDetail = ({ params }) => {
     router.push(`/cursos-en-linea/${courseId}/${moduleId}/${classId}`);
   };
 
+  const toggleClassRestriction = async (moduleId, classId, currentStatus) => {
+    try {
+      const classRef = doc(
+        db,
+        "onlineCourses",
+        courseId,
+        "modules",
+        moduleId,
+        "classes",
+        classId
+      );
+      await updateDoc(classRef, { restricted: !currentStatus });
+
+      // Update local state
+      setModules((prevModules) =>
+        prevModules.map((module) => {
+          if (module.id === moduleId) {
+            return {
+              ...module,
+              classes: module.classes.map((cls) =>
+                cls.id === classId ? { ...cls, restricted: !currentStatus } : cls
+              ),
+            };
+          }
+          return module;
+        })
+      );
+    } catch (error) {
+      console.error("Error updating restriction status:", error);
+    }
+  };
+
   // Call loadModules when the component mounts
   useEffect(() => {
     loadModules();
   }, []);
+
+
+  const handleEnrollClick = async () => {
+    if (!currentUser) {
+      alert("Debes iniciar sesión para inscribirte.");
+      return;
+    }
+
+    try {
+      const userRef = doc(db, "users", currentUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const updatedCourses = userData.enrolledCourses || [];
+
+        if (!updatedCourses.includes(courseId)) {
+          updatedCourses.push(courseId);
+          await updateDoc(userRef, { enrolledCourses: updatedCourses });
+          setIsEnrolled(true);
+        } else {
+          alert("Ya estás inscrito en este curso.");
+        }
+      } else {
+        // Si el usuario no tiene datos existentes en la colección
+        await setDoc(userRef, { enrolledCourses: [courseId] });
+        setIsEnrolled(true);
+      }
+    } catch (error) {
+      console.error("Error enrolling user:", error);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -500,10 +662,7 @@ const CourseDetail = ({ params }) => {
             )}
 
             {isAdmin && (
-              <button
-                className={styles.editVideoButton}
-                onClick={openVideoModal}
-              >
+              <button className={styles.editVideoButton} onClick={openVideoModal}>
                 <FaPencilAlt /> Editar Video
               </button>
             )}
@@ -561,13 +720,14 @@ const CourseDetail = ({ params }) => {
           </div>
 
           <div className={styles.buttonContainer}>
-            <button className={styles.enrollButton} onClick={handleEnrollClick}>
-              Inscríbete
-            </button>
             <button
-              className={styles.contactButton}
-              onClick={handleContactClick}
+              className={`${styles.enrollButton} ${isEnrolled ? styles.enrolledButton : ""
+                }`}
+              onClick={handleEnrollClick}
             >
+              {isEnrolled ? "Inscrito" : "Inscríbete"}
+            </button>
+            <button className={styles.contactButton} onClick={handleContactClick}>
               Contáctanos
             </button>
             {isAdmin && (
@@ -687,9 +847,7 @@ const CourseDetail = ({ params }) => {
                 <input
                   type="text"
                   value={module.title}
-                  onChange={(e) =>
-                    handleModuleTitleChange(module.id, e.target.value)
-                  }
+                  onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
                   className={styles.moduleTitle}
                 />
                 <div className={styles.moduleActions}>
@@ -707,10 +865,7 @@ const CourseDetail = ({ params }) => {
                   >
                     <FaArrowDown />
                   </button>
-                  <button
-                    onClick={() => addClass(module.id)}
-                    title="Añadir Clase"
-                  >
+                  <button onClick={() => addClass(module.id)} title="Añadir Clase">
                     <FaPlus />
                   </button>
                   <button
@@ -727,9 +882,8 @@ const CourseDetail = ({ params }) => {
                   module.classes.map((cls, classIndex) => (
                     <div
                       key={`${module.id}-${cls.id}`}
-                      className={
-                        cls.completed ? styles.completedClass : styles.class
-                      }
+                      className={`${styles.class} ${cls.completed ? styles.completedClass : ''} ${cls.highlight ? styles.highlightClass : ''
+                        }`}
                       onClick={() => handleClassClick(module.id, cls.id)}
                     >
                       <div className={styles.classCircle}>
@@ -760,6 +914,16 @@ const CourseDetail = ({ params }) => {
                         <button
                           onClick={(event) => {
                             event.stopPropagation();
+                            toggleClassRestriction(module.id, cls.id, cls.restricted);
+                          }}
+                          className={styles.classAction}
+                          title={cls.restricted ? "Desbloquear Clase" : "Bloquear Clase"}
+                        >
+                          {cls.restricted ? <FaLock /> : <FaLockOpen />}
+                        </button>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
                             deleteClass(module.id, cls.id);
                           }}
                           className={styles.classAction}
@@ -779,12 +943,8 @@ const CourseDetail = ({ params }) => {
         ) : (
           <p>No hay módulos disponibles.</p>
         )}
-        <button
-          onClick={addModule}
-          className={styles.addModuleButton}
-          title="Añadir Módulo"
-        >
-          <FaPlus />
+        <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+          Add Module
         </button>
       </div>
     </div>
