@@ -34,7 +34,7 @@ const ClassDetail = () => {
             try {
                 const classRef = doc(db, "onlineCourses", courseId, "modules", moduleId, "classes", classId);
                 const classSnapshot = await getDoc(classRef);
-    
+
                 if (classSnapshot.exists()) {
                     const data = classSnapshot.data();
                     setClassTitle(data.title || "");
@@ -48,14 +48,14 @@ const ClassDetail = () => {
                 console.error("Error fetching class data:", error);
             }
         };
-    
+
         const checkEnrollment = async () => {
             if (!currentUser) return;
-    
+
             try {
                 const userRef = doc(db, "users", currentUser.uid);
                 const userSnap = await getDoc(userRef);
-    
+
                 if (userSnap.exists()) {
                     const userData = userSnap.data();
                     setIsEnrolled(userData.enrolledCourses?.includes(courseId) || false);
@@ -64,14 +64,14 @@ const ClassDetail = () => {
                 console.error("Error checking enrollment:", error);
             }
         };
-    
+
         const fetchCompletedStatus = async () => {
             if (!currentUser) return;
-    
+
             try {
                 const userRef = doc(db, "users", currentUser.uid);
                 const userSnapshot = await getDoc(userRef);
-    
+
                 if (userSnapshot.exists()) {
                     const userData = userSnapshot.data();
                     const completedClasses = userData.completedClasses || [];
@@ -84,7 +84,7 @@ const ClassDetail = () => {
                 console.error("Error fetching completed status:", error);
             }
         };
-    
+
         const fetchClassesInModule = async () => {
             try {
                 const classesRef = collection(db, "onlineCourses", courseId, "modules", moduleId, "classes");
@@ -93,7 +93,7 @@ const ClassDetail = () => {
                     id: doc.id,
                     ...doc.data(),
                 }));
-    
+
                 // Ordena las clases por su propiedad "order"
                 classes.sort((a, b) => a.order - b.order);
                 setClassesInModule(classes);
@@ -101,7 +101,7 @@ const ClassDetail = () => {
                 console.error("Error fetching classes in module:", error);
             }
         };
-    
+
         const fetchCourseName = async () => {
             try {
                 const courseRef = doc(db, "onlineCourses", courseId);
@@ -116,20 +116,20 @@ const ClassDetail = () => {
                 console.error("Error fetching course name:", error);
             }
         };
-    
+
         // Fetch all required data
         if (classId && courseId && moduleId) {
             fetchClassData();
             fetchClassesInModule();
             fetchCourseName();
-    
+
             if (currentUser) {
                 fetchCompletedStatus();
                 checkEnrollment();
             }
         }
     }, [classId, courseId, moduleId, currentUser]);
-    
+
 
     useEffect(() => {
         if (classesInModule.length > 0 && completedClasses.length > 0) {
@@ -298,10 +298,10 @@ const ClassDetail = () => {
             const completedClasses = userData.completedClasses || [];
 
             const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
-            if (currentClassIndex > 0) {
+            if (currentClassIndex > 0 && !isCompleted) {
                 const previousClassId = classesInModule[currentClassIndex - 1].id;
                 if (!completedClasses.includes(previousClassId)) {
-                    console.error("La clase anterior no está completada.");
+                    console.error("La clase anterior no está completada. No puedes completar esta clase.");
                     return;
                 }
             }
@@ -388,7 +388,7 @@ const ClassDetail = () => {
                 </div>
             );
         }
-    }    
+    }
 
     if (!Array.isArray(resources)) return <div>Loading...</div>;
 
@@ -567,7 +567,8 @@ const ClassDetail = () => {
 
                 <button
                     className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ''}`}
-                    onClick={handleCompleteClass} disabled={!isPreviousClassCompleted}
+                    onClick={handleCompleteClass}
+                    disabled={!isPreviousClassCompleted && !isCompleted}
                 >
                     <FaCheck /> {isCompleted ? "Clase completada" : "Completar clase"}
                 </button>
