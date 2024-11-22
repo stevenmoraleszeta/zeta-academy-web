@@ -1,0 +1,15 @@
+.modalContainer {
+    position: absolute;
+    top: 30%;
+    left: 33%;
+
+    width: clamp(30vw, 500px, 40vw);
+    height: clamp(30vh, 300px, 40vh);
+    background-color: #00181D;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}

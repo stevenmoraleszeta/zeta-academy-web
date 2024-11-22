@@ -7,6 +7,7 @@ import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaFilePdf, FaLink, FaChevro
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
+import { AlertButton, AlertComponent } from "@/components/alert/alert";
 
 const ClassDetail = () => {
     const router = useRouter();
@@ -28,6 +29,7 @@ const ClassDetail = () => {
     const [completedClasses, setCompletedClasses] = useState([]);
     const [isRestricted, setIsRestricted] = useState(false);
     const [isEnrolled, setIsEnrolled] = useState(false);
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
 
     useEffect(() => {
         const fetchClassData = async () => {
@@ -301,6 +303,7 @@ const ClassDetail = () => {
             if (currentClassIndex > 0 && !isCompleted) {
                 const previousClassId = classesInModule[currentClassIndex - 1].id;
                 if (!completedClasses.includes(previousClassId)) {
+                    setIsAlertOpen(true);
                     console.error("La clase anterior no está completada. No puedes completar esta clase.");
                     return;
                 }
@@ -362,6 +365,10 @@ const ClassDetail = () => {
         router.push(`/cursos-en-linea/${courseId}`);
     };
 
+    const handleCloseAlert = () => {
+        setIsAlertOpen(false);
+    };
+
     if (isRestricted) {
         if (!currentUser) {
             return (
@@ -393,7 +400,7 @@ const ClassDetail = () => {
     if (!Array.isArray(resources)) return <div>Loading...</div>;
 
     return (
-        <div className={styles.classDetailContainer}> 
+        <div className={styles.classDetailContainer}>
             <div className={styles.titleContainer}>
                 <input
                     type="text"
@@ -553,6 +560,15 @@ const ClassDetail = () => {
                         </div>
                     </div>
                 )
+            }
+            {isAlertOpen && (
+                <>
+                    <AlertComponent title="No se puede completar esta clase" description="Parece que la clase anterior no se ha completado aún">
+                        <AlertButton text="Cerrar" funct={handleCloseAlert}></AlertButton>
+                    </AlertComponent>
+                </>
+            )
+
             }
             <div className={styles.fixedBar}>
                 <button className={styles.syllabusButton} onClick={handleBackToSyllabus}>
