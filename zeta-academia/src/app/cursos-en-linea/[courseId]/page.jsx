@@ -575,12 +575,6 @@ const CourseDetail = ({ params }) => {
     }
   };
 
-  // Call loadModules when the component mounts
-  /* useEffect(() => {
-    loadModules();
-  }, []); */
-
-
   const handleEnrollClick = async () => {
     if (!currentUser) {
       alert("Debes iniciar sesión para inscribirte.");
