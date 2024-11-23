@@ -372,15 +372,9 @@ const ClassDetail = () => {
     if (isRestricted) {
         if (!currentUser) {
             return (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent}>
-                        <h3>Acceso Restringido</h3>
-                        <p>Debe iniciar sesión para ver esta clase.</p>
-                        <button onClick={handleCloseModal} className={styles.modalButton}>
-                            Volver al temario
-                        </button>
-                    </div>
-                </div>
+                <AlertComponent title="Acceso Restringido" description="Debe iniciar sesión para ver esta clase.">
+                    <AlertButton text="Volver al temario" funct={handleCloseModal}></AlertButton>
+                </AlertComponent>
             );
         } else if (!isAdmin && !isEnrolled) {
             return (
