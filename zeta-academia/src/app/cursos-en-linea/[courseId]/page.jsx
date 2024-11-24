@@ -12,7 +12,17 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { FaRegImage, FaPencilAlt, FaTrash, FaPlus, FaArrowUp, FaArrowDown, FaCheck, FaLock, FaLockOpen } from "react-icons/fa";
+import {
+  FaRegImage,
+  FaPencilAlt,
+  FaTrash,
+  FaPlus,
+  FaArrowUp,
+  FaArrowDown,
+  FaCheck,
+  FaLock,
+  FaLockOpen,
+} from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
@@ -189,7 +199,7 @@ const CourseDetail = ({ params }) => {
     const loadCourseData = async () => {
       try {
         setModules([]); // Reinicia el estado antes de cargar los datos.
-  
+
         let userCompletedClasses = [];
         if (currentUser) {
           const userRef = doc(db, "users", currentUser.uid);
@@ -198,11 +208,11 @@ const CourseDetail = ({ params }) => {
             userCompletedClasses = userSnap.data().completedClasses || [];
           }
         }
-  
+
         const modulesSnapshot = await getDocs(
           collection(db, "onlineCourses", courseId, "modules")
         );
-  
+
         const fetchedModules = await Promise.all(
           modulesSnapshot.docs.map(async (moduleDoc) => {
             const moduleData = moduleDoc.data();
@@ -216,14 +226,14 @@ const CourseDetail = ({ params }) => {
                 "classes"
               )
             );
-  
+
             const classes = classesSnapshot.docs.map((classDoc) => ({
               id: classDoc.id,
               ...classDoc.data(),
             }));
-  
+
             classes.sort((a, b) => a.order - b.order); // Ordena las clases por `order`.
-  
+
             return {
               id: moduleDoc.id,
               ...moduleData,
@@ -231,43 +241,43 @@ const CourseDetail = ({ params }) => {
             };
           })
         );
-  
+
         fetchedModules.sort((a, b) => a.order - b.order); // Ordena los módulos por `order`.
-  
+
         // Encuentra la primera clase incompleta globalmente.
         let firstHighlightFound = false;
-  
+
         const updatedModules = fetchedModules.map((module) => {
           const updatedClasses = module.classes.map((cls) => {
             const isCompleted = userCompletedClasses.includes(cls.id);
-  
+
             if (!isCompleted && !firstHighlightFound) {
               firstHighlightFound = true;
               return { ...cls, completed: false, highlight: true };
             }
-  
+
             return { ...cls, completed: isCompleted, highlight: false };
           });
-  
+
           return {
             ...module,
             classes: updatedClasses,
           };
         });
-  
+
         setModules(updatedModules);
       } catch (error) {
         console.error("Error loading course data:", error);
       }
     };
-  
+
     const checkEnrollment = async () => {
       if (!currentUser) return;
-  
+
       try {
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
-  
+
         if (userSnap.exists()) {
           const userData = userSnap.data();
           setIsEnrolled(userData.enrolledCourses?.includes(courseId) || false);
@@ -276,7 +286,7 @@ const CourseDetail = ({ params }) => {
         console.error("Error checking enrollment:", error);
       }
     };
-  
+
     checkEnrollment();
     loadCourseData();
   }, [currentUser, courseId]);
@@ -296,7 +306,12 @@ const CourseDetail = ({ params }) => {
       console.error("Error al actualizar el título del módulo:", error);
     }
   }, 500);
-  
+
+  {
+    /**  se tuvo que comentar ya que hay 2 handle enroll click */
+  }
+  {
+    /** 
   const handleEnrollClick = () => {
     const phoneNumber = "+50661304830"; // Reemplaza con tu número de teléfono
     const message = `Hola, estoy interesado/a en inscribirme al curso en vivo ${course.title}.`;
@@ -305,6 +320,8 @@ const CourseDetail = ({ params }) => {
     )}`;
     window.open(whatsappUrl, "_blank");
   };
+  */
+  }
 
   const handleModuleTitleChange = (moduleId, newTitle) => {
     setModules((prevModules) =>
@@ -353,7 +370,7 @@ const CourseDetail = ({ params }) => {
   const openVideoModal = () => {
     setNewVideoUrl(
       course.videoUrl ||
-      "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
+        "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
     );
     setIsVideoModalOpen(true);
   };
@@ -583,7 +600,9 @@ const CourseDetail = ({ params }) => {
             return {
               ...module,
               classes: module.classes.map((cls) =>
-                cls.id === classId ? { ...cls, restricted: !currentStatus } : cls
+                cls.id === classId
+                  ? { ...cls, restricted: !currentStatus }
+                  : cls
               ),
             };
           }
@@ -599,7 +618,6 @@ const CourseDetail = ({ params }) => {
   useEffect(() => {
     loadModules();
   }, []);
-
 
   const handleEnrollClick = async () => {
     if (!currentUser) {
@@ -662,7 +680,10 @@ const CourseDetail = ({ params }) => {
             )}
 
             {isAdmin && (
-              <button className={styles.editVideoButton} onClick={openVideoModal}>
+              <button
+                className={styles.editVideoButton}
+                onClick={openVideoModal}
+              >
                 <FaPencilAlt /> Editar Video
               </button>
             )}
@@ -721,13 +742,17 @@ const CourseDetail = ({ params }) => {
 
           <div className={styles.buttonContainer}>
             <button
-              className={`${styles.enrollButton} ${isEnrolled ? styles.enrolledButton : ""
-                }`}
+              className={`${styles.enrollButton} ${
+                isEnrolled ? styles.enrolledButton : ""
+              }`}
               onClick={handleEnrollClick}
             >
               {isEnrolled ? "Inscrito" : "Inscríbete"}
             </button>
-            <button className={styles.contactButton} onClick={handleContactClick}>
+            <button
+              className={styles.contactButton}
+              onClick={handleContactClick}
+            >
               Contáctanos
             </button>
             {isAdmin && (
@@ -844,12 +869,19 @@ const CourseDetail = ({ params }) => {
           modules.map((module, moduleIndex) => (
             <div key={module.id} className={styles.module}>
               <div className={styles.moduleHeader}>
-                <input
-                  type="text"
-                  value={module.title}
-                  onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
-                  className={styles.moduleTitle}
-                />
+                {isAdmin ? (
+                  <input
+                    type="text"
+                    value={module.title}
+                    onChange={(e) =>
+                      handleModuleTitleChange(module.id, e.target.value)
+                    }
+                    className={styles.moduleTitle}
+                  />
+                ) : (
+                  <span className={styles.moduleTitle}>{module.title}</span>
+                )}
+                  {isAdmin ? (
                 <div className={styles.moduleActions}>
                   <button
                     onClick={() => moveModule(moduleIndex, -1)}
@@ -865,7 +897,10 @@ const CourseDetail = ({ params }) => {
                   >
                     <FaArrowDown />
                   </button>
-                  <button onClick={() => addClass(module.id)} title="Añadir Clase">
+                  <button
+                    onClick={() => addClass(module.id)}
+                    title="Añadir Clase"
+                  >
                     <FaPlus />
                   </button>
                   <button
@@ -875,6 +910,9 @@ const CourseDetail = ({ params }) => {
                     <FaTrash />
                   </button>
                 </div>
+                 ) : (
+                  null
+                )}
               </div>
 
               <div className={styles.classes}>
@@ -882,14 +920,16 @@ const CourseDetail = ({ params }) => {
                   module.classes.map((cls, classIndex) => (
                     <div
                       key={`${module.id}-${cls.id}`}
-                      className={`${styles.class} ${cls.completed ? styles.completedClass : ''} ${cls.highlight ? styles.highlightClass : ''
-                        }`}
+                      className={`${styles.class} ${
+                        cls.completed ? styles.completedClass : ""
+                      } ${cls.highlight ? styles.highlightClass : ""}`}
                       onClick={() => handleClassClick(module.id, cls.id)}
                     >
                       <div className={styles.classCircle}>
                         {cls.completed && <FaCheck />}
                       </div>
                       <span className={styles.classTitle}>{cls.title}</span>
+                      {isAdmin ? (
                       <div className={styles.moduleActions}>
                         <button
                           onClick={(event) => {
@@ -914,10 +954,18 @@ const CourseDetail = ({ params }) => {
                         <button
                           onClick={(event) => {
                             event.stopPropagation();
-                            toggleClassRestriction(module.id, cls.id, cls.restricted);
+                            toggleClassRestriction(
+                              module.id,
+                              cls.id,
+                              cls.restricted
+                            );
                           }}
                           className={styles.classAction}
-                          title={cls.restricted ? "Desbloquear Clase" : "Bloquear Clase"}
+                          title={
+                            cls.restricted
+                              ? "Desbloquear Clase"
+                              : "Bloquear Clase"
+                          }
                         >
                           {cls.restricted ? <FaLock /> : <FaLockOpen />}
                         </button>
@@ -932,6 +980,9 @@ const CourseDetail = ({ params }) => {
                           <FaTrash />
                         </button>
                       </div>
+                      ) : (
+                        null
+                      )}
                     </div>
                   ))
                 ) : (
@@ -943,9 +994,17 @@ const CourseDetail = ({ params }) => {
         ) : (
           <p>No hay módulos disponibles.</p>
         )}
-        <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+        {isAdmin ? (
+        <button
+          onClick={addModule}
+          className={styles.addModuleButton}
+          title="Añadir Módulo"
+        >
           Add Module
         </button>
+        ) : (
+          null
+        )}
       </div>
     </div>
   );
