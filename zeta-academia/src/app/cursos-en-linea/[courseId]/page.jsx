@@ -279,6 +279,27 @@ const CourseDetail = ({ params }) => {
     }
   }, [courseId, currentUser]);
 
+  useEffect(() => {
+    const checkEnrollmentStatus = async () => {
+      if (!currentUser) return;
+
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const enrolledCourses = userData.enrolledCourses || [];
+          setIsEnrolled(enrolledCourses.includes(courseId));
+        }
+      } catch (error) {
+        console.error("Error checking enrollment status:", error);
+      }
+    };
+
+    checkEnrollmentStatus();
+  }, [currentUser, courseId]);
+
   const handleFieldChange = async (field, value) => {
     const updatedCourse = { ...course, [field]: value };
     setCourse(updatedCourse);

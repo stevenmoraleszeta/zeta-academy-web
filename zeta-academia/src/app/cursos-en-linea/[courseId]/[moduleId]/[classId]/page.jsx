@@ -113,57 +113,6 @@ const ClassDetail = () => {
       }
     };
 
-    const handleCompleteClass = async () => {
-        try {
-            if (!currentUser || !currentUser.uid) {
-                console.error("Usuario no autenticado.");
-                return;
-            }
-
-            const userRef = doc(db, "users", currentUser.uid);
-            const userSnapshot = await getDoc(userRef);
-
-            if (!userSnapshot.exists()) {
-                console.error("Documento de usuario no encontrado.");
-                return;
-            }
-
-            const userData = userSnapshot.data();
-            const completedClasses = userData.completedClasses || [];
-
-            const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
-            if (currentClassIndex > 0 && !isCompleted) {
-                const previousClassId = classesInModule[currentClassIndex - 1].id;
-                if (!completedClasses.includes(previousClassId)) {
-                    setIsAlertOpen(true);
-                    console.error("La clase anterior no está completada. No puedes completar esta clase.");
-                    return;
-                }
-            }
-
-            const newCompletedStatus = !isCompleted;
-
-            const updatedClasses = newCompletedStatus
-                ? [...completedClasses, classId]
-                : completedClasses.filter(id => id !== classId);
-
-            await updateDoc(userRef, { completedClasses: updatedClasses });
-
-            setIsCompleted(newCompletedStatus);
-            setCompletedClasses(updatedClasses);
-        } catch (error) {
-            console.error("Error actualizando el estado de la clase:", error);
-        }
-    };
-
-    const handleSendProjectClick = () => {
-        const message = encodeURIComponent(
-            `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
-        );
-        const phone = "+50661304830";
-        const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
-        window.open(whatsappUrl, "_blank");
-    };
 
     const fetchClassesInModule = async () => {
       try {
@@ -230,6 +179,58 @@ const ClassDetail = () => {
       }
     }
   }, [classesInModule, completedClasses, classId]);
+
+  const handleCompleteClass = async () => {
+    try {
+        if (!currentUser || !currentUser.uid) {
+            console.error("Usuario no autenticado.");
+            return;
+        }
+
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (!userSnapshot.exists()) {
+            console.error("Documento de usuario no encontrado.");
+            return;
+        }
+
+        const userData = userSnapshot.data();
+        const completedClasses = userData.completedClasses || [];
+
+        const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+        if (currentClassIndex > 0 && !isCompleted) {
+            const previousClassId = classesInModule[currentClassIndex - 1].id;
+            if (!completedClasses.includes(previousClassId)) {
+                setIsAlertOpen(true);
+                console.error("La clase anterior no está completada. No puedes completar esta clase.");
+                return;
+            }
+        }
+
+        const newCompletedStatus = !isCompleted;
+
+        const updatedClasses = newCompletedStatus
+            ? [...completedClasses, classId]
+            : completedClasses.filter(id => id !== classId);
+
+        await updateDoc(userRef, { completedClasses: updatedClasses });
+
+        setIsCompleted(newCompletedStatus);
+        setCompletedClasses(updatedClasses);
+    } catch (error) {
+        console.error("Error actualizando el estado de la clase:", error);
+    }
+};
+
+const handleSendProjectClick = () => {
+    const message = encodeURIComponent(
+        `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
+    );
+    const phone = "+50661304830";
+    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+    window.open(whatsappUrl, "_blank");
+};
 
   const handleTitleChange = async (e) => {
     const newTitle = e.target.value;
