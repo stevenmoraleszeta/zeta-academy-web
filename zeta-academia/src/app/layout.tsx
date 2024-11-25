@@ -3,11 +3,12 @@ import "./globals.css";
 import Navbar from "../components/navbar/Navbar";
 import FooterZ from "@/components/footer/Footer";
 import { AuthProvider } from "@/context/AuthContext";
-import { Montserrat } from 'next/font/google';
+import { Montserrat } from "next/font/google";
+import ScrollToTop from "@/components/scrollToTop/ScrollToTop";
 
 const montserrat = Montserrat({
-  weight: ['400', '700'],
-  subsets: ['latin'],
+  weight: ["400", "700"],
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`app ${montserrat.className}`}>
         <AuthProvider>
+          <ScrollToTop />
           <div className="page-container">
             <Navbar />
             <main className="content">{children}</main>

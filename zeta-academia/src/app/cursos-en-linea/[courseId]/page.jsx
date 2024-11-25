@@ -307,22 +307,6 @@ const CourseDetail = ({ params }) => {
     }
   }, 500);
 
-  {
-    /**  se tuvo que comentar ya que hay 2 handle enroll click */
-  }
-  {
-    /** 
-  const handleEnrollClick = () => {
-    const phoneNumber = "+50661304830"; // Reemplaza con tu número de teléfono
-    const message = `Hola, estoy interesado/a en inscribirme al curso en vivo ${course.title}.`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappUrl, "_blank");
-  };
-  */
-  }
-
   const handleModuleTitleChange = (moduleId, newTitle) => {
     setModules((prevModules) =>
       prevModules.map((module) =>

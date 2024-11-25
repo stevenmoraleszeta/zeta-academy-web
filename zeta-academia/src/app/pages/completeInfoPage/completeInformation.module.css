@@ -60,6 +60,7 @@
     color: #8CB7C0;
     font-weight: 600;
     font-size: clamp(1.2vw, 17px, 1.8vw);
+    margin-bottom: 0;
 }
 
 .firstFieldsContainer input {
@@ -120,4 +121,5 @@
     width: 30%;
     font-weight: 600;
     font-size: clamp(.5vw, 24px, 1.1vw);
+    margin-bottom: 5vh;
 }

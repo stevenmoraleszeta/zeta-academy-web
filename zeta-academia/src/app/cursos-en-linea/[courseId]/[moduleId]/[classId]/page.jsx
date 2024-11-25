@@ -385,7 +385,20 @@ const ClassDetail = () => {
         ? [...completedClasses, classId]
         : completedClasses.filter((id) => id !== classId);
 
+
       await updateDoc(userRef, { completedClasses: updatedClasses });
+
+    return (
+        <div className={styles.classDetailContainer}> 
+            <div className={styles.titleContainer}>
+                <input
+                    type="text"
+                    value={classTitle}
+                    onChange={handleTitleChange}
+                    className={styles.titleInput}
+                    placeholder="Class Title"
+                />
+            </div>
 
       setIsCompleted(newCompletedStatus);
       setCompletedClasses(updatedClasses);

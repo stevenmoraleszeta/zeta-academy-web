@@ -234,8 +234,11 @@
 
 .enrolledButton {
   background-color: var(--color-primary);
-  color: white;
-  cursor: not-allowed; /* Indica que no se puede volver a inscribir */
+  cursor: default;
+}
+
+.enrolledButton:hover {
+  background-color: var(--color-primary-hover);
 }
 
 
