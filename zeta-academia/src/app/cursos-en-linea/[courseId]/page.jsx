@@ -12,7 +12,17 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { FaRegImage, FaPencilAlt, FaTrash, FaPlus, FaArrowUp, FaArrowDown, FaCheck, FaLock, FaLockOpen } from "react-icons/fa";
+import {
+  FaRegImage,
+  FaPencilAlt,
+  FaTrash,
+  FaPlus,
+  FaArrowUp,
+  FaArrowDown,
+  FaCheck,
+  FaLock,
+  FaLockOpen,
+} from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
@@ -285,7 +295,6 @@ const CourseDetail = ({ params }) => {
     }
   }, 500);
 
-
   const handleModuleTitleChange = (moduleId, newTitle) => {
     setModules((prevModules) =>
       prevModules.map((module) =>
@@ -333,7 +342,7 @@ const CourseDetail = ({ params }) => {
   const openVideoModal = () => {
     setNewVideoUrl(
       course.videoUrl ||
-      "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
+        "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
     );
     setIsVideoModalOpen(true);
   };
@@ -563,7 +572,9 @@ const CourseDetail = ({ params }) => {
             return {
               ...module,
               classes: module.classes.map((cls) =>
-                cls.id === classId ? { ...cls, restricted: !currentStatus } : cls
+                cls.id === classId
+                  ? { ...cls, restricted: !currentStatus }
+                  : cls
               ),
             };
           }
@@ -574,6 +585,11 @@ const CourseDetail = ({ params }) => {
       console.error("Error updating restriction status:", error);
     }
   };
+
+  // Call loadModules when the component mounts
+  useEffect(() => {
+    loadModules();
+  }, []);
 
   const handleEnrollClick = async () => {
     if (!currentUser) {
@@ -636,7 +652,10 @@ const CourseDetail = ({ params }) => {
             )}
 
             {isAdmin && (
-              <button className={styles.editVideoButton} onClick={openVideoModal}>
+              <button
+                className={styles.editVideoButton}
+                onClick={openVideoModal}
+              >
                 <FaPencilAlt /> Editar Video
               </button>
             )}
@@ -695,13 +714,17 @@ const CourseDetail = ({ params }) => {
 
           <div className={styles.buttonContainer}>
             <button
-              className={`${styles.enrollButton} ${isEnrolled ? styles.enrolledButton : ""
-                }`}
+              className={`${styles.enrollButton} ${
+                isEnrolled ? styles.enrolledButton : ""
+              }`}
               onClick={handleEnrollClick}
             >
               {isEnrolled ? "Inscrito" : "Inscríbete"}
             </button>
-            <button className={styles.contactButton} onClick={handleContactClick}>
+            <button
+              className={styles.contactButton}
+              onClick={handleContactClick}
+            >
               Contáctanos
             </button>
             {isAdmin && (
@@ -818,12 +841,19 @@ const CourseDetail = ({ params }) => {
           modules.map((module, moduleIndex) => (
             <div key={module.id} className={styles.module}>
               <div className={styles.moduleHeader}>
-                <input
-                  type="text"
-                  value={module.title}
-                  onChange={(e) => handleModuleTitleChange(module.id, e.target.value)}
-                  className={styles.moduleTitle}
-                />
+                {isAdmin ? (
+                  <input
+                    type="text"
+                    value={module.title}
+                    onChange={(e) =>
+                      handleModuleTitleChange(module.id, e.target.value)
+                    }
+                    className={styles.moduleTitle}
+                  />
+                ) : (
+                  <span className={styles.moduleTitle}>{module.title}</span>
+                )}
+                  {isAdmin ? (
                 <div className={styles.moduleActions}>
                   <button
                     onClick={() => moveModule(moduleIndex, -1)}
@@ -839,7 +869,10 @@ const CourseDetail = ({ params }) => {
                   >
                     <FaArrowDown />
                   </button>
-                  <button onClick={() => addClass(module.id)} title="Añadir Clase">
+                  <button
+                    onClick={() => addClass(module.id)}
+                    title="Añadir Clase"
+                  >
                     <FaPlus />
                   </button>
                   <button
@@ -849,6 +882,9 @@ const CourseDetail = ({ params }) => {
                     <FaTrash />
                   </button>
                 </div>
+                 ) : (
+                  null
+                )}
               </div>
 
               <div className={styles.classes}>
@@ -856,14 +892,16 @@ const CourseDetail = ({ params }) => {
                   module.classes.map((cls, classIndex) => (
                     <div
                       key={`${module.id}-${cls.id}`}
-                      className={`${styles.class} ${cls.completed ? styles.completedClass : ''} ${cls.highlight ? styles.highlightClass : ''
-                        }`}
+                      className={`${styles.class} ${
+                        cls.completed ? styles.completedClass : ""
+                      } ${cls.highlight ? styles.highlightClass : ""}`}
                       onClick={() => handleClassClick(module.id, cls.id)}
                     >
                       <div className={styles.classCircle}>
                         {cls.completed && <FaCheck />}
                       </div>
                       <span className={styles.classTitle}>{cls.title}</span>
+                      {isAdmin ? (
                       <div className={styles.moduleActions}>
                         <button
                           onClick={(event) => {
@@ -888,10 +926,18 @@ const CourseDetail = ({ params }) => {
                         <button
                           onClick={(event) => {
                             event.stopPropagation();
-                            toggleClassRestriction(module.id, cls.id, cls.restricted);
+                            toggleClassRestriction(
+                              module.id,
+                              cls.id,
+                              cls.restricted
+                            );
                           }}
                           className={styles.classAction}
-                          title={cls.restricted ? "Desbloquear Clase" : "Bloquear Clase"}
+                          title={
+                            cls.restricted
+                              ? "Desbloquear Clase"
+                              : "Bloquear Clase"
+                          }
                         >
                           {cls.restricted ? <FaLock /> : <FaLockOpen />}
                         </button>
@@ -906,6 +952,9 @@ const CourseDetail = ({ params }) => {
                           <FaTrash />
                         </button>
                       </div>
+                      ) : (
+                        null
+                      )}
                     </div>
                   ))
                 ) : (
@@ -917,9 +966,17 @@ const CourseDetail = ({ params }) => {
         ) : (
           <p>No hay módulos disponibles.</p>
         )}
-        <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+        {isAdmin ? (
+        <button
+          onClick={addModule}
+          className={styles.addModuleButton}
+          title="Añadir Módulo"
+        >
           Add Module
         </button>
+        ) : (
+          null
+        )}
       </div>
     </div>
   );
