@@ -16,28 +16,14 @@
     -webkit-box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
     -moz-box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
     box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
-
-    animation-name: movement;
-    animation-duration: 1s;
-}
-
-@keyframes movement {
-    0% {
-        position: absolute;
-        top: 30%;
-        left: -10%;
-    }
-
-    100% {
-        position: absolute;
-        top: 30%;
-        left: 37%;
-    }
 }
 
 .title {
     font-size: clamp(1vw, 25px, 1.5vw);
     font-weight: bold;
+    margin-bottom: 0;
+
+    color: var(--color-primary);
 }
 
 .description {

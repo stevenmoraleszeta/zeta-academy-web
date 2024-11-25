@@ -28,26 +28,26 @@ import styles from "./page.module.css";
 import { AlertButton, AlertComponent } from "@/components/alert/alert";
 
 const ClassDetail = () => {
-    const router = useRouter();
-    const { currentUser, isAdmin } = useAuth();
-    const { courseId, moduleId, classId } = useParams();
-    const [classTitle, setClassTitle] = useState("");
-    const [resources, setResources] = useState([]);
-    const [classesInModule, setClassesInModule] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newResourceType, setNewResourceType] = useState("");
-    const [newResourceContent, setNewResourceContent] = useState("");
-    const [newResourceTitle, setNewResourceTitle] = useState("");
-    const [videoStart, setVideoStart] = useState("");
-    const [videoEnd, setVideoEnd] = useState("");
-    const [editingIndex, setEditingIndex] = useState(null);
-    const [isCompleted, setIsCompleted] = useState(false);
-    const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
-    const [courseName, setCourseName] = useState("");
-    const [completedClasses, setCompletedClasses] = useState([]);
-    const [isRestricted, setIsRestricted] = useState(false);
-    const [isEnrolled, setIsEnrolled] = useState(false);
-    const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const router = useRouter();
+  const { currentUser, isAdmin } = useAuth();
+  const { courseId, moduleId, classId } = useParams();
+  const [classTitle, setClassTitle] = useState("");
+  const [resources, setResources] = useState([]);
+  const [classesInModule, setClassesInModule] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newResourceType, setNewResourceType] = useState("");
+  const [newResourceContent, setNewResourceContent] = useState("");
+  const [newResourceTitle, setNewResourceTitle] = useState("");
+  const [videoStart, setVideoStart] = useState("");
+  const [videoEnd, setVideoEnd] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
+  const [courseName, setCourseName] = useState("");
+  const [completedClasses, setCompletedClasses] = useState([]);
+  const [isRestricted, setIsRestricted] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   useEffect(() => {
     const fetchClassData = async () => {
@@ -182,55 +182,55 @@ const ClassDetail = () => {
 
   const handleCompleteClass = async () => {
     try {
-        if (!currentUser || !currentUser.uid) {
-            console.error("Usuario no autenticado.");
-            return;
+      if (!currentUser || !currentUser.uid) {
+        console.error("Usuario no autenticado.");
+        return;
+      }
+
+      const userRef = doc(db, "users", currentUser.uid);
+      const userSnapshot = await getDoc(userRef);
+
+      if (!userSnapshot.exists()) {
+        console.error("Documento de usuario no encontrado.");
+        return;
+      }
+
+      const userData = userSnapshot.data();
+      const completedClasses = userData.completedClasses || [];
+
+      const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+      if (currentClassIndex > 0 && !isCompleted) {
+        const previousClassId = classesInModule[currentClassIndex - 1].id;
+        if (!completedClasses.includes(previousClassId)) {
+          setIsAlertOpen(true);
+          console.error("La clase anterior no está completada. No puedes completar esta clase.");
+          return;
         }
+      }
 
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnapshot = await getDoc(userRef);
+      const newCompletedStatus = !isCompleted;
 
-        if (!userSnapshot.exists()) {
-            console.error("Documento de usuario no encontrado.");
-            return;
-        }
+      const updatedClasses = newCompletedStatus
+        ? [...completedClasses, classId]
+        : completedClasses.filter(id => id !== classId);
 
-        const userData = userSnapshot.data();
-        const completedClasses = userData.completedClasses || [];
+      await updateDoc(userRef, { completedClasses: updatedClasses });
 
-        const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
-        if (currentClassIndex > 0 && !isCompleted) {
-            const previousClassId = classesInModule[currentClassIndex - 1].id;
-            if (!completedClasses.includes(previousClassId)) {
-                setIsAlertOpen(true);
-                console.error("La clase anterior no está completada. No puedes completar esta clase.");
-                return;
-            }
-        }
-
-        const newCompletedStatus = !isCompleted;
-
-        const updatedClasses = newCompletedStatus
-            ? [...completedClasses, classId]
-            : completedClasses.filter(id => id !== classId);
-
-        await updateDoc(userRef, { completedClasses: updatedClasses });
-
-        setIsCompleted(newCompletedStatus);
-        setCompletedClasses(updatedClasses);
+      setIsCompleted(newCompletedStatus);
+      setCompletedClasses(updatedClasses);
     } catch (error) {
-        console.error("Error actualizando el estado de la clase:", error);
+      console.error("Error actualizando el estado de la clase:", error);
     }
-};
+  };
 
-const handleSendProjectClick = () => {
+  const handleSendProjectClick = () => {
     const message = encodeURIComponent(
-        `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
+      `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
     );
     const phone = "+50661304830";
     const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
     window.open(whatsappUrl, "_blank");
-};
+  };
 
   const handleTitleChange = async (e) => {
     const newTitle = e.target.value;
@@ -309,8 +309,7 @@ const handleSendProjectClick = () => {
   const handleRemoveResource = (index) => {
     const resource = resources[index];
     const confirmDelete = window.confirm(
-      `¿Estás seguro de que deseas eliminar el recurso "${
-        resource.title || resource.content || "Sin título"
+      `¿Estás seguro de que deseas eliminar el recurso "${resource.title || resource.content || "Sin título"
       }"?`
     );
 
@@ -434,6 +433,10 @@ const handleSendProjectClick = () => {
     setIsModalOpen(false);
     router.push(`/cursos-en-linea/${courseId}`);
   };
+
+  const handleCloseAlert = () => {
+    setIsAlertOpen(false);
+  }
 
   if (isRestricted) {
     if (!currentUser) {
@@ -667,6 +670,14 @@ const handleSendProjectClick = () => {
           </div>
         </div>
       )}
+
+      {isAlertOpen && (
+        <>
+          <AlertComponent title="No se puede completar la clase" description="Parece ser que la clase anterior no se ha completado aún">
+            <AlertButton text="Cerrar" funct={handleCloseAlert}></AlertButton>
+          </AlertComponent>
+        </>
+      )}
       <div className={styles.fixedBar}>
         <button
           className={styles.syllabusButton}
@@ -682,9 +693,8 @@ const handleSendProjectClick = () => {
         )}
 
         <button
-          className={`${styles.completeButton} ${
-            isCompleted ? styles.completedButton : ""
-          }`}
+          className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ""
+            }`}
           onClick={handleCompleteClass}
           disabled={!isPreviousClassCompleted && !isCompleted}
         >
@@ -692,10 +702,10 @@ const handleSendProjectClick = () => {
         </button>
         {classesInModule.findIndex((cls) => cls.id === classId) <
           classesInModule.length - 1 && (
-          <button className={styles.nextButton} onClick={handleNextClass}>
-            Clase siguiente <FaChevronRight />
-          </button>
-        )}
+            <button className={styles.nextButton} onClick={handleNextClass}>
+              Clase siguiente <FaChevronRight />
+            </button>
+          )}
       </div>
     </div>
   );
