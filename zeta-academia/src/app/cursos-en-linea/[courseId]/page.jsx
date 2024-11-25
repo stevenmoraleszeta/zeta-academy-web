@@ -199,6 +199,7 @@ const CourseDetail = ({ params }) => {
     const loadCourseData = async () => {
       try {
         setModules([]); // Reinicia el estado antes de cargar los datos.
+        console.log("Cargando datos del curso...");
 
         let userCompletedClasses = [];
         if (currentUser) {
@@ -206,6 +207,7 @@ const CourseDetail = ({ params }) => {
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
             userCompletedClasses = userSnap.data().completedClasses || [];
+            console.log("Clases completadas del usuario:", userCompletedClasses);
           }
         }
 
@@ -265,31 +267,17 @@ const CourseDetail = ({ params }) => {
           };
         });
 
+        console.log("Módulos actualizados:", updatedModules);
         setModules(updatedModules);
       } catch (error) {
         console.error("Error loading course data:", error);
       }
     };
 
-    const checkEnrollment = async () => {
-      if (!currentUser) return;
-
-      try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setIsEnrolled(userData.enrolledCourses?.includes(courseId) || false);
-        }
-      } catch (error) {
-        console.error("Error checking enrollment:", error);
-      }
-    };
-
-    checkEnrollment();
-    loadCourseData();
-  }, [currentUser, courseId]);
+    if (courseId && currentUser) {
+      loadCourseData();
+    }
+  }, [courseId, currentUser]);
 
   const handleFieldChange = async (field, value) => {
     const updatedCourse = { ...course, [field]: value };

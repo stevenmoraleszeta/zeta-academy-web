@@ -25,28 +25,29 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
+import { AlertButton, AlertComponent } from "@/components/alert/alert";
 
 const ClassDetail = () => {
-  const router = useRouter();
-  const { currentUser, isAdmin } = useAuth();
-  const { courseId, moduleId, classId } = useParams();
-  const [classTitle, setClassTitle] = useState("");
-  const [resources, setResources] = useState([]);
-  const [classesInModule, setClassesInModule] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newResourceType, setNewResourceType] = useState("");
-  const [newResourceContent, setNewResourceContent] = useState("");
-  const [newResourceTitle, setNewResourceTitle] = useState("");
-  const [videoStart, setVideoStart] = useState("");
-  const [videoEnd, setVideoEnd] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [isPreviousClassCompleted, setIsPreviousClassCompleted] =
-    useState(true);
-  const [courseName, setCourseName] = useState("");
-  const [completedClasses, setCompletedClasses] = useState([]);
-  const [isRestricted, setIsRestricted] = useState(false);
-  const [isEnrolled, setIsEnrolled] = useState(false);
+    const router = useRouter();
+    const { currentUser, isAdmin } = useAuth();
+    const { courseId, moduleId, classId } = useParams();
+    const [classTitle, setClassTitle] = useState("");
+    const [resources, setResources] = useState([]);
+    const [classesInModule, setClassesInModule] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newResourceType, setNewResourceType] = useState("");
+    const [newResourceContent, setNewResourceContent] = useState("");
+    const [newResourceTitle, setNewResourceTitle] = useState("");
+    const [videoStart, setVideoStart] = useState("");
+    const [videoEnd, setVideoEnd] = useState("");
+    const [editingIndex, setEditingIndex] = useState(null);
+    const [isCompleted, setIsCompleted] = useState(false);
+    const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
+    const [courseName, setCourseName] = useState("");
+    const [completedClasses, setCompletedClasses] = useState([]);
+    const [isRestricted, setIsRestricted] = useState(false);
+    const [isEnrolled, setIsEnrolled] = useState(false);
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   useEffect(() => {
     const fetchClassData = async () => {
@@ -110,6 +111,58 @@ const ClassDetail = () => {
       } catch (error) {
         console.error("Error fetching completed status:", error);
       }
+    };
+
+    const handleCompleteClass = async () => {
+        try {
+            if (!currentUser || !currentUser.uid) {
+                console.error("Usuario no autenticado.");
+                return;
+            }
+
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnapshot = await getDoc(userRef);
+
+            if (!userSnapshot.exists()) {
+                console.error("Documento de usuario no encontrado.");
+                return;
+            }
+
+            const userData = userSnapshot.data();
+            const completedClasses = userData.completedClasses || [];
+
+            const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+            if (currentClassIndex > 0 && !isCompleted) {
+                const previousClassId = classesInModule[currentClassIndex - 1].id;
+                if (!completedClasses.includes(previousClassId)) {
+                    setIsAlertOpen(true);
+                    console.error("La clase anterior no está completada. No puedes completar esta clase.");
+                    return;
+                }
+            }
+
+            const newCompletedStatus = !isCompleted;
+
+            const updatedClasses = newCompletedStatus
+                ? [...completedClasses, classId]
+                : completedClasses.filter(id => id !== classId);
+
+            await updateDoc(userRef, { completedClasses: updatedClasses });
+
+            setIsCompleted(newCompletedStatus);
+            setCompletedClasses(updatedClasses);
+        } catch (error) {
+            console.error("Error actualizando el estado de la clase:", error);
+        }
+    };
+
+    const handleSendProjectClick = () => {
+        const message = encodeURIComponent(
+            `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
+        );
+        const phone = "+50661304830";
+        const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+        window.open(whatsappUrl, "_blank");
     };
 
     const fetchClassesInModule = async () => {
@@ -346,61 +399,6 @@ const ClassDetail = () => {
     } else {
       console.log("No next class available.");
     }
-  };
-
-  const handleCompleteClass = async () => {
-    try {
-      if (!currentUser || !currentUser.uid) {
-        console.error("Usuario no autenticado.");
-        return;
-      }
-
-      const userRef = doc(db, "users", currentUser.uid);
-      const userSnapshot = await getDoc(userRef);
-
-      if (!userSnapshot.exists()) {
-        console.error("Documento de usuario no encontrado.");
-        return;
-      }
-
-      const userData = userSnapshot.data();
-      const completedClasses = userData.completedClasses || [];
-
-      const currentClassIndex = classesInModule.findIndex(
-        (cls) => cls.id === classId
-      );
-      if (currentClassIndex > 0 && !isCompleted) {
-        const previousClassId = classesInModule[currentClassIndex - 1].id;
-        if (!completedClasses.includes(previousClassId)) {
-          console.error(
-            "La clase anterior no está completada. No puedes completar esta clase."
-          );
-          return;
-        }
-      }
-
-      const newCompletedStatus = !isCompleted;
-
-      const updatedClasses = newCompletedStatus
-        ? [...completedClasses, classId]
-        : completedClasses.filter((id) => id !== classId);
-
-      await updateDoc(userRef, { completedClasses: updatedClasses });
-
-      setIsCompleted(newCompletedStatus);
-      setCompletedClasses(updatedClasses);
-    } catch (error) {
-      console.error("Error actualizando el estado de la clase:", error);
-    }
-  };
-
-  const handleSendProjectClick = () => {
-    const message = encodeURIComponent(
-      `Hola, te adjunto el proyecto de la clase ${classTitle} del curso ${courseName}.`
-    );
-    const phone = "+50661304830";
-    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
-    window.open(whatsappUrl, "_blank");
   };
 
   const restartVideo = (index) => {
