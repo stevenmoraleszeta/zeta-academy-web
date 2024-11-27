@@ -5,6 +5,7 @@ import FooterZ from "@/components/footer/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { Montserrat } from "next/font/google";
 import ScrollToTop from "@/components/scrollToTop/ScrollToTop";
+import FixedBtn from "@/components/fixedBtn/fixedBtn";
 
 const montserrat = Montserrat({
   weight: ["400", "700"],
@@ -28,6 +29,7 @@ export default function RootLayout({
           <ScrollToTop />
           <div className="page-container">
             <Navbar />
+            <FixedBtn></FixedBtn>
             <main className="content">{children}</main>
             <FooterZ />
           </div>
