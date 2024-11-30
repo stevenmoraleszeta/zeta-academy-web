@@ -259,3 +259,24 @@
 
     margin-bottom: 10%;
 }
+
+/* media queries */
+
+
+@media (max-width: 1024px) {
+    .dynamicMsgContainer {
+        height: 6%;
+    }
+}
+
+@media (max-width: 1440px) {
+    .dynamicMsgContainer {
+        height: 6%;
+    }
+}
+
+@media (max-width: 2000px) {
+    .dynamicMsgContainer {
+        height: 12%;
+    }
+}
