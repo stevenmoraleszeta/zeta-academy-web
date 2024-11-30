@@ -96,3 +96,45 @@
   /* Reducción del 20% */
   align-items: center;
 }
+
+.hamburger {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  display: none;
+}
+
+.hamburger:hover {
+  background: none;
+}
+
+.hamburger:hover {
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+    flex-direction: column;
+
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+
+    background: linear-gradient(80deg, #012F38 60%, #000E11 100%);
+    padding: 0px 20px;
+    gap: 8px;
+  }
+
+  .navLinks.showMenu {
+    display: flex;
+  }
+
+  .hamburger {
+    display: block;
+    background-color: transparent;
+  }
+}

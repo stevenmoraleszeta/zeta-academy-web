@@ -15,6 +15,7 @@ import { usePathname } from 'next/navigation';
 function Navbar() {
     const { currentUser, isAdmin } = useAuth();
     const [profileImage, setProfileImage] = useState(null);
+    const [menuOpen, setMenuOpen] = useState(false); // Estado del menú
     const pathName = usePathname();
 
     useEffect(() => {
@@ -32,7 +33,14 @@ function Navbar() {
     ];
 
     return (
-        <div className={styles.topnav} id="myTopnav">
+        <div className={styles.topnav}>
+            <button
+                className={styles.hamburger}
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label="Toggle navigation"
+            >
+                ☰
+            </button>
             <Link href={'/'} className={styles.imgLink}>
                 <Image
                     alt="ZetaLogo"
@@ -42,7 +50,7 @@ function Navbar() {
                     className={styles.zLogo}
                 />
             </Link>
-            <ul className={styles.navLinks}>
+            <ul className={`${styles.navLinks} ${menuOpen ? styles.showMenu : ''}`}>
                 {navItems.map((item) => (
                     <li key={item.path}>
                         <Link
@@ -52,6 +60,7 @@ function Navbar() {
                                     ? styles.navbarLinkSelected
                                     : styles.navbarLink
                             }
+                            onClick={() => setMenuOpen(false)} // Cierra el menú al hacer clic
                         >
                             {item.label}
                         </Link>
