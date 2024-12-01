@@ -247,3 +247,150 @@
     font-weight: bold;
     text-decoration: none;
 }
+
+/* Media Queries para pantallas pequeñas */
+@media screen and (max-width: 1024px) {
+    .elementsContainer {
+        width: 90%;
+        height: auto;
+        padding: 20px 0;
+    }
+
+    .servicesContainer {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .firstMainContainer,
+    .secondMainContainer {
+        width: 100%;
+        height: auto;
+        padding: 0;
+    }
+
+    .topContainer,
+    .bottomContainer {
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Ajustes de los contenedores de servicios */
+    #aprendeLinea,
+    #cursosVivo,
+    #clasesParticulares,
+    #desarrolloSoftware,
+    #elaboracionProyectos,
+    #otro {
+        width: 90%;
+        height: auto;
+        margin: 10px 0;
+        padding: 20px;
+        min-height: 200px;
+    }
+
+    .textContainer {
+        margin-left: 5%;
+    }
+
+    .textTitle {
+        width: 90%;
+        font-size: clamp(16px, 4vw, 23.25px);
+    }
+
+    .onHoveredText {
+        width: 90%;
+        font-size: clamp(14px, 3vw, 18px);
+    }
+
+    .iconContainer {
+        margin-right: 10%;
+    }
+
+    .iconImg,
+    .iconBottomImgs {
+        width: clamp(50px, 15vw, 93px);
+        height: clamp(50px, 15vw, 74.4px);
+    }
+}
+
+/* Ajustes adicionales para móviles */
+@media screen and (max-width: 768px) {
+    .zetaLogoContainer {
+        padding-left: 5vw;
+    }
+
+    .zetaLogoImg {
+        width: clamp(120px, 30vw, 200px);
+        height: auto;
+    }
+
+    .linkBtn {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+/* Ajuste para laptops y pantallas medianas */
+@media screen and (max-width: 1366px) {
+    .elementsContainer {
+        width: 95%;
+        height: auto;
+        min-height: 80vh;
+        padding: 20px 0;
+    }
+
+    .servicesContainer {
+        gap: 15px;
+    }
+
+    /* Ajustes de los contenedores superiores */
+    #aprendeLinea {
+        width: clamp(200px, 30vw, 381.3px);
+        height: clamp(180px, 25vh, 268.677px);
+    }
+
+    #cursosVivo {
+        width: clamp(180px, 25vw, 381.3px);
+        height: clamp(180px, 25vh, 268.677px);
+        margin-left: 15px;
+    }
+
+    /* Ajustes de los contenedores inferiores */
+    #clasesParticulares {
+        width: clamp(200px, 30vw, 330.15px);
+        height: clamp(220px, 35vh, 302.25px);
+    }
+
+    #desarrolloSoftware {
+        width: clamp(220px, 32vw, 295.647px);
+        height: clamp(220px, 35vh, 302.25px);
+        margin-left: 15px;
+    }
+
+    #elaboracionProyectos {
+        width: clamp(160px, 25vw, 248.31px);
+        height: clamp(240px, 38vh, 330.15px);
+        margin-left: 15px;
+    }
+
+    #otro {
+        width: clamp(160px, 25vw, 381.3px);
+        height: clamp(120px, 20vh, 279px);
+    }
+
+    .textTitle {
+        font-size: clamp(16px, 1.5vw, 23.25px);
+    }
+
+    .iconImg {
+        width: clamp(40px, 5vw, 93px);
+        height: clamp(40px, 5vh, 74.4px);
+    }
+
+    .iconBottomImgs {
+        width: clamp(40px, 6vw, 90px);
+        height: clamp(40px, 6vh, 72px);
+    }
+}
