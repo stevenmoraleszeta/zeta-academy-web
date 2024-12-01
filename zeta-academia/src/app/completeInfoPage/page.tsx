@@ -10,7 +10,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useRouter } from "next/navigation";
 
-import countries from '../../../jsonFiles/paises.json';
+import countries from '../../jsonFiles/paises.json';
 
 export default function CompleteInformation() {
     const { currentUser, updateCurrentUser } = useAuth();

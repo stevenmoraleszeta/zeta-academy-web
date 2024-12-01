@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@paypal/react-paypal-js": "^8.7.0",
     "browser-image-compression": "^2.0.2",
     "debounce": "^2.2.0",
     "firebase": "^10.13.1",
