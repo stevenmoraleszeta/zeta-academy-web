@@ -13,7 +13,7 @@ function Login() {
 
     useEffect(() => {
         if (currentUser && missingInfo) {
-            router.push("/pages/completeInfoPage");
+            router.push("/completeInfoPage");
         } else if (currentUser && !missingInfo){
             router.push("/cursos-en-linea");
         }

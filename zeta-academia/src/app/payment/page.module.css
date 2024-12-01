@@ -1,0 +1,107 @@
+.paymentContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.paymentBox {
+    background: linear-gradient(var(--color-dark), var(--color-primary));
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.paymentBox:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+}
+
+.paymentTitle {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.paymentDetails {
+    font-size: 18px;
+    color: var(--color-lighter);
+    margin-bottom: 20px;
+}
+
+.paymentAmount {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-lighter);
+    margin-bottom: 30px;
+}
+
+.paypalButton {
+    margin-top: 20px;
+}
+
+.paymentSuccess,
+.paymentError {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.paymentSuccess h2,
+.paymentError h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 15px;
+}
+
+.paymentSuccess p,
+.paymentError p {
+    font-size: 18px;
+    color: var(--color-lighter);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.contactButton,
+.retryButton {
+    display: inline-block;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.contactButton {
+    background: var(--color-secondary);
+    color: var(--text-color);
+    margin-top: 20px;
+}
+
+.contactButton:hover {
+    background: var(--color-secondary-hover);
+    transform: translateY(-2px);
+}
+
+.retryButton {
+    background: var(--color-secondary);
+    color: var(--text-color);
+    margin-top: 10px;
+    border: none;
+}
+
+.retryButton:hover {
+    background: var(--color-secondary-hover);
+    transform: translateY(-2px);
+}
