@@ -136,7 +136,7 @@ const LiveCourses = () => {
               onChange={handlePriceChange}
               className={styles.slider}
             />
-            <span>₡</span>
+            <span>$</span>
             <span>{priceRange}</span>
           </div>
         </div>

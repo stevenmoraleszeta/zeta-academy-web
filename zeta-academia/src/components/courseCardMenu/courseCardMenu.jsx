@@ -59,9 +59,9 @@ const CourseCardMenu = ({ course, courseType }) => {
         <p>{course.description}</p>
         <div className={styles.priceContainer}>
           <span className={styles.discountedPrice}>
-            ₡{course.discountedPrice}
+          ${course.discountedPrice}
           </span>
-          <span className={styles.originalPrice}>₡{course.originalPrice}</span>
+          <span className={styles.originalPrice}>${course.originalPrice}</span>
         </div>
         <button
           className={styles.infoButton}
