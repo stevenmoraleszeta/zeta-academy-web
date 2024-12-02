@@ -15,12 +15,10 @@ export default function CursoCard(props: cardProps) {
     return (
         <>
             <div className={styles.cardContainer}>
-                <div className={styles.imgContainer}>
-                    <Image className={styles.courseImg} width={width}
-                        height={height} src={imgSrc} alt="imageCurso">
-                    </Image>
-                </div>
-                <Image className={styles.iconImg} width={200} height={200} src={icon} alt="pythonLogo"></Image>
+                <Image className={styles.courseImg} width={width}
+                    height={height} src={imgSrc} alt="imageCurso">
+                </Image>
+                <Image className={styles.iconImg} width={1000} height={1000} src={icon} alt="pythonLogo"></Image>
                 <div className={styles.textContainer}>
                     <h2>{titleText}</h2>
                     <p>{descText}</p>

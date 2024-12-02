@@ -9,20 +9,22 @@
 }
 
 .elementsContainer {
-    width: 70%;
-    height: 90vh;
+    width: 90%;
+    height: auto;
+    max-width: 1200px;
 
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 .zetaLogoContainer {
     width: 100%;
     height: fit-content;
 
-    padding-left: 10vw;
+    padding-left: 5vw;
     display: flex;
     align-items: end;
     justify-content: flex-start;
@@ -32,6 +34,7 @@
     width: clamp(8.5vw, 340px, 12.75vw);
     height: clamp(11.05vh, 102px, 19.55vh);
     object-fit: contain;
+    height: auto;
 }
 
 .servicesContainer {
@@ -41,7 +44,10 @@
     display: flex;
     align-items: center;
     justify-content: start;
+
     flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .firstMainContainer {
@@ -67,6 +73,7 @@
 .bottomContainer {
     width: 93%;
     height: 55%;
+    margin-top: 20px;
 
     display: flex;
     align-items: flex-end;
@@ -126,8 +133,10 @@
 
 
 .iconImg {
-    width: clamp(6.51vw, 93px, 11.16vw); /* 7% reduction */
-    height: clamp(6.51vh, 74.4px, 11.16vh); /* 7% reduction */
+    width: clamp(6.51vw, 93px, 11.16vw);
+    /* 7% reduction */
+    height: clamp(6.51vh, 74.4px, 11.16vh);
+    /* 7% reduction */
     object-fit: contain;
 }
 
@@ -226,15 +235,9 @@
     object-fit: contain;
 }
 
-/* On hovered contented */
-
-.onHoveredText {
-    width: 63%;
-    font-size: clamp(0.9vw, 18px, 1.8vw);
-}
+/* On hovered content*/
 
 .linkBtn {
-    padding: 10px;
     border-radius: 3px;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -242,7 +245,6 @@
     color: var(--text-color);
     cursor: pointer;
     background-color: var(--color-secondary);
-    font-size: 16px;
     transition: background-color 0.3s;
     font-weight: bold;
     text-decoration: none;
