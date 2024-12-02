@@ -92,3 +92,25 @@
     margin-top: 6.3px;
     /* 10% menos */
 }
+
+/* media queries */
+
+
+@media (max-width: 768px) {
+
+    .cardContainer,
+    .imgContainer,
+    .courseImg,
+    .iconImg,
+    .textContainer {
+        display: none;
+    }
+
+    .textContainer h2 {
+        display: none;
+    }
+
+    .textContainer p {
+        display: none;
+    }
+}
