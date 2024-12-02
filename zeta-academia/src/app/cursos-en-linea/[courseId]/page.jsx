@@ -608,35 +608,30 @@ const CourseDetail = ({ params }) => {
   };
 
   const handleEnrollClick = async () => {
-    if (!currentUser) {
-      alert("Debes iniciar sesión para inscribirte.");
-      return;
-    }
-
     try {
       const userRef = doc(db, "users", currentUser.uid);
       const userSnap = await getDoc(userRef);
-
+  
       if (userSnap.exists()) {
         const userData = userSnap.data();
-        const updatedCourses = userData.enrolledCourses || [];
-
-        if (!updatedCourses.includes(courseId)) {
-          updatedCourses.push(courseId);
-          await updateDoc(userRef, { enrolledCourses: updatedCourses });
-          setIsEnrolled(true);
+        const enrolledCourses = userData.enrolledCourses || [];
+  
+        if (!enrolledCourses.includes(courseId)) {
+          // Redirigir a la página de pago con solo el ID del curso
+          const paymentUrl = `/payment?courseId=${encodeURIComponent(courseId)}`;
+          router.push(paymentUrl);
         } else {
-          alert("Ya estás inscrito en este curso.");
+          setIsEnrolled(true);
         }
       } else {
-        // Si el usuario no tiene datos existentes en la colección
-        await setDoc(userRef, { enrolledCourses: [courseId] });
-        setIsEnrolled(true);
+        // Redirigir a la página de pago para usuarios sin datos en Firestore
+        const paymentUrl = `/payment?courseId=${encodeURIComponent(courseId)}`;
+        router.push(paymentUrl);
       }
     } catch (error) {
-      console.error("Error enrolling user:", error);
+      console.error("Error verificando la inscripción del curso:", error);
     }
-  };
+  };  
 
   return (
     <div className={styles.container}>
@@ -693,7 +688,7 @@ const CourseDetail = ({ params }) => {
 
           <div className={styles.priceContainer}>
             <span className={styles.discountedPrice}>
-              ₡
+            $
               {isAdmin ? (
                 <input
                   type="number"
@@ -710,7 +705,7 @@ const CourseDetail = ({ params }) => {
               )}
             </span>
             <span className={styles.originalPrice}>
-              ₡
+            $
               {isAdmin ? (
                 <input
                   type="number"

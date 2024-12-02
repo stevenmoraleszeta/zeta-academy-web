@@ -32,7 +32,7 @@
 .paymentDetails {
     font-size: 18px;
     color: var(--color-lighter);
-    margin-bottom: 20px;
+    margin-bottom: 5%;
 }
 
 .paymentAmount {
@@ -104,4 +104,80 @@
 .retryButton:hover {
     background: var(--color-secondary-hover);
     transform: translateY(-2px);
+}
+
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: auto; /* Permite la interacción con el modal */
+}
+
+.modalContent {
+    background: #00181D;
+    color: #fff;
+    padding: 20px 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1001; /* Asegura que el contenido esté frente al fondo */
+    pointer-events: auto;
+    transition: none; /* Evita transformaciones no deseadas */
+}
+
+.modalTitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.modalDescription {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.modalButton {
+    background: var(--color-secondary);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+.modalButton:hover {
+    background: var(--color-secondary-hover);
+}
+
+.paymentContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    pointer-events: none; /* Bloquea interacción con elementos detrás del modal */
+}
+
+.paymentBox {
+    background: linear-gradient(var(--color-dark), var(--color-primary));
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    pointer-events: none; /* Bloquea interacción con elementos detrás del modal */
+}
+
+.paymentBox:hover {
+    transform: none; /* Evita el movimiento por hover */
 }

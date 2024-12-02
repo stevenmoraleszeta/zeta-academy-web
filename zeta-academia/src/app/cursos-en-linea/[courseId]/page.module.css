@@ -158,7 +158,7 @@
   align-items: center;
   gap: 5px;
   /* Minimal gap between the two price elements */
-  font-size: 1.6vw;
+  font-size: 2vw;
   font-weight: bold;
 }
 
@@ -182,19 +182,17 @@
 /* Input Fields for Prices */
 .discountedPriceInput,
 .originalPriceInput {
-  width: 7vw;
+  width: 5vw;
   background: transparent;
   color: inherit;
   border: none;
-  font-size: 1.6vw;
+  font-size: 2vw;
   outline: none;
   padding: 0;
   text-align: left;
   font-weight: bold;
   margin-left: 3px;
-  /* Small spacing between the currency symbol and input */
   appearance: none;
-  /* Removes default styling in some browsers */
 }
 
 /* Optional: Placeholder styling for clarity */

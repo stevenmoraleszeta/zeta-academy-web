@@ -283,7 +283,7 @@ const CourseDetail = ({ params }) => {
 
           <div className={styles.priceContainer}>
             <span className={styles.discountedPrice}>
-              ₡
+            $
               {isAdmin ? (
                 <input
                   type="number"
@@ -300,7 +300,7 @@ const CourseDetail = ({ params }) => {
               )}
             </span>
             <span className={styles.originalPrice}>
-              ₡
+            $
               {isAdmin ? (
                 <input
                   type="number"

@@ -445,6 +445,12 @@ const ClassDetail = () => {
           <div className={styles.modalContent}>
             <h3>Acceso Restringido</h3>
             <p>Debe iniciar sesión para ver esta clase.</p>
+            <button
+              onClick={() => router.push("/login")}
+              className={styles.modalButton}
+            >
+              Iniciar sesión
+            </button>
             <button onClick={handleCloseModal} className={styles.modalButton}>
               Volver al temario
             </button>
@@ -457,6 +463,14 @@ const ClassDetail = () => {
           <div className={styles.modalContent}>
             <h3>Acceso Restringido</h3>
             <p>Debe matricularse para ver esta clase.</p>
+            <button
+              onClick={() =>
+                router.push(`/payment?courseId=${encodeURIComponent(courseId)}`)
+              }
+              className={styles.modalButton}
+            >
+              Matricularse
+            </button>
             <button onClick={handleCloseModal} className={styles.modalButton}>
               Volver al temario
             </button>
@@ -465,6 +479,7 @@ const ClassDetail = () => {
       );
     }
   }
+
 
   if (!Array.isArray(resources)) return <div>Loading...</div>;
 

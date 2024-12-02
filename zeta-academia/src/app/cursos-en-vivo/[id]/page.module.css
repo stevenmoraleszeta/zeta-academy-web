@@ -174,17 +174,17 @@
 .originalPriceText,
 .discountedPriceInput,
 .originalPriceInput {
-  width: 7vw;
+  width: 5vw;
   background: transparent;
   color: inherit;
   border: none;
-  font-size: 1.6vw;
+  font-size: 2vw;
   outline: none;
   padding: 0;
   text-align: left;
   font-weight: bold;
-  margin-left: 3px; /* Small spacing between the currency symbol and input */
-  appearance: none; /* Removes default styling in some browsers */
+  margin-left: 3px;
+  appearance: none;
 }
 
 /* Optional: Placeholder styling for clarity */
