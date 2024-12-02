@@ -275,12 +275,6 @@
     }
 }
 
-@media (max-width: 2000px) {
-    .dynamicMsgContainer {
-        height: 12%;
-    }
-}
-
 @media (max-width: 768px) {
 
     .contentContainer {
