@@ -6,6 +6,7 @@ import CrudMenu from '@/components/crud-menu/CrudMenu';
 import RequireAuth from '@/components/RequireAuth';
 
 const AdminUsers: React.FC = () => {
+    document.title = "Administración de usuarios";
     // Fields to display in the list view
     const displayFields = [
         { label: 'Imagen', field: 'photoURL', type: 'image' },

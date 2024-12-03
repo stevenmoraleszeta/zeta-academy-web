@@ -49,6 +49,7 @@ const ClassDetail = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
+  document.title = "Clase";
   useEffect(() => {
     const fetchClassData = async () => {
       try {

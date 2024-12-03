@@ -9,6 +9,9 @@ import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
 
 const CourseDetail = ({ params }) => {
+
+  //titulo tab 
+  document.title="Curso en Vivo";
   const router = useRouter();
   const courseId = params.id;
   const [course, setCourse] = useState({
