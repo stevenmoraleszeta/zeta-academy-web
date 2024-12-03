@@ -5,9 +5,10 @@
     height: 60px;
     background-color: green;
 
-    position: fixed;
+    position: absolute;
     bottom: 70px;
     right: 70px;
+    z-index: 10;
 
     display: flex;
     justify-content: center;
@@ -24,4 +25,15 @@
 .btnContainer:hover {
     cursor: pointer;
     transform: scale(1.09);
+}
+
+/* media queries */
+
+@media (max-width: 1200px) {
+    .btnContainer {
+        position: absolute;
+        bottom: 50px;
+        right: 30px;
+        z-index: 10;
+    }
 }
