@@ -425,3 +425,25 @@ a.secondary {
 
   margin-bottom: 10%;
 }
+
+/* main page media queries */
+
+@media (max-width: 768px) {
+  .componentContainer {
+    display: none;
+  }
+
+  .infoContainer {
+    width: 100%;
+  }
+
+  .dynamicMsgContainer {
+    height: 6%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .dynamicMsgContainer {
+    height: 15%;
+  }
+}
