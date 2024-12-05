@@ -11,6 +11,8 @@ import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import { useAuth } from "@/context/AuthContext";
 
 const OnlineCourses = () => {
+  //titulo tab
+  document.title = "Cursos en Linea";
   const router = useRouter();
   const { data: courses, loading, error } = useFetchData("onlineCourses");
   const [searchQuery, setSearchQuery] = useState("");

@@ -14,6 +14,8 @@ import {
 } from 'react-icons/ai'; // Importamos íconos relacionados con los textos
 
 const AdminMenu: React.FC = () => {
+    //titulo tab
+    document.title = "Menu Admin";
     const router = useRouter();
 
     // Función para redirigir a las rutas correspondientes

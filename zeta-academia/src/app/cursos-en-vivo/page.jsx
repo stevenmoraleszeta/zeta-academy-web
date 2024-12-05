@@ -19,7 +19,9 @@ const LiveCourses = () => {
   const [priceRange, setPriceRange] = useState(maxPrice);
   const [selectedCategory, setSelectedCategory] = useState("");
   const { user, isAdmin } = useAuth();
-
+  
+  //titulo tabs
+  document.title="Cursos en Vivo"
   useEffect(() => {
     if (courses && courses.length > 0) {
       const activeCourses = courses.filter((course) => !course.archived);

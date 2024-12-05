@@ -26,8 +26,13 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
+import { title } from "process";
 
 const CourseDetail = ({ params }) => {
+  
+//titulo tab
+
+document.title = "Curso";
   const router = useRouter();
   const courseId = params.courseId;
   const [course, setCourse] = useState({
@@ -634,6 +639,7 @@ const CourseDetail = ({ params }) => {
   };  
 
   return (
+  
     <div className={styles.container}>
       {isAdmin ? (
         <input
