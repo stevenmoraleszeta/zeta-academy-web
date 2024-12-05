@@ -186,3 +186,35 @@
 .contactButton:hover {
     background-color: var(--color-secondary-hover);
 }
+
+@media (max-width: 768px) {
+    .filters {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 30px;
+        flex-direction: row;
+    }
+
+    .filterOptions {
+        color: var(--color-lighter);
+        font-size: 1.1rem;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .addButton {
+        color: var(--text-color);
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 3vw;
+        display: inline-block;
+        width: 30%;
+    }
+}

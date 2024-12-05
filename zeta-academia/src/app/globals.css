@@ -20,12 +20,16 @@
   --color-secondary-hover: #b84600;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  height: 100%; /* Correcto */
-  overflow-x: hidden; /* Correcto */
-  overflow-y: auto; /* Asegura que se pueda desplazar verticalmente */
+  height: 100%;
+  /* Correcto */
+  overflow-x: hidden;
+  /* Correcto */
+  overflow-y: auto;
+  /* Asegura que se pueda desplazar verticalmente */
   background-color: var(--color-black);
   color: var(--text-color);
 }
@@ -34,17 +38,30 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow-y: auto; /* Asegura que sea desplazable */
+  overflow-y: auto;
+  /* Asegura que sea desplazable */
 }
 
 .content {
   flex: 1;
-  overflow-y: auto; /* Asegura que este contenedor sea desplazable */
-  height: 100%; /* Opcional si necesitas ajustar la altura */
+  overflow-y: auto;
+  /* Asegura que este contenedor sea desplazable */
+  height: 100%;
+  /* Opcional si necesitas ajustar la altura */
+  overflow-x: hidden;
 }
 
 /* General text styles */
-label, h1, input, select, button, th, td, p, a, textarea {
+label,
+h1,
+input,
+select,
+button,
+th,
+td,
+p,
+a,
+textarea {
   font-family: 'Montserrat', sans-serif;
   color: inherit;
 }
@@ -184,7 +201,8 @@ input[type="checkbox"]:checked::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px; /* Reduced by 20% */
+  padding: 8px 16px;
+  /* Reduced by 20% */
   background: linear-gradient(80deg, var(--color-primary) 60%, var(--color-black) 100%);
   color: var(--text-color);
   gap: 8px;
@@ -192,14 +210,16 @@ input[type="checkbox"]:checked::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 4vh; /* Reduced by 20% */
+  height: 4vh;
+  /* Reduced by 20% */
   z-index: 1000;
 }
 
 .navLinks {
   display: flex;
   list-style: none;
-  gap: 16px; /* Reduced by 20% */
+  gap: 16px;
+  /* Reduced by 20% */
 }
 
 .navbarLink {
@@ -207,22 +227,26 @@ input[type="checkbox"]:checked::after {
   text-decoration: none;
   font-weight: bold;
   transition: color 0.3s;
-  font-size: 16px; /* Reduced by 20% */
+  font-size: 16px;
+  /* Reduced by 20% */
 }
 
 .accessLink {
   background-color: var(--color-secondary);
   color: var(--text-color);
   border: none;
-  padding: 8px 16px; /* Reduced by 20% */
-  font-size: 16px; /* Reduced by 20% */
+  padding: 8px 16px;
+  /* Reduced by 20% */
+  font-size: 16px;
+  /* Reduced by 20% */
   font-weight: bold;
   cursor: pointer;
   border-radius: 5px;
 }
 
 .profileImage {
-  width: 32px; /* Reduced by 20% */
+  width: 32px;
+  /* Reduced by 20% */
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
@@ -230,7 +254,8 @@ input[type="checkbox"]:checked::after {
 
 /* Card container */
 .cardContainer {
-  width: clamp(24vw, 240px, 28vw); /* Adjusted for 20% reduction */
+  width: clamp(24vw, 240px, 28vw);
+  /* Adjusted for 20% reduction */
   height: clamp(26.4vw, 240px, 36vw);
   background: linear-gradient(var(--color-primary), var(--color-dark));
   display: flex;
@@ -244,7 +269,8 @@ input[type="checkbox"]:checked::after {
 .imgContainer {
   height: 50%;
   width: 100%;
-  filter: brightness(0.8); /* Reduce exposure */
+  filter: brightness(0.8);
+  /* Reduce exposure */
 }
 
 .courseImg {
@@ -272,14 +298,16 @@ input[type="checkbox"]:checked::after {
 
 .textContainer h2 {
   color: var(--text-color);
-  font-size: clamp(1.52vw, 12px, 2.4vw); /* Reduced by 20% */
+  font-size: clamp(1.52vw, 12px, 2.4vw);
+  /* Reduced by 20% */
   font-weight: bold;
   margin: 0px 20px;
 }
 
 .textContainer p {
   color: var(--text-color);
-  font-size: clamp(1.2vw, 8px, 1.6vw); /* Reduced by 20% */
+  font-size: clamp(1.2vw, 8px, 1.6vw);
+  /* Reduced by 20% */
   font-weight: 500;
   margin: 7px 20px 0;
 }
