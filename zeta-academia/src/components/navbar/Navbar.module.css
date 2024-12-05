@@ -140,6 +140,11 @@
     display: block;
     background-color: transparent;
   }
+
+  .zLogo {
+    width: clamp(9vw, 60px, 17vw);
+    height: clamp(11vw, 65px, 20vw);
+  }
 }
 
 @media (max-width: 500px) {
