@@ -435,10 +435,28 @@ a.secondary {
 
   .infoContainer {
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .dynamicMsgContainer {
     height: 6%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mainSubtitle {
+    font-size: clamp(3vw, 15px, 5vw);
+  }
+
+  .mainTitle {
+    font-size: clamp(6vw, 30px, 7vw);
+  }
+
+  .dynamicMessage {
+    font-size: clamp(12vw, 35px, 15vw);
   }
 }
 
@@ -462,5 +480,36 @@ a.secondary {
   .infoContainer {
     width: 100%;
     display: flex;
+  }
+
+  .excelIcon {
+    bottom: 12vh;
+    right: -3vh;
+    transform: translateX(30%) rotate(-20deg);
+    transition: transform ease 0.5s;
+  }
+
+  .sqlIcon {
+    bottom: 12vh;
+    left: -3vh;
+    transform: translateX(-65%) rotate(15deg);
+    transition: transform ease 0.5s;
+  }
+
+  .pythonIcon {
+    top: 0px;
+    left: 50%;
+    transform: translateX(-65%) rotate(-15deg);
+    transition: transform ease 0.5s;
+  }
+
+  .iconsContainer {
+    height: 60%;
+  }
+
+  .coursesBtn {
+    font-size: clamp(2vw, 20px, 3vw);
+    width: 30vw;
+    height: 7vh;
   }
 }
