@@ -441,7 +441,7 @@ a.secondary {
   }
 
   .dynamicMsgContainer {
-    height: 6%;
+    height: 7%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -457,6 +457,14 @@ a.secondary {
 
   .dynamicMessage {
     font-size: clamp(12vw, 35px, 15vw);
+  }
+
+  .mainSection {
+    height: 50vh;
+  }
+
+  .benefitsSection {
+    height: 60vh;
   }
 }
 
