@@ -125,7 +125,7 @@ a.secondary {
 
 @media (max-width: 600px) {
   .page {
-    padding: 32px;
+    /* padding: 32px; */
     padding-bottom: 80px;
   }
 
@@ -457,5 +457,10 @@ a.secondary {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+  }
+
+  .infoContainer {
+    width: 100%;
+    display: flex;
   }
 }
