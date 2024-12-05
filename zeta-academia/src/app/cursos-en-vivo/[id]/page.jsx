@@ -15,8 +15,8 @@ const CourseDetail = ({ params }) => {
     title: "Introducción a la Programación con Python",
     description:
       "Conviértete en programador con Python desde cero. No necesitarás conocimientos previos y cuenta con apoyo personalizado.",
-    discountedPrice: 14900,
-    originalPrice: 29900,
+    discountedPrice: 35,
+    originalPrice: 65,
     category: "Programación",
     videoUrl: "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU",
     imageUrl:

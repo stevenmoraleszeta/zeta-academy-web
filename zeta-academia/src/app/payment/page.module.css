@@ -38,7 +38,7 @@
 .paymentAmount {
     font-size: 22px;
     font-weight: 600;
-    color: var(--color-lighter);
+    color: var(--text-color);
     margin-bottom: 30px;
 }
 
@@ -117,7 +117,6 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    pointer-events: auto; /* Permite la interacción con el modal */
 }
 
 .modalContent {
@@ -127,9 +126,7 @@
     border-radius: 10px;
     text-align: center;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-    z-index: 1001; /* Asegura que el contenido esté frente al fondo */
-    pointer-events: auto;
-    transition: none; /* Evita transformaciones no deseadas */
+    z-index: 1001;
 }
 
 .modalTitle {
@@ -165,7 +162,6 @@
     justify-content: center;
     flex-direction: column;
     padding: 20px;
-    pointer-events: none; /* Bloquea interacción con elementos detrás del modal */
 }
 
 .paymentBox {
@@ -175,7 +171,6 @@
     max-width: 450px;
     width: 90%;
     text-align: center;
-    pointer-events: none; /* Bloquea interacción con elementos detrás del modal */
 }
 
 .paymentBox:hover {

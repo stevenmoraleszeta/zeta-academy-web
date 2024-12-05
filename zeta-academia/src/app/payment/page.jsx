@@ -80,16 +80,16 @@ const PaymentPage = ({ searchParams }) => {
     const handlePaymentSuccess = async (details) => {
         console.log("Pago exitoso:", details);
         setPaymentStatus("success");
-
+    
         if (currentUser && courseId) {
             try {
                 const userRef = doc(db, "users", currentUser.uid);
                 const userSnap = await getDoc(userRef);
-
+    
                 if (userSnap.exists()) {
                     const userData = userSnap.data();
                     const enrolledCourses = userData.enrolledCourses || [];
-
+    
                     if (!enrolledCourses.includes(courseId)) {
                         enrolledCourses.push(courseId);
                         await updateDoc(userRef, { enrolledCourses });
@@ -98,6 +98,9 @@ const PaymentPage = ({ searchParams }) => {
                     // Si el usuario no tiene datos en Firestore, crear el documento
                     await updateDoc(userRef, { enrolledCourses: [courseId] });
                 }
+    
+                // Redirigir al usuario a la página del curso en línea
+                router.push(`/cursos-en-linea/${courseId}`);
             } catch (error) {
                 console.error("Error al inscribir al usuario:", error);
             }
