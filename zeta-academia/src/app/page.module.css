@@ -125,7 +125,7 @@ a.secondary {
 
 @media (max-width: 600px) {
   .page {
-    padding: 32px;
+    /* padding: 32px; */
     padding-bottom: 80px;
   }
 
@@ -424,4 +424,100 @@ a.secondary {
   height: 20vh;
 
   margin-bottom: 10%;
+}
+
+/* main page media queries */
+
+@media (max-width: 768px) {
+  .componentContainer {
+    display: none;
+  }
+
+  .infoContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .dynamicMsgContainer {
+    height: 7%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mainSubtitle {
+    font-size: clamp(3vw, 15px, 5vw);
+  }
+
+  .mainTitle {
+    font-size: clamp(6vw, 30px, 7vw);
+  }
+
+  .dynamicMessage {
+    font-size: clamp(12vw, 35px, 15vw);
+  }
+
+  .mainSection {
+    height: 50vh;
+  }
+
+  .benefitsSection {
+    height: 60vh;
+  }
+}
+
+@media (max-width: 1200px) {
+  .dynamicMsgContainer {
+    height: 15%;
+  }
+}
+
+@media (max-width: 500px) {
+  .servicesMainContainer {
+    width: 100%;
+    height: fit-content;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .infoContainer {
+    width: 100%;
+    display: flex;
+  }
+
+  .excelIcon {
+    bottom: 12vh;
+    right: -3vh;
+    transform: translateX(30%) rotate(-20deg);
+    transition: transform ease 0.5s;
+  }
+
+  .sqlIcon {
+    bottom: 12vh;
+    left: -3vh;
+    transform: translateX(-65%) rotate(15deg);
+    transition: transform ease 0.5s;
+  }
+
+  .pythonIcon {
+    top: 0px;
+    left: 50%;
+    transform: translateX(-65%) rotate(-15deg);
+    transition: transform ease 0.5s;
+  }
+
+  .iconsContainer {
+    height: 60%;
+  }
+
+  .coursesBtn {
+    font-size: clamp(2vw, 20px, 3vw);
+    width: 30vw;
+    height: 7vh;
+  }
 }

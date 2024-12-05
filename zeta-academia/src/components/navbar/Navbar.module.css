@@ -118,15 +118,18 @@
   .navLinks {
     display: none;
     flex-direction: column;
+    justify-content: center;
 
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 0;
     right: 0;
 
-    background: linear-gradient(80deg, #012F38 60%, #000E11 100%);
+    background: linear-gradient(80deg, var(--color-dark) 60%, var(--color-black) 100%);
     padding: 0px 20px;
     gap: 8px;
+
+    height: 100px;
   }
 
   .navLinks.showMenu {
@@ -136,5 +139,16 @@
   .hamburger {
     display: block;
     background-color: transparent;
+  }
+
+  .zLogo {
+    width: clamp(9vw, 60px, 17vw);
+    height: clamp(11vw, 65px, 20vw);
+  }
+}
+
+@media (max-width: 500px) {
+  .navbarLink {
+    font-size: clamp(1vw, 20px, 2vw);
   }
 }

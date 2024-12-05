@@ -11,3 +11,14 @@
     justify-content: center;
     padding: 5px;
 }
+
+
+@media (max-width: 500px) {
+    .link {
+        height: 5vh;
+        width: 20vw;
+
+        font-size: clamp(2vw, 15px, 3vw);
+        text-align: center;
+    }
+}
