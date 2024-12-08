@@ -29,10 +29,6 @@ import styles from "./page.module.css";
 import { title } from "process";
 
 const CourseDetail = ({ params }) => {
-  
-//titulo tab
-
-document.title = "Curso";
   const router = useRouter();
   const courseId = params.courseId;
   const [course, setCourse] = useState({
@@ -95,6 +91,7 @@ document.title = "Curso";
           ...prevCourse,
           ...fetchedData,
         }));
+      document.title = `${course.title} - ZETA`;
       } else {
         console.error("Course not found");
         router.push("/cursos-en-linea");

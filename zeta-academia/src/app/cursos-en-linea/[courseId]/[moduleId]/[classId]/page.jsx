@@ -49,7 +49,6 @@ const ClassDetail = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
-  document.title = "Clase";
   useEffect(() => {
     const fetchClassData = async () => {
       try {
@@ -69,6 +68,7 @@ const ClassDetail = () => {
           setClassTitle(data.title || "");
           setResources(data.resources || []);
           setIsRestricted(data.restricted || false);
+          document.title = `${data.title} - ZETA`;
         } else {
           console.error("Class not found");
           router.push("/cursos-en-linea");

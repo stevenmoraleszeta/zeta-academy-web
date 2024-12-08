@@ -9,9 +9,6 @@ import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
 
 const CourseDetail = ({ params }) => {
-
-  //titulo tab 
-  document.title="Curso en Vivo";
   const router = useRouter();
   const courseId = params.id;
   const [course, setCourse] = useState({
@@ -149,6 +146,7 @@ const CourseDetail = ({ params }) => {
               ? fetchedData.features
               : defaultFeatures,
         });
+        document.title = `${course.title} - ZETA`;
       } else {
         console.error("Course not found");
         router.push("/cursos-en-vivo");

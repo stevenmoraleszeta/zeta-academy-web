@@ -14,6 +14,7 @@ import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import countries from '../../jsonFiles/paises.json';
 
 function UserProfile() {
+    document.title = "Perfil Usuario - ZETA";
     const { currentUser, updateCurrentUser } = useAuth();
     const auth = getAuth();
     const storage = getStorage();

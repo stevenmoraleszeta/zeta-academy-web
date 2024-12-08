@@ -15,7 +15,7 @@ function Login() {
         if (currentUser && missingInfo) {
             router.push("/completeInfoPage");
         } else if (currentUser && !missingInfo){
-            router.push("/cursos-en-linea");
+            router.push("/");
         }
     }, [currentUser, missingInfo, router]);
 

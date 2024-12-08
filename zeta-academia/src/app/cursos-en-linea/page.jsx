@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const OnlineCourses = () => {
   //titulo tab
-  document.title = "Cursos en Linea";
+  document.title = "Cursos en Linea - ZETA";
   const router = useRouter();
   const { data: courses, loading, error } = useFetchData("onlineCourses");
   const [searchQuery, setSearchQuery] = useState("");

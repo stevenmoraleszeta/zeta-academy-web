@@ -15,7 +15,7 @@ import {
 
 const AdminMenu: React.FC = () => {
     //titulo tab
-    document.title = "Menu Admin";
+    document.title = "Menu Admin - ZETA";
     const router = useRouter();
 
     // Función para redirigir a las rutas correspondientes
@@ -33,13 +33,6 @@ const AdminMenu: React.FC = () => {
                     >
                         <AiOutlineUser className={styles.buttonIcon} />
                         <span>Usuarios</span>
-                    </button>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => handleNavigation('/admin/proyectos-estudiantes')}
-                    >
-                        <AiOutlineProject className={styles.buttonIcon} />
-                        <span>Proyectos Estudiantes</span>
                     </button>
                 </div>
             </div>

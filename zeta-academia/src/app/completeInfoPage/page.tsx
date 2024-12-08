@@ -15,7 +15,7 @@ import Head from 'next/head';
 
 export default function CompleteInformation() {
    //titulo
-   document.title = "Completar Información de usuario";
+   document.title = "Información Usuario - ZETA";
    
   const { currentUser, updateCurrentUser } = useAuth();
   const auth = getAuth();
@@ -79,7 +79,7 @@ export default function CompleteInformation() {
           },
           { merge: true }
         );
-        router.push("/cursos-en-linea");
+        router.push("/");
       }
     } catch (err) {
       console.log("Error al actualizar usuario: " + err);

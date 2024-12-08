@@ -10,6 +10,7 @@ import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import { useAuth } from "@/context/AuthContext";
 
 const LiveCourses = () => {
+  document.title="Cursos en Vivo - ZETA"
   const router = useRouter();
   const { data: courses, loading, error } = useFetchData("liveCourses");
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,9 +20,7 @@ const LiveCourses = () => {
   const [priceRange, setPriceRange] = useState(maxPrice);
   const [selectedCategory, setSelectedCategory] = useState("");
   const { user, isAdmin } = useAuth();
-  
-  //titulo tabs
-  document.title="Cursos en Vivo"
+
   useEffect(() => {
     if (courses && courses.length > 0) {
       const activeCourses = courses.filter((course) => !course.archived);

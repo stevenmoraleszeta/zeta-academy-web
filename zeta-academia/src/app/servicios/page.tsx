@@ -6,7 +6,7 @@ import styles from "./services.module.css"
 import Link from "next/link";
 
 export default function Servicios() {
-
+    document.title = "Servicios - ZETA";
     const [aprendeisHovered, setAprendeIsHovered] = useState(false);
     const [cursosVivoHovered, setCursosVivoHovered] = useState(false);
     const [clasesParticularesHovered, setClasesParticularesHovered] = useState(false);
