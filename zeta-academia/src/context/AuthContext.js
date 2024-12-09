@@ -5,7 +5,8 @@ import React, { useContext, useState, useEffect, createContext } from "react";
 import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore"; // Importar funciones de Firestore
-import { db } from "../firebase/firebase"; // Importar la instancia de Firestore
+import { db } from "../firebase/firebase";
+import { useRouter } from "next/navigation";
 
 
 // Crear el contexto de autenticación
@@ -21,15 +22,23 @@ export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [missingInfo, setMissingInfo] = useState(false);
+    const [missingInfo, setMissingInfo] = useState(null); // Inicializa en null para evitar redirecciones prematuras
+    const [isCheckingUser, setIsCheckingUser] = useState(false); // new information checker 
+    const router = useRouter();
 
     // Manejar el cambio de estado de autenticación
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true); // Indica que la aplicación está cargando
             if (user) {
-                checkUserInFirestore(user);
+                setIsCheckingUser(true);
+                await checkUserInFirestore(user);
+                setCurrentUser(user);
+                setIsCheckingUser(false);
+            } else {
+                setCurrentUser(null);
+                setMissingInfo(null); // Reinicia el estado si no hay usuario
             }
-            setCurrentUser(user);
             setLoading(false);
         });
 
@@ -43,46 +52,55 @@ export function AuthProvider({ children }) {
             setCurrentUser(result.user);
             console.log("Usuario autenticado:", result.user);
 
-            checkUserInFirestore(result.user);
+            setIsCheckingUser(true);
+            await checkUserInFirestore(result.user);
+            setIsCheckingUser(false);
         } catch (error) {
             console.error("Error al iniciar sesión con Google:", error);
         }
     };
 
     const checkUserInFirestore = async (user) => {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
+        try {
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
 
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            if (userData.role === "admin") {
-                setIsAdmin(true);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+
+                setIsAdmin(userData.role === "admin");
+                setMissingInfo(
+                    !userData.pais?.trim() || !userData.number?.trim() || !userData.edad?.trim() // makes sure all this data is being store in the DB
+                );
             } else {
+                await setDoc(userDocRef, {
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    role: "student",
+                    pais: "",
+                    number: "",
+                    edad: "",
+                });
                 setIsAdmin(false);
-            }
-            if (!userData.pais || !userData.number || !userData.edad) {
                 setMissingInfo(true);
-            } else {
-                setMissingInfo(false);
+                console.log("Usuario agregado a Firestore");
             }
-
-
-        } else {
-            await setDoc(userDocRef, {
-                displayName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                role: "student",
-                pais: "",
-                number: "",
-                edad: '',
-            });
-            setIsAdmin(false);
-            setMissingInfo(true);
-            console.log("Usuario agregado a Firestore");
-            router.push("/completeInformation");
+        } catch (error) {
+            console.error("Error verificando usuario en Firestore:", error);
         }
     };
+
+    // if loading and is checking user is different from true, will push the user to the complete information page 
+    useEffect(() => {
+        if (!loading && !isCheckingUser) {
+            if (currentUser && missingInfo) {
+                router.push("/completeInfoPage");
+            } else if (currentUser && !missingInfo) {
+                router.push("/");
+            }
+        }
+    }, [currentUser, missingInfo, loading, isCheckingUser, router]);
 
     const value = {
         currentUser,
