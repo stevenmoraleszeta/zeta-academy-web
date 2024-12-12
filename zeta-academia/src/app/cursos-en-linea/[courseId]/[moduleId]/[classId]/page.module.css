@@ -84,20 +84,26 @@
 .videoWrapper {
     position: relative;
     width: 60vw;
-    height: auto; /* Allow height to adapt for the button */
+    height: auto;
+    /* Allow height to adapt for the button */
     overflow: hidden;
     border-radius: 8px;
     background-color: #000;
     display: flex;
-    flex-direction: column; /* Stack iframe and button vertically */
-    align-items: center; /* Center content horizontally */
-    gap: 10px; /* Add space between iframe and button */
+    flex-direction: column;
+    /* Stack iframe and button vertically */
+    align-items: center;
+    /* Center content horizontally */
+    gap: 10px;
+    /* Add space between iframe and button */
 }
 
 /* Video Frame inside the wrapper */
 .videoFrame {
-    width: 100%; /* Take full width of the wrapper */
-    aspect-ratio: 16 / 9; /* Maintain 16:9 aspect ratio */
+    width: 100%;
+    /* Take full width of the wrapper */
+    aspect-ratio: 16 / 9;
+    /* Maintain 16:9 aspect ratio */
     border: none;
     object-fit: cover;
 }
@@ -142,8 +148,10 @@
     padding: 10px 15px;
     font-size: 1rem;
     font-weight: bold;
-    color: var(--text-color); /* Light text color */
-    background-color: var(--color-primary); /* Background color similar to image */
+    color: var(--text-color);
+    /* Light text color */
+    background-color: var(--color-primary);
+    /* Background color similar to image */
     border-radius: 5px;
     text-decoration: none;
     transition: background-color 0.3s ease;
@@ -152,12 +160,14 @@
 
 /* Hover effect for interactive feedback */
 .resourceButton:hover {
-    background-color: var(--color-primary-hover); /* Darker shade for hover */
+    background-color: var(--color-primary-hover);
+    /* Darker shade for hover */
 }
 
 /* Icon styles inside resource button */
 .resourceButtonIcon {
-    font-size: 1.2rem; /* Slightly larger for visual emphasis */
+    font-size: 1.2rem;
+    /* Slightly larger for visual emphasis */
 }
 
 
@@ -198,33 +208,43 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 15px 22px; /* Tamaño del botón */
-    font-size: 1.5rem; /* Texto 50% más grande */
+    padding: 15px 22px;
+    /* Tamaño del botón */
+    font-size: 1.5rem;
+    /* Texto 50% más grande */
     font-weight: bold;
-    color: #ffffff; /* Blanco */
-    background-color: var(--color-secondary); /* Naranja brillante */
+    color: #ffffff;
+    /* Blanco */
+    background-color: var(--color-secondary);
+    /* Naranja brillante */
     border: none;
-    border-radius: 8px; /* Bordes redondeados */
+    border-radius: 8px;
+    /* Bordes redondeados */
     cursor: pointer;
     transition: transform 0.2s ease, background-color 0.3s ease;
     text-decoration: none;
-    width: fit-content; /* Ajusta al contenido */
+    width: fit-content;
+    /* Ajusta al contenido */
 }
 
 /* Efecto hover para el botón */
 .sendProjectButton:hover {
-    background-color: var(--color-secondary-hover); /* Naranja más vivo */
-    transform: scale(1.1); /* Aumentar tamaño al pasar el mouse */
+    background-color: var(--color-secondary-hover);
+    /* Naranja más vivo */
+    transform: scale(1.1);
+    /* Aumentar tamaño al pasar el mouse */
 }
 
 /* Ícono personalizado para Enviar Proyecto */
 .sendProjectIcon {
-    font-size: 2rem; /* Tamaño del ícono */
-    margin-right: 8px; /* Espaciado entre el ícono y el texto */
+    font-size: 2rem;
+    /* Tamaño del ícono */
+    margin-right: 8px;
+    /* Espaciado entre el ícono y el texto */
 }
 
 
-.addButton{
+.addButton {
     margin-top: 10vh;
     width: 100%;
     background-color: transparent;
@@ -239,7 +259,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7); /* Darker background for better focus */
+    background: rgba(0, 0, 0, 0.7);
+    /* Darker background for better focus */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -257,13 +278,21 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    animation: fadeIn 0.3s ease; /* Fade-in animation */
+    animation: fadeIn 0.3s ease;
+    /* Fade-in animation */
 }
 
 /* Fade-in animation for the modal */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Modal Title */
@@ -309,30 +338,35 @@
 /* Modal Actions - Buttons aligned to the left with improved styling */
 .modalActions {
     display: flex;
-    justify-content: flex-end; /* Align buttons to the left */
+    justify-content: flex-end;
+    /* Align buttons to the left */
     margin-top: 20px;
     gap: 10px;
 }
 
 .modalActions button {
-    padding: 10px 15px; /* Adjust padding for a more compact look */
+    padding: 10px 15px;
+    /* Adjust padding for a more compact look */
     font-weight: bold;
     font-size: 1rem;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: fit-content; /* Ensure button width fits content */
+    width: fit-content;
+    /* Ensure button width fits content */
     transition: background-color 0.2s ease;
 }
 
 .modalActions button:first-child {
     background-color: var(--color-primary);
-    color: #ffffff; /* Ensure text color contrasts with primary button color */
+    color: #ffffff;
+    /* Ensure text color contrasts with primary button color */
 }
 
 .modalActions button:last-child {
     background-color: var(--color-secondary);
-    color: #ffffff; /* Ensure text color contrasts with secondary button color */
+    color: #ffffff;
+    /* Ensure text color contrasts with secondary button color */
 }
 
 /* Hover Effects for Modal Buttons */
@@ -382,9 +416,11 @@
     display: flex;
     gap: 15px;
     padding: 0 10vw 0 5vw;
-    background: linear-gradient(to top, var(--color-primary-active),  var(--color-dark), var(--color-black)); /* Updated gradient direction */
+    background: linear-gradient(to top, var(--color-primary-active), var(--color-dark), var(--color-black));
+    /* Updated gradient direction */
     z-index: 100;
     justify-content: center;
+
 }
 
 /* General Button Styles */
@@ -412,12 +448,14 @@
 }
 
 .completeButton {
-    background-color: var(--color-secondary); /* Orange color for "Complete Class" button */
+    background-color: var(--color-secondary);
+    /* Orange color for "Complete Class" button */
 }
 
 /* Style for the completed button */
 .completedButton {
-    background-color: var(--color-primary); /* Change to primary color */
+    background-color: var(--color-primary);
+    /* Change to primary color */
 }
 
 
@@ -428,4 +466,65 @@
 /* Hover Effects */
 .fixedBar button:hover {
     opacity: 0.9;
+}
+
+/* media queries */
+@media (max-width: 768px) {
+
+    /* fixed control bar */
+
+    .fixedBar button {
+        width: 20vw;
+        font-size: clamp(1.5vw, 15px, 2.5vw);
+    }
+
+    .btnIcon {
+        display: none;
+    }
+
+    /* module page */
+
+    .block {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        width: 100%;
+    }
+
+    .videoWrapper {
+        width: 100%;
+        gap: 0px;
+        display: inline;
+    }
+
+    .resourceActions {
+        position: unset;
+        margin: 15px;
+        display: flex;
+        align-self: start;
+    }
+
+    .restartButton {
+        font-size: clamp(2vw, 30px, 3vw);
+    }
+
+    .titleResource {
+        font-size: clamp(4vw, 25px, 5vw);
+    }
+
+    .textResource {
+        font-size: clamp(3vw, 20px, 4vw);
+    }
+
+    .imagePreview,
+    .resourceButton {
+        display: flex;
+        align-self: baseline;
+    }
+
+    .sendProjectButton {
+        font-size: 3vw;
+    }
 }

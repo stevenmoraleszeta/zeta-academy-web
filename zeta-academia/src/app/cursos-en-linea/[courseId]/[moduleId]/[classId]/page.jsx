@@ -699,12 +699,12 @@ const ClassDetail = () => {
           className={styles.syllabusButton}
           onClick={handleBackToSyllabus}
         >
-          <FaBook /> Volver al temario
+          <FaBook className={styles.btnIcon} /> Volver al temario
         </button>
 
         {classesInModule.findIndex((cls) => cls.id === classId) > 0 && (
           <button className={styles.backButton} onClick={handlePreviousClass}>
-            <FaChevronLeft /> Clase anterior
+            <FaChevronLeft className={styles.btnIcon} /> Clase anterior
           </button>
         )}
 
@@ -714,12 +714,12 @@ const ClassDetail = () => {
           onClick={handleCompleteClass}
           disabled={!isPreviousClassCompleted && !isCompleted}
         >
-          <FaCheck /> {isCompleted ? "Clase completada" : "Completar clase"}
+          <FaCheck className={styles.btnIcon} /> {isCompleted ? "Clase completada" : "Completar clase"}
         </button>
         {classesInModule.findIndex((cls) => cls.id === classId) <
           classesInModule.length - 1 && (
             <button className={styles.nextButton} onClick={handleNextClass}>
-              Clase siguiente <FaChevronRight />
+              Clase siguiente <FaChevronRight className={styles.btnIcon} />
             </button>
           )}
       </div>
