@@ -32,7 +32,7 @@
 @media (max-width: 1200px) {
     .btnContainer {
         position: absolute;
-        bottom: 50px;
+        bottom: 100px;
         right: 30px;
         z-index: 10;
     }
