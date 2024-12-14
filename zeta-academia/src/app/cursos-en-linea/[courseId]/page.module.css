@@ -577,7 +577,7 @@
 
   .titleInput {
     width: 100%;
-    font-size: 4vw;
+    font-size: 4.5vw;
 
     margin: 0px;
     padding: 0;
@@ -635,10 +635,10 @@
 
   .originalPriceInput,
   .discountedPriceInput {
-    font-size: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
-    width: 20vw;
+    font-size: 25px;
+    margin-left: 0px;
+    margin-right: 0px;
+    width: 10vw;
     text-align: center;
   }
 
@@ -689,4 +689,42 @@
   .featureTitleInput {
     font-size: 3vw;
   }
+
+  .container {
+    width: 100%;
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 0px;
+    padding-top: 10px;
+    margin: 0px;
+  }
+}
+
+@media (max-width:500px) {
+
+  .descriptionText,
+  .descriptionInput {
+    width: 95vw;
+    font-size: 3.5vw;
+  }
+
+  .originalPriceInput,
+  .discountedPriceInput {
+    font-size: 25px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 10vw;
+    text-align: center;
+  }
+
+  .discountedPrice,
+  .originalPrice {
+    font-size: 30px;
+  }
+
+  .featureDescriptionInput,
+  .featureTitleInput {
+    font-size: 4vw;
+  }
+
 }
