@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
     const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
     const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
-    const PAYPAL_API = 'https://api-m.sandbox.paypal.com'; // Cambia para producción
+    const PAYPAL_API = 'https://api-m.paypal.com'; // Cambia para producción
 
     try {
         // Solicitar un token de acceso
