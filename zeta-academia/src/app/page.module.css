@@ -441,7 +441,7 @@ a.secondary {
   }
 
   .dynamicMsgContainer {
-    height: 7%;
+    height: 40%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -460,19 +460,26 @@ a.secondary {
   }
 
   .mainSection {
-    height: 50vh;
+    height: 35vh;
   }
 
   .benefitsSection {
-    height: 60vh;
+    height: 40vh;
   }
 
   .coursesBtn {
     height: clamp(3vh, 100px, 4vh);
   }
+
+  .pythonIcon {
+    top: -50px;
+    left: 50%;
+    transform: translateX(-65%) rotate(-15deg);
+    transition: transform ease 0.5s;
+  }
 }
 
-@media (max-width: 1200px) {
+@media (min-width: 769px) {
   .dynamicMsgContainer {
     height: 15%;
   }
@@ -509,7 +516,7 @@ a.secondary {
   }
 
   .pythonIcon {
-    top: 0px;
+    top: -30px;
     left: 50%;
     transform: translateX(-65%) rotate(-15deg);
     transition: transform ease 0.5s;
@@ -523,5 +530,12 @@ a.secondary {
     font-size: clamp(2vw, 20px, 3vw);
     width: 30vw;
     height: clamp(3vh, 100px, 4vh);
+  }
+
+  .dynamicMsgContainer {
+    height: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
