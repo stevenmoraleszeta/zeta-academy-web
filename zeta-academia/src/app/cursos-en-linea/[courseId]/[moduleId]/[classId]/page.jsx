@@ -429,41 +429,32 @@ const ClassDetail = () => {
       console.error("El iframe o recurso no existe.");
     }
   };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    router.push(`/cursos-en-linea/${courseId}`);
-  };
-
   const handleCloseAlert = () => {
     setIsAlertOpen(false);
+    router.push(`/cursos-en-linea/${courseId}`);
   }
 
   if (isRestricted) {
     if (!currentUser) {
       return (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>Acceso Restringido</h3>
-            <p>Debes iniciar sesión para ver esta clase.</p>
+        <>
+          <AlertComponent title="Acceso restringido" description="Debes iniciar sesión para acceder a este curso">
             <button
               onClick={() => router.push("/login")}
               className={styles.modalButton}
             >
               Iniciar sesión
             </button>
-            <button onClick={handleCloseModal} className={styles.modalButton}>
+            <button onClick={handleCloseAlert} className={styles.modalButton}>
               Volver al temario
             </button>
-          </div>
-        </div>
+          </AlertComponent>
+        </>
       );
     } else if (!isAdmin && !isEnrolled) {
       return (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>Acceso Restringido</h3>
-            <p>Debe matricularse para ver esta clase.</p>
+        <>
+          <AlertComponent title="Acceso restringido" description="Debes de inscribirte a este curso primero">
             <button
               onClick={() =>
                 router.push(`/payment?courseId=${encodeURIComponent(courseId)}`)
@@ -472,15 +463,14 @@ const ClassDetail = () => {
             >
               Matricularse
             </button>
-            <button onClick={handleCloseModal} className={styles.modalButton}>
+            <button onClick={handleCloseAlert} className={styles.modalButton}>
               Volver al temario
             </button>
-          </div>
-        </div>
+          </AlertComponent>
+        </>
       );
     }
   }
-
 
   if (!Array.isArray(resources)) return <div>Loading...</div>;
 
