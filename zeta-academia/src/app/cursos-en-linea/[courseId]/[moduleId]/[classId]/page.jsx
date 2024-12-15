@@ -445,7 +445,7 @@ const ClassDetail = () => {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h3>Acceso Restringido</h3>
-            <p>Debe iniciar sesión para ver esta clase.</p>
+            <p>Debes iniciar sesión para ver esta clase.</p>
             <button
               onClick={() => router.push("/login")}
               className={styles.modalButton}

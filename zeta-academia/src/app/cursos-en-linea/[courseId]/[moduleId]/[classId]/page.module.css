@@ -296,12 +296,29 @@
 }
 
 /* Modal Title */
+
+.modalContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .modalContent h3 {
     color: var(--color-primary);
     margin-bottom: 10px;
     font-size: 1.5rem;
     font-weight: bold;
-    text-align: left;
+    text-align: center;
+}
+
+.modalContent p {
+    font-weight: bold;
+    text-align: center;
+}
+
+.modalButton {
+    width: 70%;
+    text-align: center;
 }
 
 /* Modal Labels - consistent spacing */
