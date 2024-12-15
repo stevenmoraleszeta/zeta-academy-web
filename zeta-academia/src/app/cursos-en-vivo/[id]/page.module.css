@@ -460,17 +460,17 @@
     border: none;
     outline: none;
 
-    font-size: 2.5vw;
+    font-size: 2.7vw;
     resize: none;
     text-align: center;
   }
 
   .originalPriceInput,
   .discountedPriceInput {
-    font-size: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
-    width: 20vw;
+    font-size: 25px;
+    margin-left: 0px;
+    margin-right: 0px;
+    width: 10vw;
     text-align: center;
   }
 
@@ -520,5 +520,45 @@
   .featureDescriptionInput,
   .featureTitleInput {
     font-size: 3vw;
+  }
+
+  .container {
+    width: 100%;
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 0px;
+    padding-top: 10px;
+    margin: 0px;
+  }
+}
+
+@media (max-width:500px) {
+
+  .titleInput {
+    width: 100%;
+    font-size: 4.5vw;
+
+    margin: 0px;
+    padding: 0;
+    text-align: center;
+  }
+
+  .featureDescriptionInput,
+  .featureTitleInput {
+    font-size: 4vw;
+  }
+
+  .descriptionText,
+  .descriptionInput {
+    width: 95vw;
+    background: transparent;
+    color: var(--color-lighter);
+    border: none;
+    outline: none;
+
+    font-size: 4vw;
+    resize: none;
+    text-align: center;
+    overflow-y: hidden;
   }
 }
