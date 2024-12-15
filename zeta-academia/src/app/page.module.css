@@ -466,6 +466,10 @@ a.secondary {
   .benefitsSection {
     height: 60vh;
   }
+
+  .coursesBtn {
+    height: clamp(3vh, 100px, 4vh);
+  }
 }
 
 @media (max-width: 1200px) {
@@ -518,6 +522,6 @@ a.secondary {
   .coursesBtn {
     font-size: clamp(2vw, 20px, 3vw);
     width: 30vw;
-    height: 7vh;
+    height: clamp(3vh, 100px, 4vh);
   }
 }

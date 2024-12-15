@@ -15,7 +15,7 @@
 
 @media (max-width: 500px) {
     .link {
-        height: 5vh;
+        height: 4vh;
         width: 20vw;
 
         font-size: clamp(2vw, 15px, 3vw);
