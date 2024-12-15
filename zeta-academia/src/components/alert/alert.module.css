@@ -1,9 +1,10 @@
 .modalContainer {
-    position: absolute;
-    top: 30%;
-    left: 37%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 
-    width: clamp(25vw, 400px, 35vw);
+    width: clamp(40vw, 400px, 50vw);
     height: clamp(30vh, 300px, 40vh);
     background-color: #00181D;
     border-radius: 10px;
@@ -16,10 +17,12 @@
     -webkit-box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
     -moz-box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
     box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
+
+    z-index: 1000;
 }
 
 .title {
-    font-size: clamp(1vw, 25px, 1.5vw);
+    font-size: clamp(1.5vw, 25px, 2.2vw);
     font-weight: bold;
     margin-bottom: 0;
 
@@ -28,7 +31,41 @@
 
 .description {
     text-align: center;
-    width: 75%;
-    font-size: clamp(.5vw, 17px, 1vw);
+    width: 80%;
+    font-size: clamp(1vw, 17px, 1.8vw);
     font-weight: bold;
+}
+
+@media (max-width:768px) {
+    .modalContainer {
+        width: 60%;
+    }
+
+    .title {
+        font-size: clamp(2vw, 25px, 3vw);
+    }
+
+    .description {
+        text-align: center;
+        width: 80%;
+        font-size: clamp(1.5vw, 17px, 2vw);
+        font-weight: bold;
+    }
+}
+
+@media (max-width:500px) {
+    .modalContainer {
+        width: 70%;
+    }
+
+    .title {
+        font-size: clamp(3vw, 25px, 4vw);
+    }
+
+    .description {
+        text-align: center;
+        width: 80%;
+        font-size: clamp(2vw, 17px, 3vw);
+        font-weight: bold;
+    }
 }
