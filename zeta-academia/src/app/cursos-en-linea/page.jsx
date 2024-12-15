@@ -27,8 +27,8 @@ const OnlineCourses = () => {
     if (courses && courses.length > 0) {
       const activeCourses = courses.filter((course) => !course.archived);
       const prices = activeCourses.map((course) => course.discountedPrice);
-      const minCoursePrice = Math.floor(Math.min(...prices) / 1000) * 1000;
-      const maxCoursePrice = Math.ceil(Math.max(...prices) / 1000) * 1000;
+      const minCoursePrice = Math.floor(Math.min(...prices) / 10) * 10;
+      const maxCoursePrice = Math.ceil(Math.max(...prices) / 10) * 10;
 
       setMinPrice(minCoursePrice);
       setMaxPrice(maxCoursePrice);
@@ -135,7 +135,7 @@ const OnlineCourses = () => {
               type="range"
               min={minPrice}
               max={maxPrice}
-              step="1000"
+              step="10"
               value={priceRange}
               onChange={handlePriceChange}
               className={styles.slider}
