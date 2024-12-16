@@ -536,7 +536,6 @@ const ClassDetail = () => {
                     className={styles.videoFrame}
                     id={`video-${index}`}
                     allow="autoplay; encrypted-media; fullscreen"
-                    allowfullscreen
                   ></iframe>
                   <button
                     onClick={() => restartVideo(index)}
