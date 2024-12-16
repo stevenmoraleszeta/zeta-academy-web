@@ -96,8 +96,6 @@ export function AuthProvider({ children }) {
         if (!loading && !isCheckingUser) {
             if (currentUser && missingInfo) {
                 router.push("/completeInfoPage");
-            } else if (currentUser && !missingInfo) {
-                router.push("/");
             }
         }
     }, [currentUser, missingInfo, loading, isCheckingUser, router]);
