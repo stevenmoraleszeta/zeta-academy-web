@@ -27,6 +27,8 @@ import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 import styles from "./page.module.css";
 import { title } from "process";
+import { AlertComponent } from "@/components/alert/alert";
+import { AlertButton } from "@/components/alert/alert";
 
 const CourseDetail = ({ params }) => {
   const router = useRouter();
@@ -79,6 +81,7 @@ const CourseDetail = ({ params }) => {
   const [modules, setModules] = useState([]);
   const { currentUser, isAdmin } = useAuth();
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   // Fetch course details
   useEffect(() => {
@@ -91,7 +94,7 @@ const CourseDetail = ({ params }) => {
           ...prevCourse,
           ...fetchedData,
         }));
-      document.title = `${course.title} - ZETA`;
+        document.title = `${course.title} - ZETA`;
       } else {
         console.error("Course not found");
         router.push("/cursos-en-linea");
@@ -365,7 +368,7 @@ const CourseDetail = ({ params }) => {
   const openVideoModal = () => {
     setNewVideoUrl(
       course.videoUrl ||
-        "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
+      "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
     );
     setIsVideoModalOpen(true);
   };
@@ -613,11 +616,11 @@ const CourseDetail = ({ params }) => {
     try {
       const userRef = doc(db, "users", currentUser.uid);
       const userSnap = await getDoc(userRef);
-  
+
       if (userSnap.exists()) {
         const userData = userSnap.data();
         const enrolledCourses = userData.enrolledCourses || [];
-  
+
         if (!enrolledCourses.includes(courseId)) {
           // Redirigir a la página de pago con solo el ID del curso
           const paymentUrl = `/payment?courseId=${encodeURIComponent(courseId)}`;
@@ -631,12 +634,17 @@ const CourseDetail = ({ params }) => {
         router.push(paymentUrl);
       }
     } catch (error) {
+      setIsAlertOpen(true);
       console.error("Error verificando la inscripción del curso:", error);
     }
-  };  
+  };
+
+  const handleGoTologin = function () {
+    window.location.href = '/login'
+  }
 
   return (
-  
+
     <div className={styles.container}>
       {isAdmin ? (
         <input
@@ -691,7 +699,7 @@ const CourseDetail = ({ params }) => {
 
           <div className={styles.priceContainer}>
             <span className={styles.discountedPrice}>
-            $
+              $
               {isAdmin ? (
                 <input
                   type="number"
@@ -708,7 +716,7 @@ const CourseDetail = ({ params }) => {
               )}
             </span>
             <span className={styles.originalPrice}>
-            $
+              $
               {isAdmin ? (
                 <input
                   type="number"
@@ -728,9 +736,8 @@ const CourseDetail = ({ params }) => {
 
           <div className={styles.buttonContainer}>
             <button
-              className={`${styles.enrollButton} ${
-                isEnrolled ? styles.enrolledButton : ""
-              }`}
+              className={`${styles.enrollButton} ${isEnrolled ? styles.enrolledButton : ""
+                }`}
               onClick={handleEnrollClick}
             >
               {isEnrolled ? "Inscrito" : "Inscríbete"}
@@ -867,36 +874,36 @@ const CourseDetail = ({ params }) => {
                 ) : (
                   <span className={styles.moduleTitle}>{module.title}</span>
                 )}
-                  {isAdmin ? (
-                <div className={styles.moduleActions}>
-                  <button
-                    onClick={() => moveModule(moduleIndex, -1)}
-                    disabled={moduleIndex === 0}
-                    className={styles.moveButton}
-                  >
-                    <FaArrowUp />
-                  </button>
-                  <button
-                    onClick={() => moveModule(moduleIndex, 1)}
-                    disabled={moduleIndex === modules.length - 1}
-                    className={styles.moveButton}
-                  >
-                    <FaArrowDown />
-                  </button>
-                  <button
-                    onClick={() => addClass(module.id)}
-                    title="Añadir Clase"
-                  >
-                    <FaPlus />
-                  </button>
-                  <button
-                    onClick={() => deleteModule(module.id)}
-                    title="Eliminar Módulo"
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-                 ) : (
+                {isAdmin ? (
+                  <div className={styles.moduleActions}>
+                    <button
+                      onClick={() => moveModule(moduleIndex, -1)}
+                      disabled={moduleIndex === 0}
+                      className={styles.moveButton}
+                    >
+                      <FaArrowUp />
+                    </button>
+                    <button
+                      onClick={() => moveModule(moduleIndex, 1)}
+                      disabled={moduleIndex === modules.length - 1}
+                      className={styles.moveButton}
+                    >
+                      <FaArrowDown />
+                    </button>
+                    <button
+                      onClick={() => addClass(module.id)}
+                      title="Añadir Clase"
+                    >
+                      <FaPlus />
+                    </button>
+                    <button
+                      onClick={() => deleteModule(module.id)}
+                      title="Eliminar Módulo"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ) : (
                   null
                 )}
               </div>
@@ -906,9 +913,8 @@ const CourseDetail = ({ params }) => {
                   module.classes.map((cls, classIndex) => (
                     <div
                       key={`${module.id}-${cls.id}`}
-                      className={`${styles.class} ${
-                        cls.completed ? styles.completedClass : ""
-                      } ${cls.highlight ? styles.highlightClass : ""}`}
+                      className={`${styles.class} ${cls.completed ? styles.completedClass : ""
+                        } ${cls.highlight ? styles.highlightClass : ""}`}
                       onClick={() => handleClassClick(module.id, cls.id)}
                     >
                       <div className={styles.classCircle}>
@@ -916,56 +922,56 @@ const CourseDetail = ({ params }) => {
                       </div>
                       <span className={styles.classTitle}>{cls.title}</span>
                       {isAdmin ? (
-                      <div className={styles.moduleActions}>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveClass(module.id, classIndex, -1);
-                          }}
-                          disabled={classIndex === 0}
-                          className={styles.moveButton}
-                        >
-                          <FaArrowUp />
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveClass(module.id, classIndex, 1);
-                          }}
-                          disabled={classIndex === module.classes.length - 1}
-                          className={styles.moveButton}
-                        >
-                          <FaArrowDown />
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            toggleClassRestriction(
-                              module.id,
-                              cls.id,
+                        <div className={styles.moduleActions}>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              moveClass(module.id, classIndex, -1);
+                            }}
+                            disabled={classIndex === 0}
+                            className={styles.moveButton}
+                          >
+                            <FaArrowUp />
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              moveClass(module.id, classIndex, 1);
+                            }}
+                            disabled={classIndex === module.classes.length - 1}
+                            className={styles.moveButton}
+                          >
+                            <FaArrowDown />
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleClassRestriction(
+                                module.id,
+                                cls.id,
+                                cls.restricted
+                              );
+                            }}
+                            className={styles.classAction}
+                            title={
                               cls.restricted
-                            );
-                          }}
-                          className={styles.classAction}
-                          title={
-                            cls.restricted
-                              ? "Desbloquear Clase"
-                              : "Bloquear Clase"
-                          }
-                        >
-                          {cls.restricted ? <FaLock /> : <FaLockOpen />}
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            deleteClass(module.id, cls.id);
-                          }}
-                          className={styles.classAction}
-                          title="Eliminar Clase"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
+                                ? "Desbloquear Clase"
+                                : "Bloquear Clase"
+                            }
+                          >
+                            {cls.restricted ? <FaLock /> : <FaLockOpen />}
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              deleteClass(module.id, cls.id);
+                            }}
+                            className={styles.classAction}
+                            title="Eliminar Clase"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
                       ) : (
                         null
                       )}
@@ -981,17 +987,24 @@ const CourseDetail = ({ params }) => {
           <p>No hay módulos disponibles.</p>
         )}
         {isAdmin ? (
-        <button
-          onClick={addModule}
-          className={styles.addModuleButton}
-          title="Añadir Módulo"
-        >
-          Add Module
-        </button>
+          <button
+            onClick={addModule}
+            className={styles.addModuleButton}
+            title="Añadir Módulo"
+          >
+            Add Module
+          </button>
         ) : (
           null
         )}
       </div>
+      {isAlertOpen && (
+        <>
+          <AlertComponent title="Error" description="Debes iniciar sesión para inscribirte en este curso">
+            <AlertButton text="Iniciar sesión" funct={handleGoTologin}></AlertButton>
+          </AlertComponent>
+        </>
+      )}
     </div>
   );
 };
