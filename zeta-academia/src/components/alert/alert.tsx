@@ -10,15 +10,15 @@ interface AlertProps {
 export function AlertComponent(props: AlertProps) {
     const { title, description, children } = props;
     return (
-        <>
-            <div className={styles.modalContainer}>
+        <div className={styles.modalContainer}>
+            <div className={styles.modalContentContainer}>
                 <p className={styles.title}>{title}</p>
                 <p className={styles.description}>{description}</p>
                 <div className={styles.btnsContainer}>
                     {children}
                 </div>
             </div>
-        </>
+        </div>
     )
 };
 

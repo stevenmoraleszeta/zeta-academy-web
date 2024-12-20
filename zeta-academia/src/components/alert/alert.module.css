@@ -1,24 +1,33 @@
 .modalContainer {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 
+}
+
+.modalContentContainer {
     width: clamp(40vw, 400px, 50vw);
     height: clamp(30vh, 300px, 40vh);
     background-color: #00181D;
     border-radius: 10px;
 
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
 
     -webkit-box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
     -moz-box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
     box-shadow: 10px 11px 43px 4px rgba(0, 0, 0, 0.29);
 
-    z-index: 1000;
+    z-index: 10000;
 }
 
 .title {
