@@ -318,7 +318,8 @@
 }
 
 .modalButton {
-    width: 70%;
+    width: 45%;
+    height: 80%;
     text-align: center;
     margin-top: 5px;
     margin-bottom: 5px;

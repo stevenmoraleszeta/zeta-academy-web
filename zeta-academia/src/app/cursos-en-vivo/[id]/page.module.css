@@ -406,14 +406,13 @@
 @media (max-width: 768px) {
 
   /* title */
-
+  .titleText,
   .titleInput {
     width: 100%;
     font-size: 4vw;
 
     margin: 0px;
     padding: 0;
-    text-align: center;
   }
 
   /* video content */
@@ -517,22 +516,33 @@
     justify-content: center;
   }
 
+  .feature {
+    width: 90%;
+  }
+
   .featureDescriptionInput,
   .featureTitleInput {
     font-size: 3vw;
   }
 
   .container {
-    width: 100%;
     border-radius: 10px;
     color: #ffffff;
-    padding: 0px;
+    padding: 15px;
     padding-top: 10px;
     margin: 0px;
   }
 }
 
 @media (max-width:500px) {
+
+  .container {
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 15px;
+    padding-top: 10px;
+    margin: 0px;
+  }
 
   .titleInput {
     width: 100%;

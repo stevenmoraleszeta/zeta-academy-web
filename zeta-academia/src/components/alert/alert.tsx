@@ -14,7 +14,9 @@ export function AlertComponent(props: AlertProps) {
             <div className={styles.modalContainer}>
                 <p className={styles.title}>{title}</p>
                 <p className={styles.description}>{description}</p>
-                {children}
+                <div className={styles.btnsContainer}>
+                    {children}
+                </div>
             </div>
         </>
     )
