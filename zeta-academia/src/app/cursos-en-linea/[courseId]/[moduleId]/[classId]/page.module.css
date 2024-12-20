@@ -225,6 +225,7 @@
     text-decoration: none;
     width: fit-content;
     /* Ajusta al contenido */
+    align-self: left;
 }
 
 /* Efecto hover para el botón */
