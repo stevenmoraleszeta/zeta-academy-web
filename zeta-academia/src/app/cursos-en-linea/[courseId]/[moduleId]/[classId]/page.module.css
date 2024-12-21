@@ -134,10 +134,14 @@
 
 /* Image Preview */
 .imagePreview {
-    width: 100%; /* Asegura que la imagen ocupe el 100% del ancho del contenedor */
-    height: auto; /* Mantiene la proporción de la imagen */
-    max-width: 100%; /* Evita que la imagen exceda el ancho del contenedor */
-    object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor sin recortarse */
+    width: 100%;
+    /* Asegura que la imagen ocupe el 100% del ancho del contenedor */
+    height: auto;
+    /* Mantiene la proporción de la imagen */
+    max-width: 100%;
+    /* Evita que la imagen exceda el ancho del contenedor */
+    object-fit: contain;
+    /* Asegura que la imagen se ajuste dentro del contenedor sin recortarse */
     margin-bottom: 10px;
     border-radius: 5px;
 }
@@ -203,6 +207,25 @@
     color: var(--text-color);
     margin-top: 5px;
     margin-bottom: 5px;
+}
+
+.resourceCode {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    border: 1px solid #3c3c3c;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+    height: 300px;
+    resize: none;
+    line-height: 1.5;
+    overflow: auto;
+}
+
+.resourceCode:focus {
+    outline: 2px solid #007acc;
 }
 
 /* Botón personalizado para Enviar Proyecto */

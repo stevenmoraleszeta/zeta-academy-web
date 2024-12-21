@@ -624,6 +624,11 @@ const ClassDetail = () => {
                   {resource.content || "Enviar Proyecto"}
                 </button>
               )}
+              {resource.type === "code" && (
+                <textarea className={styles.resourceCode} readOnly>
+                  {resource.content}
+                </textarea>
+              )}
             </div>
           ))}
       </div>
@@ -648,7 +653,7 @@ const ClassDetail = () => {
                 <option value="">Select Type</option>
                 <option value="title">Title</option>
                 <option value="text">Text</option>
-                <option value="code"></option>
+                <option value="code">Código</option>
                 <option value="videoUrl">Video URL</option>
                 <option value="imageUrl">Image URL</option>
                 <option value="link">Link</option>
