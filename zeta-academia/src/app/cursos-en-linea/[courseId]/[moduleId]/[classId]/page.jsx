@@ -615,7 +615,7 @@ const ClassDetail = () => {
                 </a>
               )}
               {resource.type === "title" && (
-                <p className={styles.titleResource}>{resource.content}</p>
+                <p className={styles.titleResource} dangerouslySetInnerHTML={{ __html: resource.content }}></p>
               )}
               {resource.type === "text" && (
                 <p className={styles.textResource} dangerouslySetInnerHTML={{ __html: resource.content }}></p>
@@ -630,9 +630,9 @@ const ClassDetail = () => {
                 </button>
               )}
               {resource.type === "code" && (
-                <textarea className={styles.resourceCode} readOnly>
+                <p className={styles.resourceCode}>
                   {resource.content}
-                </textarea>
+                </p>
               )}
             </div>
           ))}
