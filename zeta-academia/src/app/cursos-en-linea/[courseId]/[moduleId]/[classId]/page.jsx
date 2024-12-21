@@ -48,6 +48,10 @@ const ClassDetail = () => {
   const [isRestricted, setIsRestricted] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [newResourceWidth, setNewResourceWidth] = useState("");
+  const [newResourceHeight, setNewResourceHeight] = useState("");
+  const [originalImageWidth, setOriginalImageWidth] = useState(0);
+  const [originalImageHeight, setOriginalImageHeight] = useState(0);
 
   useEffect(() => {
     const fetchClassData = async () => {
@@ -260,7 +264,9 @@ const ClassDetail = () => {
     title = "",
     start = "",
     end = "",
-    index = null
+    index = null,
+    width = "",
+    height = ""
   ) => {
     setNewResourceType(type);
     setNewResourceContent(content);
@@ -268,6 +274,18 @@ const ClassDetail = () => {
     setVideoStart(start);
     setVideoEnd(end);
     setEditingIndex(index);
+    setNewResourceWidth(width);
+    setNewResourceHeight(height);
+
+    if (type === "imageUrl" && content) {
+      const img = new Image();
+      img.src = content;
+      img.onload = () => {
+        setOriginalImageWidth(img.width);
+        setOriginalImageHeight(img.height);
+      };
+    }
+
     setIsModalOpen(true);
   };
 
@@ -282,6 +300,10 @@ const ClassDetail = () => {
   const handleSaveResource = () => {
     const updatedResources = [...resources];
     if (editingIndex !== null) {
+      const newWidth = parseInt(newResourceWidth, 10);
+      const aspectRatio = originalImageHeight / originalImageWidth;
+      const newHeight = Math.round(newWidth * aspectRatio);
+
       updatedResources[editingIndex] = {
         ...updatedResources[editingIndex],
         type: newResourceType,
@@ -289,8 +311,14 @@ const ClassDetail = () => {
         title: newResourceTitle,
         start: videoStart,
         end: videoEnd,
+        width: newWidth,
+        height: newHeight,
       };
     } else {
+      const newWidth = parseInt(newResourceWidth, 10);
+      const aspectRatio = originalImageHeight / originalImageWidth;
+      const newHeight = Math.round(newWidth * aspectRatio);
+
       updatedResources.push({
         type: newResourceType,
         content: newResourceContent,
@@ -298,6 +326,8 @@ const ClassDetail = () => {
         start: videoStart,
         end: videoEnd,
         order: resources.length,
+        width: newWidth,
+        height: newHeight,
       });
     }
 
@@ -505,7 +535,9 @@ const ClassDetail = () => {
                         resource.title || "",
                         resource.start || "",
                         resource.end || "",
-                        index
+                        index,
+                        resource.width || "",
+                        resource.height || ""
                       )
                     }
                     className={styles.icon}
@@ -551,6 +583,7 @@ const ClassDetail = () => {
                     src={resource.content}
                     alt={resource.title || "Image"}
                     className={styles.imagePreview}
+                    style={{ width: resource.width || 'auto', height: resource.height || 'auto' }}
                   />
                 </>
               )}
@@ -662,6 +695,20 @@ const ClassDetail = () => {
                     value={videoEnd}
                     onChange={(e) => setVideoEnd(e.target.value)}
                     className={styles.modalInput}
+                  />
+                </label>
+              </>
+            )}
+            {newResourceType === "imageUrl" && (
+              <>
+                <label>
+                  Ancho de la imagen (px):
+                  <input
+                    type="number"
+                    value={newResourceWidth}
+                    onChange={(e) => setNewResourceWidth(e.target.value)}
+                    className={styles.modalInput}
+                    placeholder="Ancho de la imagen"
                   />
                 </label>
               </>

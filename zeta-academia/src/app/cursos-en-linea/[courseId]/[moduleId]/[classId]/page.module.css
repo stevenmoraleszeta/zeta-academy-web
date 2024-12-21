@@ -134,8 +134,10 @@
 
 /* Image Preview */
 .imagePreview {
-    max-width: 50vw;
-    height: auto;
+    width: 100%; /* Asegura que la imagen ocupe el 100% del ancho del contenedor */
+    height: auto; /* Mantiene la proporción de la imagen */
+    max-width: 100%; /* Evita que la imagen exceda el ancho del contenedor */
+    object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor sin recortarse */
     margin-bottom: 10px;
     border-radius: 5px;
 }
