@@ -714,9 +714,11 @@ const ClassDetail = () => {
               </>
             )}
             <div className={styles.modalActions}>
-              <button onClick={handleSaveResource}>
-                {editingIndex !== null ? "Save Changes" : "Add"}
-              </button>
+              {newResourceType !== "" && (
+                <button onClick={handleSaveResource}>
+                  {editingIndex !== null ? "Save Changes" : "Add"}
+                </button>
+              )}
               <button onClick={closeModal}>Cancel</button>
             </div>
           </div>
