@@ -298,7 +298,12 @@ const ClassDetail = () => {
   };
 
   const handleSaveResource = () => {
+    const processContent = (text) => {
+      return text.replace(/\*(.*?)\*/g, "<b style='font-weight: 900;'>$1</b>");
+    };
+
     const updatedResources = [...resources];
+
     if (editingIndex !== null) {
       const newWidth = parseInt(newResourceWidth, 10);
       const aspectRatio = originalImageHeight / originalImageWidth;
@@ -307,7 +312,7 @@ const ClassDetail = () => {
       updatedResources[editingIndex] = {
         ...updatedResources[editingIndex],
         type: newResourceType,
-        content: newResourceContent,
+        content: processContent(newResourceContent), // Procesar contenido
         title: newResourceTitle,
         start: videoStart,
         end: videoEnd,
@@ -321,7 +326,7 @@ const ClassDetail = () => {
 
       updatedResources.push({
         type: newResourceType,
-        content: newResourceContent,
+        content: processContent(newResourceContent), // Procesar contenido
         title: newResourceTitle,
         start: videoStart,
         end: videoEnd,
@@ -613,7 +618,7 @@ const ClassDetail = () => {
                 <p className={styles.titleResource}>{resource.content}</p>
               )}
               {resource.type === "text" && (
-                <p className={styles.textResource}>{resource.content}</p>
+                <p className={styles.textResource} dangerouslySetInnerHTML={{ __html: resource.content }}></p>
               )}
               {resource.type === "sendProject" && (
                 <button
