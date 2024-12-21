@@ -615,6 +615,7 @@ const ClassDetail = () => {
                 <option value="">Select Type</option>
                 <option value="title">Title</option>
                 <option value="text">Text</option>
+                <option value="code"></option>
                 <option value="videoUrl">Video URL</option>
                 <option value="imageUrl">Image URL</option>
                 <option value="link">Link</option>
