@@ -26,6 +26,7 @@ import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import { AlertButton, AlertComponent } from "@/components/alert/alert";
+import CodeBlock from "@/components/codeBlock/CodeBlock"
 
 const ClassDetail = () => {
   const router = useRouter();
@@ -625,9 +626,7 @@ const ClassDetail = () => {
                 </button>
               )}
               {resource.type === "code" && (
-                <textarea className={styles.resourceCode} readOnly>
-                  {resource.content}
-                </textarea>
+                <CodeBlock code={resource.content} />
               )}
             </div>
           ))}
@@ -643,7 +642,7 @@ const ClassDetail = () => {
             <h3>
               {editingIndex !== null ? "Modify Resource" : "Add New Resource"}
             </h3>
-            <label>
+            <div>
               Select Resource Type:
               <select
                 value={newResourceType}
@@ -653,15 +652,15 @@ const ClassDetail = () => {
                 <option value="">Select Type</option>
                 <option value="title">Title</option>
                 <option value="text">Text</option>
-                <option value="code">Código</option>
+                <option value="code">Code</option>
                 <option value="videoUrl">Video URL</option>
                 <option value="imageUrl">Image URL</option>
                 <option value="link">Link</option>
                 <option value="pdfUrl">PDF URL</option>
                 <option value="sendProject">Send Project</option>
               </select>
-            </label>
-            <label>
+            </div>
+            <div>
               Enter Content:
               <textarea
                 type="text"
@@ -670,7 +669,7 @@ const ClassDetail = () => {
                 className={styles.modalInput}
                 placeholder="Enter content"
               />
-            </label>
+            </div>
             {(newResourceType === "link" || newResourceType === "pdfUrl") && (
               <label>
                 Enter Title:

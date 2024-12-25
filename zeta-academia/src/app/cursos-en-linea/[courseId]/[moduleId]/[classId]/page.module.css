@@ -298,7 +298,7 @@
     background: var(--color-dark-hover);
     padding: 30px;
     border-radius: 12px;
-    max-width: 450px;
+    max-width: 650px;
     width: 100%;
     color: var(--text-color);
     display: flex;
@@ -351,7 +351,8 @@
 }
 
 /* Modal Labels - consistent spacing */
-.modalContent label {
+.modalContent div {
+    width: 100%;
     font-size: 1rem;
     color: var(--color-light-active);
     font-weight: bold;
