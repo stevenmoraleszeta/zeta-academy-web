@@ -308,6 +308,27 @@
     /* Fade-in animation */
 }
 
+.textEditorButtons {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.styleButton {
+    background-color: var(--color-primary);
+    color: var(--text-color);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.styleButton:hover {
+    background-color: var(--color-primary-active);
+}
+
+
 /* Fade-in animation for the modal */
 @keyframes fadeIn {
     from {
@@ -402,6 +423,7 @@
     width: fit-content;
     /* Ensure button width fits content */
     transition: background-color 0.2s ease;
+    margin-right: 10px;
 }
 
 .modalActions button:first-child {

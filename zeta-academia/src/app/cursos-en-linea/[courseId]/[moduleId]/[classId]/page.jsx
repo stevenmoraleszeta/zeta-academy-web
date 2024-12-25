@@ -53,6 +53,8 @@ const ClassDetail = () => {
   const [newResourceHeight, setNewResourceHeight] = useState("");
   const [originalImageWidth, setOriginalImageWidth] = useState(0);
   const [originalImageHeight, setOriginalImageHeight] = useState(0);
+  const [history, setHistory] = useState([""]);
+  const [historyIndex, setHistoryIndex] = useState(0);
 
   useEffect(() => {
     const fetchClassData = async () => {
@@ -269,6 +271,10 @@ const ClassDetail = () => {
     width = "",
     height = ""
   ) => {
+    // Limpia el historial de cambios al abrir el modal
+    setHistory([content || ""]);
+    setHistoryIndex(0);
+
     setNewResourceType(type);
     setNewResourceContent(content);
     setNewResourceTitle(title || "");
@@ -465,6 +471,49 @@ const ClassDetail = () => {
     router.push(`/cursos-en-linea/${courseId}`);
   }
 
+  const applyStyleToText = (style) => {
+    if (newResourceType !== "text") return;
+
+    const textarea = document.querySelector(`.${styles.modalInput}`);
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    let updatedContent = newResourceContent;
+
+    // Extrae las partes del texto seleccionadas y no seleccionadas
+    const before = updatedContent.substring(0, selectionStart);
+    const selected = updatedContent.substring(selectionStart, selectionEnd);
+    const after = updatedContent.substring(selectionEnd);
+
+    switch (style) {
+      case "bold":
+        updatedContent = `${before}*${selected}*${after}`;
+        break;
+      case "bullet":
+        // Agrega `-` a cada línea seleccionada
+        updatedContent = `${before}${selected
+          .split("\n")
+          .map((line) => (line.startsWith("- ") ? line : `- ${line}`))
+          .join("\n")}${after}`;
+        break;
+      case "delimitedList":
+        // Envuelve el bloque seleccionado con `+`
+        updatedContent = `${before}+\n${selected
+          .split("\n")
+          .map((line) => (line.startsWith("- ") ? line : `- ${line}`))
+          .join("\n")}\n+${after}`;
+        break;
+      default:
+        break;
+    }
+
+    setNewResourceContent(updatedContent);
+
+    // Vuelve a enfocar el área de texto y coloca el cursor después de la selección
+    textarea.focus();
+    textarea.setSelectionRange(selectionStart, selectionStart + selected.length);
+  };
+
   if (isRestricted) {
     if (!currentUser) {
       return (
@@ -504,6 +553,54 @@ const ClassDetail = () => {
   }
 
   if (!Array.isArray(resources)) return <div>Loading...</div>;
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === "z") {
+          e.preventDefault();
+          handleUndo();
+        } else if (e.key === "y") {
+          e.preventDefault();
+          handleRedo();
+        }
+      }
+    };
+
+    if (isModalOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isModalOpen, historyIndex, history]);
+
+
+  const handleContentChange = (value) => {
+    if (value !== history[historyIndex]) {
+      const updatedHistory = history.slice(0, historyIndex + 1); // Elimina estados futuros
+      setHistory([...updatedHistory, value]); // Agrega el nuevo estado al historial
+      setHistoryIndex(updatedHistory.length); // Actualiza el índice
+    }
+    setNewResourceContent(value); // Actualiza el contenido actual
+  };
+
+  const handleUndo = () => {
+    if (historyIndex >= 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex); // Retrocede en el historial
+      setNewResourceContent(history[newIndex]); // Actualiza el contenido al estado anterior
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex); // Avanza en el historial
+      setNewResourceContent(history[newIndex]); // Actualiza el contenido al siguiente estado
+    }
+  };
 
   return (
     <div className={styles.classDetailContainer}>
@@ -610,12 +707,27 @@ const ClassDetail = () => {
                   {resource.title || "Unnamed PDF"}
                 </a>
               )}
-              {resource.type === "title" && (
-                <p className={styles.titleResource}>{resource.content}</p>
-              )}
               {resource.type === "text" && (
-                <p className={styles.textResource}>{resource.content}</p>
+                <div
+                  className={styles.textResource}
+                  dangerouslySetInnerHTML={{
+                    __html: resource.content
+                      .replace(/^\s+/gm, (match) => "&nbsp;".repeat(match.length)) // Convierte espacios iniciales en &nbsp;
+                      .replace(/\+([\s\S]*?)\+/g, (match, p1) => {
+                        // Convierte bloques entre + en una lista
+                        const items = p1
+                          .split("\n")
+                          .filter((line) => line.trim().startsWith("-")) // Solo líneas que inician con -
+                          .map((line) => `<li>${line.trim().substring(1).trim()}</li>`) // Convierte en <li>
+                          .join("");
+                        return `<ul>${items}</ul>`;
+                      })
+                      .replace(/\n/g, "<br>") // Convierte otros saltos de línea en <br>
+                      .replace(/\*(.*?)\*/g, "<b>$1</b>"), // Convierte *texto* en <b>texto</b>
+                  }}
+                />
               )}
+
               {resource.type === "sendProject" && (
                 <button
                   className={styles.sendProjectButton}
@@ -660,28 +772,41 @@ const ClassDetail = () => {
                 <option value="sendProject">Send Project</option>
               </select>
             </div>
+
+            {/* Solo muestra los botones si el tipo es texto */}
+            {newResourceType === "text" && (
+              <div className={styles.textEditorButtons}>
+                <button
+                  onClick={() => applyStyleToText("bold")}
+                  className={styles.styleButton}
+                >
+                  Negrita
+                </button>
+                <button
+                  onClick={() => applyStyleToText("bullet")}
+                  className={styles.styleButton}
+                >
+                  Añadir a Lista
+                </button>
+                <button
+                  onClick={() => applyStyleToText("delimitedList")}
+                  className={styles.styleButton}
+                >
+                  Nueva Lista
+                </button>
+              </div>
+            )}
+
             <div>
               Enter Content:
               <textarea
                 type="text"
                 value={newResourceContent}
-                onChange={(e) => setNewResourceContent(e.target.value)}
+                onChange={(e) => handleContentChange(e.target.value)}
                 className={styles.modalInput}
                 placeholder="Enter content"
               />
             </div>
-            {(newResourceType === "link" || newResourceType === "pdfUrl") && (
-              <label>
-                Enter Title:
-                <input
-                  type="text"
-                  value={newResourceTitle}
-                  onChange={(e) => setNewResourceTitle(e.target.value)}
-                  className={styles.modalInput}
-                  placeholder="Enter title for the resource"
-                />
-              </label>
-            )}
             {newResourceType === "videoUrl" && (
               <>
                 <label>
@@ -729,6 +854,7 @@ const ClassDetail = () => {
           </div>
         </div>
       )}
+
 
       {isAlertOpen && (
         <>
