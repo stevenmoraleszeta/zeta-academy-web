@@ -5,6 +5,7 @@
     padding: 20px;
     border-radius: 10px;
     color: #ffffff;
+    text-align: center;
 }
 
 
@@ -20,6 +21,7 @@
     font-size: 2rem;
     padding: 0;
     margin: 10px 0 7px 0;
+    text-align: center;
 }
 
 .titleInput:focus {
@@ -33,12 +35,14 @@
 /* Block Container */
 .elementsContainer {
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .block {
     position: relative;
     padding: 5px;
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .resourceActions {
@@ -80,30 +84,24 @@
     resize: vertical;
 }
 
-/* Video Wrapper - 16:9 aspect ratio, button below the iframe */
 .videoWrapper {
     position: relative;
     width: 60vw;
     height: auto;
-    /* Allow height to adapt for the button */
     overflow: hidden;
     border-radius: 8px;
     background-color: #000;
     display: flex;
     flex-direction: column;
-    /* Stack iframe and button vertically */
     align-items: center;
-    /* Center content horizontally */
     gap: 10px;
-    /* Add space between iframe and button */
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Video Frame inside the wrapper */
 .videoFrame {
     width: 100%;
-    /* Take full width of the wrapper */
     aspect-ratio: 16 / 9;
-    /* Maintain 16:9 aspect ratio */
     border: none;
     object-fit: cover;
 }
@@ -111,7 +109,7 @@
 /* Restart Button below the iframe */
 .restartButton {
     padding: 10px 20px;
-    font-size: 1.2rem;
+    font-size: 0.8rem;
     font-weight: bold;
     color: #ffffff;
     background-color: var(--color-secondary);
@@ -127,7 +125,7 @@
 /* Button hover effect */
 .restartButton:hover {
     background-color: var(--color-secondary-hover);
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 
@@ -144,6 +142,9 @@
     /* Asegura que la imagen se ajuste dentro del contenedor sin recortarse */
     margin-bottom: 10px;
     border-radius: 5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* General styling for link and PDF resource blocks */
@@ -162,6 +163,9 @@
     text-decoration: none;
     transition: background-color 0.3s ease;
     width: fit-content;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Hover effect for interactive feedback */
@@ -186,10 +190,10 @@
     outline: none;
     padding: 0;
     resize: none;
-    text-align: left;
     font-size: 1.6vw;
     font-weight: bold;
     margin-bottom: 0;
+    text-align: center;
 }
 
 /* Text Resource */
@@ -201,7 +205,7 @@
     outline: none;
     padding: 0;
     resize: none;
-    text-align: left;
+    text-align: center;
     font-size: 1.1vw;
     line-height: 1.2;
     color: var(--text-color);

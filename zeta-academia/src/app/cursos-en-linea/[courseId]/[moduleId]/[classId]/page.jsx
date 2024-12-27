@@ -654,6 +654,13 @@ const ClassDetail = () => {
                   />
                 </div>
               ) : null}
+
+              {resource.type === "title" && (
+                <h2 className={styles.titleResource}>
+                  {resource.content || "Untitled"}
+                </h2>
+              )}
+
               {resource.type === "videoUrl" && (
                 <div className={styles.videoWrapper}>
                   <iframe
@@ -773,32 +780,28 @@ const ClassDetail = () => {
               </select>
             </div>
 
-            {/* Solo muestra los botones si el tipo es texto */}
-            {newResourceType === "text" && (
-              <div className={styles.textEditorButtons}>
-                <button
-                  onClick={() => applyStyleToText("bold")}
-                  className={styles.styleButton}
-                >
-                  Negrita
-                </button>
-                <button
-                  onClick={() => applyStyleToText("bullet")}
-                  className={styles.styleButton}
-                >
-                  Añadir a Lista
-                </button>
-                <button
-                  onClick={() => applyStyleToText("delimitedList")}
-                  className={styles.styleButton}
-                >
-                  Nueva Lista
-                </button>
+            {(newResourceType === "link" || newResourceType === "pdfUrl") && (
+              <div>
+                Enter Title:
+                <input
+                  type="text"
+                  value={newResourceTitle}
+                  onChange={(e) => setNewResourceTitle(e.target.value)}
+                  className={styles.modalInput}
+                  placeholder="Enter title"
+                />
               </div>
             )}
 
             <div>
               Enter Content:
+              {newResourceType === "text" && (
+                <div className={styles.textEditorButtons}>
+                  <button onClick={() => applyStyleToText("bold")} className={styles.styleButton}>Bold</button>
+                  <button onClick={() => applyStyleToText("bullet")} className={styles.styleButton}>Bullet List</button>
+                  <button onClick={() => applyStyleToText("delimitedList")} className={styles.styleButton}>Delimited List</button>
+                </div>
+              )}
               <textarea
                 type="text"
                 value={newResourceContent}
@@ -807,6 +810,7 @@ const ClassDetail = () => {
                 placeholder="Enter content"
               />
             </div>
+
             {newResourceType === "videoUrl" && (
               <>
                 <label>
