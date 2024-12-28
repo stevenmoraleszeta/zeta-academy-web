@@ -678,7 +678,7 @@ const ClassDetail = () => {
                     onClick={() => restartVideo(index)}
                     className={styles.restartButton}
                   >
-                    Reiniciar Video
+                    Reiniciar video
                   </button>
                 </div>
               )}

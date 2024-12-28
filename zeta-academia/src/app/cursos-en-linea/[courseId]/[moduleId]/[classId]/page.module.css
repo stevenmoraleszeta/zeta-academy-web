@@ -86,7 +86,7 @@
 
 .videoWrapper {
     position: relative;
-    width: 60vw;
+    width: 50vw;
     height: auto;
     overflow: hidden;
     border-radius: 8px;
@@ -198,7 +198,7 @@
 
 /* Text Resource */
 .textResource {
-    width: 100%;
+    width: 80%;
     background: transparent;
     color: var(--color-light-active);
     border: none;
@@ -211,6 +211,7 @@
     color: var(--text-color);
     margin-top: 5px;
     margin-bottom: 5px;
+    justify-self: center;
 }
 
 .resourceCode {
@@ -540,6 +541,7 @@
 .fixedBar button:hover {
     opacity: 0.9;
 }
+
 
 /* media queries */
 @media (max-width: 768px) {

@@ -16,7 +16,11 @@ const CodeBlock = ({ code, language = "python", theme = "vscDarkPlus" }) => {
 
     return (
         <div style={{ margin: "1em 0" }}>
-            <SyntaxHighlighter language={language} style={selectedStyle}>
+            <SyntaxHighlighter 
+                language={language} 
+                style={selectedStyle} 
+                codeTagProps={{ style: { fontSize: "1.3em" } }}
+            >
                 {code}
             </SyntaxHighlighter>
         </div>
