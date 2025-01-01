@@ -30,6 +30,34 @@ import { title } from "process";
 import { AlertComponent } from "@/components/alert/alert";
 import { AlertButton } from "@/components/alert/alert";
 
+// Define default features
+const defaultFeatures = [
+  {
+    iconUrl:
+      "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de",
+    title: "Curso asincrónico",
+    description: "Aprende cualquier día y hora.",
+  },
+  {
+    iconUrl:
+      "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
+    title: "Aprendizaje práctico",
+    description: "Aprende con problemas reales.",
+  },
+  {
+    iconUrl:
+      "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
+    title: "Atención personalizada",
+    description: "Consulta al mentor en cualquier momento.",
+  },
+  {
+    iconUrl:
+      "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6",
+    title: "Certificado de finalización",
+    description: "Incrementa tu conocimiento.",
+  },
+];
+
 const CourseDetail = ({ params }) => {
   const router = useRouter();
   const courseId = params.courseId;
@@ -54,15 +82,15 @@ const CourseDetail = ({ params }) => {
       },
       {
         iconUrl:
-          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
-        title: "Atención personalizada",
-        description: "Consulta al mentor en cualquier momento.",
-      },
-      {
-        iconUrl:
           "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
         title: "Aprendizaje práctico",
         description: "Aprende con problemas reales.",
+      },
+      {
+        iconUrl:
+          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
+        title: "Atención personalizada",
+        description: "Consulta al mentor en cualquier momento.",
       },
       {
         iconUrl:
@@ -88,13 +116,21 @@ const CourseDetail = ({ params }) => {
     const fetchCourse = async () => {
       const docRef = doc(db, "onlineCourses", courseId);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         const fetchedData = docSnap.data();
+
+        // Initialize features with default if empty
+        if (!fetchedData.features || fetchedData.features.length === 0) {
+          fetchedData.features = defaultFeatures;
+          await updateDoc(docRef, { features: defaultFeatures }); // Update Firestore
+        }
+
         setCourse((prevCourse) => ({
           ...prevCourse,
           ...fetchedData,
         }));
-        document.title = `${course.title} - ZETA`;
+        document.title = `${fetchedData.title || "Curso"} - ZETA`;
       } else {
         console.error("Course not found");
         router.push("/cursos-en-linea");
@@ -758,7 +794,7 @@ const CourseDetail = ({ params }) => {
       </div>
 
       <div className={styles.features}>
-        {(course.features || []).map((feature, index) => (
+        {(course.features || defaultFeatures).map((feature, index) => (
           <div key={index} className={styles.feature}>
             <img
               src={feature.iconUrl}
