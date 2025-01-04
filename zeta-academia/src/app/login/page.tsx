@@ -8,8 +8,10 @@ import Image from "next/image";
 import styles from "./login.module.css";
 
 function Login() {
-    const { loginWithGoogle, currentUser, missingInfo, loading, isCheckingUser } = useAuth();
+    const { loginWithGoogle,currentUser, missingInfo, loading, isCheckingUser } = useAuth();
     const router = useRouter();
+   
+
 
     useEffect(() => {
         if (!loading && !isCheckingUser) {
@@ -20,6 +22,11 @@ function Login() {
             }
         }
     }, [currentUser, missingInfo, loading, isCheckingUser, router]);
+
+     // Función para redirigir al componente de "user-password"
+     const handleUserPasswordLogin = () => {
+        router.push("/user-password"); // Cambia la ruta a la del componente deseado
+    };
 
     return (
         <section>
@@ -35,6 +42,10 @@ function Login() {
                         <button className={styles.googleBtn} onClick={loginWithGoogle}>
                             <Image alt="googleLogo" width={500} height={500} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FgoogleLogo.jpg?alt=media&token=0acdd2e2-fbcc-4607-ba96-248c94250906'} className={styles.googleBtnLogo}></Image>
                             <span>Continuar con Google</span>
+                        </button>
+                        <button className={styles.googleBtn} onClick={handleUserPasswordLogin}>
+                            <Image alt="googleLogo" width={500} height={500} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZETA%20White%20Color.png?alt=media&token=b2fce474-4bf7-4815-a9cc-03e939ffeea1'} className={styles.googleBtnLogo}></Image>
+                            <span>Continuar con Usuario y Contraseña</span>
                         </button>
                     </div>
                 </div>
