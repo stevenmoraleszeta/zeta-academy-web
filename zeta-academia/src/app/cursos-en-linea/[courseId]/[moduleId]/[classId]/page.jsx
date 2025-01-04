@@ -881,7 +881,7 @@ const ClassDetail = () => {
           className={styles.syllabusButton}
           onClick={handleConsultMentor}
         >
-          <FaBook className={styles.btnIcon} /> Consultar mentor
+          <FaWhatsapp className={styles.btnIcon} /> Consultar mentor
         </button>
         <button
           className={styles.syllabusButton}
