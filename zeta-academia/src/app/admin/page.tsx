@@ -34,6 +34,13 @@ const AdminMenu: React.FC = () => {
                         <AiOutlineUser className={styles.buttonIcon} />
                         <span>Usuarios</span>
                     </button>
+                    <button
+                        className={styles.adminButton}
+                        onClick={() => handleNavigation('/admin/students')}
+                    >
+                        <AiOutlineRead className={styles.buttonIcon} />
+                        <span>Estudiantes</span>
+                    </button>
                 </div>
             </div>
         </RequireAuth>
