@@ -239,6 +239,10 @@
   background-color: var(--color-primary-hover);
 }
 
+.enrolledPrice {
+  display: none;
+}
+
 
 /* Styles for the circular icon button */
 .iconWrapper {
