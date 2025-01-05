@@ -36,7 +36,7 @@ const AdminUsers: React.FC = () => {
                     collectionName="users"
                     displayFields={displayFields}
                     editFields={editFields}
-                    pageTitle='Gestión de Usuarios'
+                    pageTitle='Gestión de Estudiantes'
                     filterFunction={filterFunction} // Pass the filter function here
                 />
             </div>
