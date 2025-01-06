@@ -200,8 +200,30 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                     prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
                 );
             } else {
+                // Crear el documento en la colección de usuarios
                 const docRef = await addDoc(collection(db, collectionName), selectedItem);
                 const newItem = { ...selectedItem, id: docRef.id };
+
+                // Crear el documento en la colección de estudiantes
+                const estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
+                    userId: docRef.id,
+                    createdAt: new Date(),
+                    nombreCompleto: selectedItem.displayName || "",
+                    edad: selectedItem.edad || "",
+                    number: selectedItem.number || "",
+                    email: selectedItem.email || "",
+                    curso: "",
+                    ocupacion: "",
+                    estiloAprendizaje: "",
+                    Intereses: "",
+                    nivelInicial: "",
+                    objetivosIndividuales: "",
+                });
+
+                // Actualizar el documento del usuario con el ID del estudiante
+                await updateDoc(docRef, {
+                    estudianteId: estudianteDocRef.id,
+                });
                 setData((prevData) => [...prevData, newItem]);
                 setFilteredData((prevData) => [...prevData, newItem]);
             }
