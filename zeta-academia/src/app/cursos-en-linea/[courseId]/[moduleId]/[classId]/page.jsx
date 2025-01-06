@@ -879,12 +879,6 @@ const ClassDetail = () => {
       <div className={styles.fixedBar}>
         <button
           className={styles.syllabusButton}
-          onClick={handleConsultMentor}
-        >
-          <FaWhatsapp className={styles.btnIcon} /> Consultar mentor
-        </button>
-        <button
-          className={styles.syllabusButton}
           onClick={handleBackToSyllabus}
         >
           <FaBook className={styles.btnIcon} /> Volver al temario
@@ -910,6 +904,12 @@ const ClassDetail = () => {
               Clase siguiente <FaChevronRight className={styles.btnIcon} />
             </button>
           )}
+        <button
+          className={styles.syllabusButton}
+          onClick={handleConsultMentor}
+        >
+          <FaWhatsapp className={styles.btnIcon} /> Consultar mentor
+        </button>
       </div>
     </div>
   );
