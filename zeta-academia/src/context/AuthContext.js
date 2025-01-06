@@ -77,12 +77,16 @@ export function AuthProvider({ children }) {
                 const estudianteDocRef = await addDoc(collection(db, "students"), {
                     userId: user.uid,
                     createdAt: new Date(),
-                    email: user.email,
-                    photoURL: user.photoURL,
-                    role: "student",
-                    pais: "",
-                    number: "",
+                    nombreCompleto: "",
                     edad: "",
+                    number: "",
+                    email: "",
+                    curso: "",
+                    ocupacion: "",
+                    estiloAprendizaje: "",
+                    Intereses: "",
+                    nivelInicial: "",
+                    objetivosIndividuales: "",
                 });
 
                 await setDoc(userDocRef, {
