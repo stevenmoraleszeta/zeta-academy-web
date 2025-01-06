@@ -4,7 +4,7 @@
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore"; // Importar funciones de Firestore
+import { doc, getDoc, setDoc, addDoc } from "firebase/firestore"; // Importar funciones de Firestore
 import { db } from "../firebase/firebase";
 import { useRouter } from "next/navigation";
 
@@ -73,6 +73,18 @@ export function AuthProvider({ children }) {
                     !userData.pais?.trim() || !userData.number?.trim() || !userData.edad?.trim() // makes sure all this data is being store in the DB
                 );
             } else {
+
+                const estudianteDocRef = await addDoc(collection(db, "students"), {
+                    userId: user.uid,
+                    createdAt: new Date(),
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    role: "student",
+                    pais: "",
+                    number: "",
+                    edad: "",
+                });
+
                 await setDoc(userDocRef, {
                     displayName: user.displayName,
                     email: user.email,
@@ -81,6 +93,7 @@ export function AuthProvider({ children }) {
                     pais: "",
                     number: "",
                     edad: "",
+                    estudianteId: estudianteDocRef.id,
                 });
                 setIsAdmin(false);
                 setMissingInfo(true);
