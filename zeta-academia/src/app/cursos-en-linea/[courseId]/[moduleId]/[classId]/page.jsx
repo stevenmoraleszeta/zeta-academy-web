@@ -413,6 +413,15 @@ const ClassDetail = () => {
     router.push(`/cursos-en-linea/${courseId}`);
   };
 
+  const handleConsultMentor = () => {
+    const message = encodeURIComponent(
+      `Hola, tengo una pregunta sobre la clase "${classTitle}" del curso "${courseName}".`
+    );
+    const phone = "+50661304830";
+    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+    window.open(whatsappUrl, "_blank");
+  }
+
   const handlePreviousClass = () => {
     const currentClassIndex = classesInModule.findIndex(
       (cls) => cls.id === classId
@@ -868,6 +877,12 @@ const ClassDetail = () => {
         </>
       )}
       <div className={styles.fixedBar}>
+        <button
+          className={styles.syllabusButton}
+          onClick={handleConsultMentor}
+        >
+          <FaWhatsapp className={styles.btnIcon} /> Consultar mentor
+        </button>
         <button
           className={styles.syllabusButton}
           onClick={handleBackToSyllabus}

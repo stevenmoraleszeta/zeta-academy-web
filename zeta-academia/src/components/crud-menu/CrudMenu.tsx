@@ -8,7 +8,8 @@ import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
-import { FaTrash, FaClone } from 'react-icons/fa';
+import { FaTrash, FaClone, FaEdit } from 'react-icons/fa';
+import { useRouter, usePathname } from 'next/navigation';
 
 
 
@@ -19,9 +20,10 @@ interface CrudMenuProps {
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;
+    filterFunction?: (item: any) => boolean; // Add filterFunction prop
 }
 
-const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [] }) => {
+const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [], filterFunction }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -35,11 +37,19 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<any | null>(null);
 
+    const pathname = usePathname();
+    const isStudentPage = pathname === '/admin/students';
+
     useEffect(() => {
         setData(fetchedData);
-        setFilteredData(fetchedData);
+        const filtered = filterFunction ? fetchedData.filter(filterFunction) : fetchedData;
+        setFilteredData(filtered);
         initializeSelectOptions();
-    }, [fetchedData, editFields]);
+    }, [fetchedData, editFields, filterFunction]);
+
+    const handleGoToFicha = (item: any) => {
+        console.log(`Navigating to ficha of ${item.displayName}`);
+    };
 
     const initializeSelectOptions = () => {
         const options: { [key: string]: any[] } = {};
@@ -55,12 +65,14 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
 
-        const filtered = data.filter(item =>
-            displayFields.some(({ field }) => {
+        const filtered = data.filter(item => {
+            const matchesSearch = displayFields.some(({ field }) => {
                 const value = item[field]?.toString().toLowerCase() || '';
                 return value.includes(term);
-            })
-        );
+            });
+            const matchesRole = !isStudentPage || item.role === 'student';
+            return matchesSearch && matchesRole;
+        });
 
         setFilteredData(filtered);
     };
@@ -286,6 +298,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 >
                                     <FaTrash size={20} />
                                 </button>
+                                {item.role === 'student' && (
+                                    <button onClick={() => handleGoToFicha(item)} className={styles.iconButton}><FaEdit size={20} /></button>
+                                )}
                             </div>
                         </div>
                     ))
@@ -359,14 +374,14 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                             </div>
                         ))}
                         <div className={styles.modalButtons}>
-                        <button
-                            onClick={handleSave}
-                            disabled={isUploadingImage}
-                            className={`${isUploadingImage ? styles.disabledButton : ''}`}
-                        >
-                            {isEditMode ? "Actualizar" : "Guardar"}
-                        </button>
-                        <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isUploadingImage}
+                                className={`${isUploadingImage ? styles.disabledButton : ''}`}
+                            >
+                                {isEditMode ? "Actualizar" : "Guardar"}
+                            </button>
+                            <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
                         </div>
                     </div>
                 </div>
