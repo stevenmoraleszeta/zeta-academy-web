@@ -41,11 +41,11 @@ function Login() {
                         </div>
                         <button className={styles.googleBtn} onClick={loginWithGoogle}>
                             <Image alt="googleLogo" width={500} height={500} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FgoogleLogo.jpg?alt=media&token=0acdd2e2-fbcc-4607-ba96-248c94250906'} className={styles.googleBtnLogo}></Image>
-                            <span>Continuar con Google</span>
+                            <span >Continuar con Google</span>
                         </button>
                         <button className={styles.googleBtn} onClick={handleUserPasswordLogin}>
                             <Image alt="googleLogo" width={500} height={500} src={'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZETA%20White%20Color.png?alt=media&token=b2fce474-4bf7-4815-a9cc-03e939ffeea1'} className={styles.googleBtnLogo}></Image>
-                            <span>Continuar con Usuario y Contraseña</span>
+                            <span className={styles.textLogin} >Continuar con Usuario y Contraseña</span>
                         </button>
                     </div>
                 </div>
