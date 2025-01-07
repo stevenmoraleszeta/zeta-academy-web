@@ -1,8 +1,7 @@
-// File: src/app/hooks/useFetchData.js
 "use client";
 
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 
 const useFetchData = (collectionName) => {
@@ -16,9 +15,16 @@ const useFetchData = (collectionName) => {
             setError(null);
             try {
                 const querySnapshot = await getDocs(collection(db, collectionName));
-                const dataList = querySnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
+                const dataList = await Promise.all(querySnapshot.docs.map(async (document) => {
+                    const item = { id: document.id, ...document.data() };
+                    if (item.userId) {
+                        const userDocRef = doc(db, 'users', item.userId);
+                        const userDoc = await getDoc(userDocRef);
+                        if (userDoc.exists()) {
+                            item.username = userDoc.data().displayName;
+                        }
+                    }
+                    return item;
                 }));
                 setData(dataList);
             } catch (error) {
@@ -31,7 +37,7 @@ const useFetchData = (collectionName) => {
         fetchData();
     }, [collectionName]);
 
-    return { data: Array.isArray(data) ? data : [], loading, error };
+    return { data, loading, error };
 };
 
 export default useFetchData;

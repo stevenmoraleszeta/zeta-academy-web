@@ -12,6 +12,7 @@ const AdminUsers: React.FC = () => {
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
         { label: 'Rol', field: 'role' },
+        { label: 'Nombre de Usuario', field: 'username' },
     ];
 
     // Fields to display and edit in the modal
@@ -19,14 +20,12 @@ const AdminUsers: React.FC = () => {
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
         { label: 'Edad', field: 'edad', type: 'number' },
+        { label: 'Nombre de Usuario', field: 'username' },
         {
             label: 'País',
             field: 'pais',
         },
     ];
-
-    // Function to filter users by role
-
 
     return (
         <RequireAuth>
@@ -36,7 +35,6 @@ const AdminUsers: React.FC = () => {
                     displayFields={displayFields}
                     editFields={editFields}
                     pageTitle='Gestión de Estudiantes'
-                // Pass the filter function here
                 />
             </div>
         </RequireAuth>
