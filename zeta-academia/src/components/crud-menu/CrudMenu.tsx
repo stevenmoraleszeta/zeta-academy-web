@@ -18,7 +18,7 @@ interface CrudMenuProps {
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;
-    filterFunction?: (item: any) => boolean; // Add filterFunction prop
+    filterFunction?: (item: any) => boolean;
 }
 
 const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [], filterFunction }) => {
@@ -313,7 +313,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 >
                                     <FaTrash size={20} />
                                 </button>
-                                {item.role === 'student' && (
+                                {collectionName === 'estudiantes' && (
                                     <button onClick={() => handleGoToFicha(item)} className={styles.iconButton}><FaEdit size={20} /></button>
                                 )}
                             </div>
