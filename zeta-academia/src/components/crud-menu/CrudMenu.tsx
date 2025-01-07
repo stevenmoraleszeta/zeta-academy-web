@@ -9,8 +9,6 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
 import { FaTrash, FaClone, FaEdit } from 'react-icons/fa';
-import { useRouter, usePathname } from 'next/navigation';
-
 
 
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
@@ -37,9 +35,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<any | null>(null);
 
-    const pathname = usePathname();
-    const isStudentPage = pathname === '/admin/students';
-
     useEffect(() => {
         setData(fetchedData);
         const filtered = filterFunction ? fetchedData.filter(filterFunction) : fetchedData;
@@ -65,14 +60,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
 
-        const filtered = data.filter(item => {
-            const matchesSearch = displayFields.some(({ field }) => {
+        const filtered = data.filter(item =>
+            displayFields.some(({ field }) => {
                 const value = item[field]?.toString().toLowerCase() || '';
                 return value.includes(term);
-            });
-            const matchesRole = !isStudentPage || item.role === 'student';
-            return matchesSearch && matchesRole;
-        });
+            })
+        );
 
         setFilteredData(filtered);
     };
