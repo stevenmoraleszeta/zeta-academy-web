@@ -10,6 +10,7 @@ const AdminUsers: React.FC = () => {
     const displayFields = [
         { label: 'Nombre', field: 'nombreCompleto' },
         { label: 'Email', field: 'email' },
+        { label: 'Curso', field: 'curso' },
         { label: 'Rol', field: 'role' },
         { label: 'Nombre de Usuario', field: 'username' },
     ];
