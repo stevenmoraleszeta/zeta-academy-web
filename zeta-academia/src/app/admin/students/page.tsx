@@ -16,8 +16,14 @@ const AdminUsers: React.FC = () => {
 
     const editFields = [
         { label: 'Nombre Completo', field: 'nombreCompleto' },
-        { label: 'Email', field: 'email' },
         { label: 'Edad', field: 'edad', type: 'number' },
+        { label: 'Email', field: 'email' },
+        { label: 'Curso', field: 'curso' },
+        { label: 'Ocupación', field: 'Ocupacion' },
+        { label: 'Estilo de aprendizaje', field: 'estiloAprendizaje' },
+        { label: 'Intereses Personales', field: 'Intereses' },
+        { label: 'Nivel inicial', field: 'nivelInicial' },
+        { label: 'Objetivos Individuales', field: 'objetivosIndividuales' },
         { label: 'Nombre de Usuario', field: 'username' },
         {
             label: 'País',
