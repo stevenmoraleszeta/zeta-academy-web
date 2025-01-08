@@ -7,7 +7,6 @@ import RequireAuth from '@/components/RequireAuth';
 
 const AdminUsers: React.FC = () => {
     document.title = "Gestión de estudiantes - Zeta Academia";
-    // Fields to display in the list view
     const displayFields = [
         { label: 'Nombre', field: 'nombreCompleto' },
         { label: 'Email', field: 'email' },
@@ -15,7 +14,6 @@ const AdminUsers: React.FC = () => {
         { label: 'Nombre de Usuario', field: 'username' },
     ];
 
-    // Fields to display and edit in the modal
     const editFields = [
         { label: 'Nombre Completo', field: 'nombreCompleto' },
         { label: 'Email', field: 'email' },
