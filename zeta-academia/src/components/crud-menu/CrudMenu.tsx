@@ -9,7 +9,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
 import { FaTrash, FaClone, FaEdit } from 'react-icons/fa';
-
+import { useRouter } from 'next/navigation';
 
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
 interface CrudMenuProps {
@@ -34,6 +34,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<any | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         setData(fetchedData);
@@ -43,7 +44,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     }, [fetchedData, editFields, filterFunction]);
 
     const handleGoToFicha = (item: any) => {
-        console.log(`Navigating to ficha of ${item.displayName}`);
+        router.push(`/admin/students/${item.id}`);
     };
 
     const initializeSelectOptions = () => {
