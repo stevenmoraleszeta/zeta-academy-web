@@ -19,6 +19,7 @@ const StudentPage = () => {
         Intereses: string;
         nivelInicial: string;
         objetivosIndividuales: string;
+        curso: string;
     }
 
     const [studentData, setStudentData] = useState<StudentData | null>(null);
@@ -64,7 +65,8 @@ const StudentPage = () => {
 
     return (
         <div className={styles.studentPageContainer}>
-            {studentData && <h1>Ficha de {studentData.nombreCompleto}</h1>}
+            <h1>Ficha de Estudiante</h1>
+            {studentData && <h1>{studentData.nombreCompleto}</h1>}
             {studentData && (
                 <div className={styles.studentInformation}>
                     <div className={styles.studentDataContainer}>
@@ -93,6 +95,23 @@ const StudentPage = () => {
                                         <td>{studentData.estiloAprendizaje}</td>
                                         <td>{studentData.nivelInicial}</td>
                                         <td>{studentData.objetivosIndividuales}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        )}
+                        <h2>Notas</h2>
+                        {studentData && (
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Cursos</th>
+                                        <th>Notas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{studentData.curso}</td>
+                                        <td>80%</td>
                                     </tr>
                                 </tbody>
                             </table>
