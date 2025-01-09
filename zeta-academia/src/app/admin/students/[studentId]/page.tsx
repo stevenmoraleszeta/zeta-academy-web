@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import styles from './page.module.css';
 
@@ -47,18 +47,6 @@ const StudentPage = () => {
             fetchStudentData();
         }
     }, [studentId]);
-
-    const handleSave = async () => {
-        if (!studentData) return;
-
-        try {
-            const docRef = doc(db, 'estudiantes', studentId as string);
-            await updateDoc(docRef, { ...studentData });
-            alert('Datos actualizados con éxito');
-        } catch (err: any) {
-            setError(err.message);
-        }
-    };
 
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p>Error: {error}</p>;
