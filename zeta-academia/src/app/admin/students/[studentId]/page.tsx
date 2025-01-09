@@ -7,12 +7,18 @@ import { db } from '@/firebase/firebase';
 import styles from './page.module.css';
 
 const StudentPage = () => {
-    const router = useRouter();
     const params = useParams();
     const studentId = params ? params.studentId : null;
     interface StudentData {
         nombreCompleto: string;
         edad: number;
+        email: string;
+        username: string;
+        Ocupacion: string;
+        estiloAprendizaje: string;
+        Intereses: string;
+        nivelInicial: string;
+        objetivosIndividuales: string;
     }
 
     const [studentData, setStudentData] = useState<StudentData | null>(null);
@@ -58,22 +64,40 @@ const StudentPage = () => {
 
     return (
         <div className={styles.studentPageContainer}>
-            <h1>Editar Estudiante</h1>
+            {studentData && <h1>Ficha de {studentData.nombreCompleto}</h1>}
             {studentData && (
-                <div>
-                    <label>Nombre Completo</label>
-                    <input
-                        type="text"
-                        value={studentData.nombreCompleto || ''}
-                        onChange={(e) => setStudentData({ ...studentData, nombreCompleto: e.target.value })}
-                    />
-                    <label>Edad</label>
-                    <input
-                        type="number"
-                        value={studentData.edad || ''}
-                        onChange={(e) => setStudentData({ ...studentData, edad: Number(e.target.value) })}
-                    />
-                    <button onClick={handleSave}>Guardar</button>
+                <div className={styles.studentInformation}>
+                    <div className={styles.studentDataContainer}>
+                        <h2>Información personal</h2>
+                        <p>Nombre de usuario: {studentData.username || ''}</p>
+                        <p>Email: {studentData.email || ''}</p>
+                        <p>Edad: {studentData.edad || ''}</p>
+                    </div>
+                    <div className={styles.studentTableContainer}>
+                        <h2>Perfil de estudio</h2>
+                        {studentData && (
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Ocupación</th>
+                                        <th>Estilo de aprendizaje</th>
+                                        <th>Intereses personales</th>
+                                        <th>Nivel inicial</th>
+                                        <th>Objetivos individuales</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{studentData.Ocupacion}</td>
+                                        <td>{studentData.estiloAprendizaje}</td>
+                                        <td>{studentData.Intereses}</td>
+                                        <td>{studentData.nivelInicial}</td>
+                                        <td>{studentData.objetivosIndividuales}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
