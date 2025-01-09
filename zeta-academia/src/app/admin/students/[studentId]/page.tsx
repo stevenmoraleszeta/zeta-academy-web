@@ -14,7 +14,7 @@ const StudentPage = () => {
         edad: number;
         email: string;
         username: string;
-        Ocupacion: string;
+        ocupacion: string;
         estiloAprendizaje: string;
         Intereses: string;
         nivelInicial: string;
@@ -80,17 +80,17 @@ const StudentPage = () => {
                                 <thead>
                                     <tr>
                                         <th>Ocupación</th>
-                                        <th>Estilo de aprendizaje</th>
                                         <th>Intereses personales</th>
+                                        <th>Estilo de aprendizaje</th>
                                         <th>Nivel inicial</th>
                                         <th>Objetivos individuales</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>{studentData.Ocupacion}</td>
-                                        <td>{studentData.estiloAprendizaje}</td>
+                                        <td>{studentData.ocupacion}</td>
                                         <td>{studentData.Intereses}</td>
+                                        <td>{studentData.estiloAprendizaje}</td>
                                         <td>{studentData.nivelInicial}</td>
                                         <td>{studentData.objetivosIndividuales}</td>
                                     </tr>

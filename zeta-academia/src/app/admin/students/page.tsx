@@ -20,7 +20,7 @@ const AdminUsers: React.FC = () => {
         { label: 'Edad', field: 'edad', type: 'number' },
         { label: 'Email', field: 'email' },
         { label: 'Curso', field: 'curso' },
-        { label: 'Ocupación', field: 'Ocupacion' },
+        { label: 'Ocupación', field: 'ocupacion' },
         { label: 'Estilo de aprendizaje', field: 'estiloAprendizaje' },
         { label: 'Intereses Personales', field: 'Intereses' },
         { label: 'Nivel inicial', field: 'nivelInicial' },
