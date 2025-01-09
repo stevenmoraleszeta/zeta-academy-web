@@ -115,17 +115,15 @@ const OnlineCourses = () => {
       <div className={styles.filters}>
         <div className={styles.filterOptions}>
           <button
-            className={`${styles.filterButton} ${
-              selectedCategory === "Programación" ? styles.activeFilter : ""
-            }`}
+            className={`${styles.filterButton} ${selectedCategory === "Programación" ? styles.activeFilter : ""
+              }`}
             onClick={() => handleCategoryChange("Programación")}
           >
             Programación
           </button>
           <button
-            className={`${styles.filterButton} ${
-              selectedCategory === "Ofimática" ? styles.activeFilter : ""
-            }`}
+            className={`${styles.filterButton} ${selectedCategory === "Ofimática" ? styles.activeFilter : ""
+              }`}
             onClick={() => handleCategoryChange("Ofimática")}
           >
             Ofimática

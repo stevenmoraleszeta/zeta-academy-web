@@ -3,8 +3,8 @@
 
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
+import { doc, getDoc, setDoc, addDoc, collection, query, where, getDocs } from "firebase/firestore"; // Importar funciones de Firestore
 import { onAuthStateChanged ,  signInWithEmailAndPassword, signOut, } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore"; // Importar funciones de Firestore
 import { db } from "../firebase/firebase";
 import { useRouter } from "next/navigation";
 
@@ -98,6 +98,32 @@ export function AuthProvider({ children }) {
                     !userData.pais?.trim() || !userData.number?.trim() || !userData.edad?.trim() // makes sure all this data is being store in the DB
                 );
             } else {
+
+
+                const estudiantesQuery = query(collection(db, "estudiantes"), where("userId", "==", user.uid));
+                const estudiantesSnapshot = await getDocs(estudiantesQuery);
+
+                let estudianteDocRef;
+                if (estudiantesSnapshot.empty) {
+
+                    estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
+                        userId: user.uid,
+                        createdAt: new Date(),
+                        nombreCompleto: "",
+                        edad: "",
+                        number: "",
+                        email: "",
+                        curso: "",
+                        ocupacion: "",
+                        estiloAprendizaje: "",
+                        Intereses: "",
+                        nivelInicial: "",
+                        objetivosIndividuales: "",
+                    });
+                } else {
+                    estudianteDocRef = estudiantesSnapshot.docs[0].ref;
+                }
+
                 await setDoc(userDocRef, {
                     displayName: user.displayName,
                     email: user.email,
@@ -106,6 +132,7 @@ export function AuthProvider({ children }) {
                     pais: "",
                     number: "",
                     edad: "",
+                    estudianteId: estudianteDocRef.id,
                 });
                 setIsAdmin(false);
                 setMissingInfo(true);

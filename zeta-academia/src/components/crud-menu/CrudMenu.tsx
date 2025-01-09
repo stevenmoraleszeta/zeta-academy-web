@@ -9,9 +9,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
 import { FaTrash, FaClone, FaEdit } from 'react-icons/fa';
-import { useRouter, usePathname } from 'next/navigation';
-
-
+import { useRouter } from 'next/navigation';
 
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
 interface CrudMenuProps {
@@ -20,7 +18,7 @@ interface CrudMenuProps {
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;
-    filterFunction?: (item: any) => boolean; // Add filterFunction prop
+    filterFunction?: (item: any) => boolean;
 }
 
 const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [], filterFunction }) => {
@@ -36,9 +34,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<any | null>(null);
-
-    const pathname = usePathname();
-    const isStudentPage = pathname === '/admin/students';
+    const router = useRouter();
 
     useEffect(() => {
         setData(fetchedData);
@@ -48,7 +44,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     }, [fetchedData, editFields, filterFunction]);
 
     const handleGoToFicha = (item: any) => {
-        console.log(`Navigating to ficha of ${item.displayName}`);
+        router.push(`/admin/students/${item.id}`);
     };
 
     const initializeSelectOptions = () => {
@@ -65,14 +61,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
 
-        const filtered = data.filter(item => {
-            const matchesSearch = displayFields.some(({ field }) => {
+        const filtered = data.filter(item =>
+            displayFields.some(({ field }) => {
                 const value = item[field]?.toString().toLowerCase() || '';
                 return value.includes(term);
-            });
-            const matchesRole = !isStudentPage || item.role === 'student';
-            return matchesSearch && matchesRole;
-        });
+            })
+        );
 
         setFilteredData(filtered);
     };
@@ -200,8 +194,30 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                     prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
                 );
             } else {
+                // Crear el documento en la colección de usuarios
                 const docRef = await addDoc(collection(db, collectionName), selectedItem);
                 const newItem = { ...selectedItem, id: docRef.id };
+
+                // Crear el documento en la colección de estudiantes
+                const estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
+                    userId: docRef.id,
+                    createdAt: new Date(),
+                    nombreCompleto: selectedItem.displayName || "",
+                    edad: selectedItem.edad || "",
+                    number: selectedItem.number || "",
+                    email: selectedItem.email || "",
+                    curso: "",
+                    ocupacion: "",
+                    estiloAprendizaje: "",
+                    Intereses: "",
+                    nivelInicial: "",
+                    objetivosIndividuales: "",
+                });
+
+                // Actualizar el documento del usuario con el ID del estudiante
+                await updateDoc(docRef, {
+                    estudianteId: estudianteDocRef.id,
+                });
                 setData((prevData) => [...prevData, newItem]);
                 setFilteredData((prevData) => [...prevData, newItem]);
             }
@@ -298,7 +314,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 >
                                     <FaTrash size={20} />
                                 </button>
-                                {item.role === 'student' && (
+                                {collectionName === 'estudiantes' && (
                                     <button onClick={() => handleGoToFicha(item)} className={styles.iconButton}><FaEdit size={20} /></button>
                                 )}
                             </div>

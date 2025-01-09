@@ -7,37 +7,39 @@ import RequireAuth from '@/components/RequireAuth';
 
 const AdminUsers: React.FC = () => {
     document.title = "Gestión de estudiantes - Zeta Academia";
-    // Fields to display in the list view
     const displayFields = [
-        { label: 'Imagen', field: 'photoURL', type: 'image' },
-        { label: 'Nombre', field: 'displayName' },
+        { label: 'Nombre', field: 'nombreCompleto' },
         { label: 'Email', field: 'email' },
+        { label: 'Curso', field: 'curso' },
         { label: 'Rol', field: 'role' },
+        { label: 'Nombre de Usuario', field: 'username' },
     ];
 
-    // Fields to display and edit in the modal
     const editFields = [
-        { label: 'Nombre', field: 'displayName' },
-        { label: 'Email', field: 'email' },
+        { label: 'Nombre Completo', field: 'nombreCompleto' },
         { label: 'Edad', field: 'edad', type: 'number' },
+        { label: 'Email', field: 'email' },
+        { label: 'Curso', field: 'curso' },
+        { label: 'Ocupación', field: 'ocupacion' },
+        { label: 'Estilo de aprendizaje', field: 'estiloAprendizaje' },
+        { label: 'Intereses Personales', field: 'Intereses' },
+        { label: 'Nivel inicial', field: 'nivelInicial' },
+        { label: 'Objetivos Individuales', field: 'objetivosIndividuales' },
+        { label: 'Nombre de Usuario', field: 'username' },
         {
             label: 'País',
             field: 'pais',
         },
     ];
 
-    // Function to filter users by role
-    const filterFunction = (user: any) => user.role === 'student';
-
     return (
         <RequireAuth>
             <div className={styles.adminCoursesContainer}>
                 <CrudMenu
-                    collectionName="users"
+                    collectionName="estudiantes"
                     displayFields={displayFields}
                     editFields={editFields}
                     pageTitle='Gestión de Estudiantes'
-                    filterFunction={filterFunction} // Pass the filter function here
                 />
             </div>
         </RequireAuth>

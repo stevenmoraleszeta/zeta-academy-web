@@ -145,7 +145,7 @@ function UserProfile() {
                             />
                             <p className={styles.inputLabels}>Número telefónico</p>
                             <input
-                                type="number"
+                                type="text"
                                 name="number"
                                 value={userInfo.number}
                                 onChange={handleChange}
