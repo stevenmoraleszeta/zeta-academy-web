@@ -3,8 +3,8 @@
 
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
-import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc, addDoc, collection, query, where, getDocs } from "firebase/firestore"; // Importar funciones de Firestore
+import { onAuthStateChanged ,  signInWithEmailAndPassword, signOut, } from "firebase/auth";
 import { db } from "../firebase/firebase";
 import { useRouter } from "next/navigation";
 
@@ -59,6 +59,31 @@ export function AuthProvider({ children }) {
             console.error("Error al iniciar sesión con Google:", error);
         }
     };
+ 
+        // **Función para iniciar sesión con email y contraseña**
+        const loginWithEmailAndPassword = async (email, password) => {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                setCurrentUser(userCredential.user);
+                console.log("Inicio de sesión exitoso:", userCredential.user);
+            } catch (error) {
+                console.error("Error al iniciar sesión con email y contraseña:", error.message);
+            }
+        };
+    
+        // **Función para cerrar sesión**
+        const logout = async () => {
+            try {
+                await signOut(auth);
+                setCurrentUser(null);
+                console.log("Sesión cerrada");
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error.message);
+            }
+        };
+
+
+
 
     const checkUserInFirestore = async (user) => {
         try {
@@ -130,6 +155,8 @@ export function AuthProvider({ children }) {
     const value = {
         currentUser,
         loginWithGoogle,
+        loginWithEmailAndPassword,
+        logout,
         updateCurrentUser: setCurrentUser,
         isAdmin,
         missingInfo,
@@ -140,4 +167,4 @@ export function AuthProvider({ children }) {
             {!loading && children}
         </AuthContext.Provider>
     );
-}
+}  
