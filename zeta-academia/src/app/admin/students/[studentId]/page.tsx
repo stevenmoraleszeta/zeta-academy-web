@@ -2,9 +2,11 @@
 
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import styles from './page.module.css';
+import { useAuth } from '@/context/AuthContext';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
 const StudentPage = () => {
     const params = useParams();
@@ -22,20 +24,48 @@ const StudentPage = () => {
         curso: string;
     }
 
+    interface AssignmentData {
+        id: string;
+        nombre: string;
+        calificacion: string;
+        estado: string;
+        comentarios: string;
+        fecha: Date;
+    }
+
     const [studentData, setStudentData] = useState<StudentData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const { currentUser, isAdmin } = useAuth();
+    const [assignments, setAssignments] = useState<AssignmentData[]>([]);
 
     useEffect(() => {
         if (studentId) {
             const fetchStudentData = async () => {
                 try {
-                    const docRef = doc(db, 'estudiantes', studentId as string);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        setStudentData(docSnap.data() as StudentData);
-                    } else {
-                        setError('No such document!');
+                    if (studentId) {
+                        const docRef = doc(db, 'estudiantes', studentId as string);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            setStudentData(docSnap.data() as StudentData);
+                        } else {
+                            setError('No such document!');
+                        }
+
+                        const assignmentsQuery = query(
+                            collection(db, 'asignaciones'),
+                            where('estudianteId', '==', studentId)
+                        );
+                        const assignmentsSnap = await getDocs(assignmentsQuery);
+                        const assignmentsList = assignmentsSnap.docs.map(doc => {
+                            const data = doc.data();
+                            return {
+                                id: doc.id,
+                                ...data,
+                                fecha: data.fecha.toDate() // Convierte el Timestamp de Firestore a Date
+                            };
+                        }) as AssignmentData[];
+                        setAssignments(assignmentsList);
                     }
                 } catch (err: any) {
                     setError(err.message);
@@ -87,23 +117,55 @@ const StudentPage = () => {
                                 </tbody>
                             </table>
                         )}
-                        <h2>Notas</h2>
-                        {studentData && (
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Cursos</th>
-                                        <th>Notas</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{studentData.curso}</td>
-                                        <td>80%</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        )}
+                    </div>
+                    <div className={styles.studentAssignmentsContainer}>
+                        <h2>Asignaciones</h2>
+                        <div className={styles.assignmentsMainContainer}>
+                            <div className={styles.assignmentsContainer}>
+                                {assignments.length === 0 ? (
+                                    <p>Este estudiante no tiene asignaciones completadas o calificadas.</p>
+                                ) : (
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Tarea/ Proyecto</th>
+                                                <th>Estado</th>
+                                                <th>Calificación</th>
+                                                <th>Fecha</th>
+                                                <th>Comentarios</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {assignments.map((assignment) => (
+                                                <tr key={assignment.id}>
+                                                    <td>{assignment.nombre}</td>
+                                                    <td>{assignment.estado}</td>
+                                                    <td>{assignment.calificacion}</td>
+                                                    <td>{assignment.fecha.toLocaleString('es-ES', {
+                                                        day: '2-digit',
+                                                        month: '2-digit',
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })}</td>
+                                                    <td>{assignment.comentarios}</td>
+                                                    <td>
+                                                        <button className={styles.actionBtn}><FaTrash></FaTrash></button>
+                                                        <button className={styles.actionBtn}><FaEdit></FaEdit></button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                            <div className={styles.adminActionsContainer}>
+                                <button className={styles.addAssignmentButton}>
+                                    Agregar tarea/Proyecto
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
