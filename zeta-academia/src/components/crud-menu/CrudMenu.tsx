@@ -19,9 +19,26 @@ interface CrudMenuProps {
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;
     filterFunction?: (item: any) => boolean;
+    fileUploadHandler?: (file: File) => Promise<string>;
+    onSave?: (item: any, isEditMode: boolean) => Promise<void>;
+    onDelete?: (item: any) => Promise<void>;
+    determineState?: (item: any) => string;
+    getStateColor?: (state: string) => string;
 }
 
-const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [], filterFunction }) => {
+const CrudMenu: React.FC<CrudMenuProps> = ({
+    collectionName,
+    displayFields,
+    editFields,
+    pageTitle,
+    itemActions = [],
+    filterFunction,
+    fileUploadHandler,
+    onSave,
+    onDelete,
+    determineState,
+    getStateColor
+}) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -141,38 +158,17 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+        if (!e.target.files || !fileUploadHandler) return;
+        const file = e.target.files[0];
+        setIsUploadingImage(true);
         try {
-            setIsUploadingImage(true);
-            const storage = getStorage();
-            const uniqueFileName = `${uuidv4()}-${file.name}`;
-            const storageRef = ref(storage, `files/${uniqueFileName}`);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-
-            uploadTask.on(
-                'state_changed',
-                null,
-                (error) => {
-                    console.error("Error al subir el archivo:", error);
-                    alert("Error al subir el archivo. Verifica los permisos de Firebase Storage.");
-                    setIsUploadingImage(false);
-                },
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        setSelectedItem((prevItem: any) => ({
-                            ...prevItem,
-                            archivoUrl: downloadURL,
-                        }));
-                        setIsUploadingImage(false);
-                    });
-                }
-            );
-        } catch (error) {
-            console.error("Error al subir el archivo:", error);
-            alert("Error al subir el archivo.");
+            const url = await fileUploadHandler(file);
+            setSelectedItem((prev: Record<string, any>) => ({ ...prev, [field]: url }));
+        } catch (err) {
+            console.error('File upload failed', err);
+        } finally {
+            setIsUploadingImage(false);
         }
     };
 
@@ -184,42 +180,46 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         }
 
         try {
-            if (isEditMode && selectedItem.id) {
-                const itemRef = doc(db, collectionName, selectedItem.id);
-                await updateDoc(itemRef, selectedItem);
-                setData((prevData) =>
-                    prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
-                );
-                setFilteredData((prevData) =>
-                    prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
-                );
+            if (onSave) {
+                await onSave(selectedItem, isEditMode);
             } else {
-                // Crear el documento en la colección de usuarios
-                const docRef = await addDoc(collection(db, collectionName), selectedItem);
-                const newItem = { ...selectedItem, id: docRef.id };
+                if (isEditMode && selectedItem.id) {
+                    const itemRef = doc(db, collectionName, selectedItem.id);
+                    await updateDoc(itemRef, selectedItem);
+                    setData((prevData) =>
+                        prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
+                    );
+                    setFilteredData((prevData) =>
+                        prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
+                    );
+                } else {
+                    // Crear el documento en la colección de usuarios
+                    const docRef = await addDoc(collection(db, collectionName), selectedItem);
+                    const newItem = { ...selectedItem, id: docRef.id };
 
-                // Crear el documento en la colección de estudiantes
-                const estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
-                    userId: docRef.id,
-                    createdAt: new Date(),
-                    nombreCompleto: selectedItem.displayName || "",
-                    edad: selectedItem.edad || "",
-                    number: selectedItem.number || "",
-                    email: selectedItem.email || "",
-                    curso: "",
-                    ocupacion: "",
-                    estiloAprendizaje: "",
-                    Intereses: "",
-                    nivelInicial: "",
-                    objetivosIndividuales: "",
-                });
+                    // Crear el documento en la colección de estudiantes
+                    const estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
+                        userId: docRef.id,
+                        createdAt: new Date(),
+                        nombreCompleto: selectedItem.displayName || "",
+                        edad: selectedItem.edad || "",
+                        number: selectedItem.number || "",
+                        email: selectedItem.email || "",
+                        curso: "",
+                        ocupacion: "",
+                        estiloAprendizaje: "",
+                        Intereses: "",
+                        nivelInicial: "",
+                        objetivosIndividuales: "",
+                    });
 
-                // Actualizar el documento del usuario con el ID del estudiante
-                await updateDoc(docRef, {
-                    estudianteId: estudianteDocRef.id,
-                });
-                setData((prevData) => [...prevData, newItem]);
-                setFilteredData((prevData) => [...prevData, newItem]);
+                    // Actualizar el documento del usuario con el ID del estudiante
+                    await updateDoc(docRef, {
+                        estudianteId: estudianteDocRef.id,
+                    });
+                    setData((prevData) => [...prevData, newItem]);
+                    setFilteredData((prevData) => [...prevData, newItem]);
+                }
             }
             handleModalClose();
         } catch (error) {
@@ -232,10 +232,14 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
         if (!confirmDelete) return;
 
         try {
-            const itemRef = doc(db, collectionName, item.id);
-            await deleteDoc(itemRef);
-            setData((prevData) => prevData.filter((i) => i.id !== item.id));
-            setFilteredData((prevData) => prevData.filter((i) => i.id !== item.id));
+            if (onDelete) {
+                await onDelete(item);
+            } else {
+                const itemRef = doc(db, collectionName, item.id);
+                await deleteDoc(itemRef);
+                setData((prevData) => prevData.filter((i) => i.id !== item.id));
+                setFilteredData((prevData) => prevData.filter((i) => i.id !== item.id));
+            }
             alert("Elemento eliminado con éxito");
         } catch (error) {
             console.error("Error al eliminar el elemento:", error);
@@ -288,38 +292,47 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
             </section>
             <section className={styles.itemsSection}>
                 {filteredData.length > 0 ? (
-                    filteredData.map((item) => (
-                        <div key={item.id} className={styles.itemCard}>
-                            <div onClick={() => handleItemClick(item)} className={styles.cardContent}>
-                                {displayFields.map(({ label, field, type }) => (
-                                    <div key={field} className={styles.fieldRow}>
-                                        {type === 'image' ? (
-                                            <img src={item[field]} alt={label} className={styles.itemImage} />
-                                        ) : typeof item[field] === 'object' ? (
-                                            <span>{item[field]?.label || item[field]?.value || JSON.stringify(item[field])}</span>
-                                        ) : (
-                                            <span>{item[field]}</span>
-                                        )}
-                                    </div>
-                                ))}
+                    filteredData.map((item) => {
+                        const state = determineState ? determineState(item) : '';
+                        const stateColor = getStateColor ? getStateColor(state) : 'gray';
+                        return (
+                            <div key={item.id} className={styles.itemCard}>
+                                <div onClick={() => handleItemClick(item)} className={styles.cardContent}>
+                                    {displayFields.map(({ label, field, type }) => (
+                                        <div key={field} className={styles.fieldRow}>
+                                            {type === 'image' ? (
+                                                <img src={item[field]} alt={label} className={styles.itemImage} />
+                                            ) : typeof item[field] === 'object' ? (
+                                                <span>{item[field]?.label || item[field]?.value || JSON.stringify(item[field])}</span>
+                                            ) : (
+                                                <span>{item[field]}</span>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {state && (
+                                        <div className={styles.state} style={{ color: stateColor }}>
+                                            {state}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className={styles.iconButtons}>
+                                    <button
+                                        className={styles.iconButton}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteItem(item);
+                                        }}
+                                        title="Eliminar"
+                                    >
+                                        <FaTrash size={20} />
+                                    </button>
+                                    {collectionName === 'estudiantes' && (
+                                        <button onClick={() => handleGoToFicha(item)} className={styles.iconButton}><FaEdit size={20} /></button>
+                                    )}
+                                </div>
                             </div>
-                            <div className={styles.iconButtons}>
-                                <button
-                                    className={styles.iconButton}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteItem(item);
-                                    }}
-                                    title="Eliminar"
-                                >
-                                    <FaTrash size={20} />
-                                </button>
-                                {collectionName === 'estudiantes' && (
-                                    <button onClick={() => handleGoToFicha(item)} className={styles.iconButton}><FaEdit size={20} /></button>
-                                )}
-                            </div>
-                        </div>
-                    ))
+                        );
+                    })
                 ) : (
                     <p>No se encontraron elementos.</p>
                 )}
@@ -333,24 +346,10 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                             <div key={field} className={styles.fieldRow}>
                                 <label>{label}</label>
                                 {type === 'file' ? (
-                                    <>
-                                        <input
-                                            type="file"
-                                            accept="*/*"
-                                            onChange={handleFileUpload}
-                                        />
-                                        {/*Arreglar la descarga de archivos*/}
-                                        {selectedItem[field] && (
-                                            <div>
-                                                <button
-                                                    onClick={() => handleFileDownload(selectedItem[field], `file.${selectedItem[field].split('.').pop()}`)}
-                                                    className={styles.downloadButton}
-                                                >
-                                                    Descargar archivo
-                                                </button>
-                                            </div>
-                                        )}
-                                    </>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileUpload(e, field)}
+                                    />
                                 ) : type === 'image' ? (
                                     <>
                                         <input

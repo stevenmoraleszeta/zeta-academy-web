@@ -8,9 +8,9 @@ import Image from "next/image";
 import styles from "./login.module.css";
 
 function Login() {
-    const { loginWithGoogle,currentUser, missingInfo, loading, isCheckingUser } = useAuth();
+    const { loginWithGoogle, currentUser, missingInfo, loading, isCheckingUser } = useAuth();
     const router = useRouter();
-   
+
 
 
     useEffect(() => {
@@ -23,8 +23,8 @@ function Login() {
         }
     }, [currentUser, missingInfo, loading, isCheckingUser, router]);
 
-     // Función para redirigir al componente de "user-password"
-     const handleUserPasswordLogin = () => {
+    // Función para redirigir al componente de "user-password"
+    const handleUserPasswordLogin = () => {
         router.push("/user-password"); // Cambia la ruta a la del componente deseado
     };
 

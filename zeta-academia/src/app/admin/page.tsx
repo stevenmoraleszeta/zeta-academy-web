@@ -41,6 +41,13 @@ const AdminMenu: React.FC = () => {
                         <AiOutlineRead className={styles.buttonIcon} />
                         <span>Estudiantes</span>
                     </button>
+                    <button
+                        className={styles.adminButton}
+                        onClick={() => handleNavigation('/admin/students-proyects')}
+                    >
+                        <AiOutlineProject className={styles.buttonIcon} />
+                        <span>Proyectos Estudiantes</span>
+                    </button>
                 </div>
             </div>
         </RequireAuth>
