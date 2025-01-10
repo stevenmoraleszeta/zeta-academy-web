@@ -60,7 +60,7 @@ function UserProfile() {
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            router.push('/home');
+            router.push('/');
         } catch (error) {
             console.error('Failed to log out', error);
         }
@@ -145,7 +145,7 @@ function UserProfile() {
                             />
                             <p className={styles.inputLabels}>Número telefónico</p>
                             <input
-                                type="number"
+                                type="text"
                                 name="number"
                                 value={userInfo.number}
                                 onChange={handleChange}

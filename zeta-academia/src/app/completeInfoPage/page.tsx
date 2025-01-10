@@ -14,9 +14,9 @@ import countries from "../../jsonFiles/paises.json";
 import Head from 'next/head';
 
 export default function CompleteInformation() {
-   //titulo
-   document.title = "Información Usuario - ZETA";
-   
+  //titulo
+  document.title = "Información Usuario - ZETA";
+
   const { currentUser, updateCurrentUser } = useAuth();
   const auth = getAuth();
   const [userInfo, setUserInfo] = useState({
@@ -25,7 +25,7 @@ export default function CompleteInformation() {
     edad: "",
     pais: "",
   });
-  
+
 
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -63,6 +63,13 @@ export default function CompleteInformation() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    const phoneRegex = /^\+\d{1,4}\s?\d{6,15}$/;
+
+    if (!phoneRegex.test(userInfo.number)) {
+      alert("Por favor ingresa un número telefónico válido con el código de país.");
+      return;
+    }
+
     try {
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, {
@@ -92,7 +99,7 @@ export default function CompleteInformation() {
 
   return (
     <>
-      
+
       <section className={styles.completeInfoMainSection}>
         <div className={styles.formContainer}>
           <form onSubmit={handleSubmit} className={styles.form}>
@@ -124,11 +131,12 @@ export default function CompleteInformation() {
                 />
                 <p className={styles.formLabelTxt}>Número Telefónico</p>
                 <input
-                  type="number"
+                  type="text"
                   name="number"
                   value={userInfo.number}
                   onChange={handleChange}
                   required
+                  placeholder="+000 0000 0000"
                 />
               </div>
               <div className={styles.secondFieldsContainer}>

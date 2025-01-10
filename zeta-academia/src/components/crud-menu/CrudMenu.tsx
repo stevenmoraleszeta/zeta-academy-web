@@ -8,9 +8,8 @@ import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
-import { FaTrash, FaClone } from 'react-icons/fa';
-
-
+import { FaTrash, FaClone, FaEdit } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
 interface CrudMenuProps {
@@ -19,9 +18,10 @@ interface CrudMenuProps {
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;
+    filterFunction?: (item: any) => boolean;
 }
 
-const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [] }) => {
+const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, editFields, pageTitle, itemActions = [], filterFunction }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -34,12 +34,18 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<any | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         setData(fetchedData);
-        setFilteredData(fetchedData);
+        const filtered = filterFunction ? fetchedData.filter(filterFunction) : fetchedData;
+        setFilteredData(filtered);
         initializeSelectOptions();
-    }, [fetchedData, editFields]);
+    }, [fetchedData, editFields, filterFunction]);
+
+    const handleGoToFicha = (item: any) => {
+        router.push(`/admin/students/${item.id}`);
+    };
 
     const initializeSelectOptions = () => {
         const options: { [key: string]: any[] } = {};
@@ -188,8 +194,30 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                     prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
                 );
             } else {
+                // Crear el documento en la colección de usuarios
                 const docRef = await addDoc(collection(db, collectionName), selectedItem);
                 const newItem = { ...selectedItem, id: docRef.id };
+
+                // Crear el documento en la colección de estudiantes
+                const estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
+                    userId: docRef.id,
+                    createdAt: new Date(),
+                    nombreCompleto: selectedItem.displayName || "",
+                    edad: selectedItem.edad || "",
+                    number: selectedItem.number || "",
+                    email: selectedItem.email || "",
+                    curso: "",
+                    ocupacion: "",
+                    estiloAprendizaje: "",
+                    Intereses: "",
+                    nivelInicial: "",
+                    objetivosIndividuales: "",
+                });
+
+                // Actualizar el documento del usuario con el ID del estudiante
+                await updateDoc(docRef, {
+                    estudianteId: estudianteDocRef.id,
+                });
                 setData((prevData) => [...prevData, newItem]);
                 setFilteredData((prevData) => [...prevData, newItem]);
             }
@@ -286,6 +314,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                                 >
                                     <FaTrash size={20} />
                                 </button>
+                                {collectionName === 'estudiantes' && (
+                                    <button onClick={() => handleGoToFicha(item)} className={styles.iconButton}><FaEdit size={20} /></button>
+                                )}
                             </div>
                         </div>
                     ))
@@ -359,14 +390,14 @@ const CrudMenu: React.FC<CrudMenuProps> = ({ collectionName, displayFields, edit
                             </div>
                         ))}
                         <div className={styles.modalButtons}>
-                        <button
-                            onClick={handleSave}
-                            disabled={isUploadingImage}
-                            className={`${isUploadingImage ? styles.disabledButton : ''}`}
-                        >
-                            {isEditMode ? "Actualizar" : "Guardar"}
-                        </button>
-                        <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isUploadingImage}
+                                className={`${isUploadingImage ? styles.disabledButton : ''}`}
+                            >
+                                {isEditMode ? "Actualizar" : "Guardar"}
+                            </button>
+                            <button onClick={handleModalClose} className={styles.closeButton}>Cerrar</button>
                         </div>
                     </div>
                 </div>

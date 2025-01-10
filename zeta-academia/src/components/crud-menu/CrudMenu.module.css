@@ -10,7 +10,8 @@
 
 .topBar {
     display: flex;
-    flex-direction: row; /* Alinea el input y el botón horizontalmente */
+    flex-direction: row;
+    /* Alinea el input y el botón horizontalmente */
     justify-content: space-between;
     align-items: center;
     gap: 10px;
@@ -18,7 +19,8 @@
 }
 
 .topBar input {
-    flex: 1; /* Ocupa el máximo ancho posible */
+    flex: 1;
+    /* Ocupa el máximo ancho posible */
     width: 100%;
     background-color: var(--color-dark);
     color: var(--color-lighter);
@@ -44,7 +46,7 @@
 .itemCard {
     padding: 20px;
     border-radius: 10px;
-    background-image: linear-gradient(var(--color-dark), var(--color-primary-active)) ;
+    background-image: linear-gradient(var(--color-dark), var(--color-primary-active));
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
@@ -109,9 +111,10 @@
     cursor: pointer;
     padding: 0;
     display: flex;
-    align-items: center; 
+    align-items: center;
     transition: color 0.3s ease;
     color: var(--color-lighter);
+    margin: 5px;
 }
 
 .iconButton:hover {
@@ -147,7 +150,7 @@
     font-size: 1rem;
 }
 
-.modalContent h2{
+.modalContent h2 {
     color: var(--color-primary);
 }
 

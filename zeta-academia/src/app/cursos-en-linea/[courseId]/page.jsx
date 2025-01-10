@@ -733,7 +733,8 @@ const CourseDetail = ({ params }) => {
             </p>
           )}
 
-          <div className={styles.priceContainer}>
+          <div className={`${styles.priceContainer} ${isEnrolled ? styles.enrolledPrice : ""
+            }`}>
             <span className={styles.discountedPrice}>
               $
               {isAdmin ? (
