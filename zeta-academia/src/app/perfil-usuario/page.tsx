@@ -1,5 +1,5 @@
 // src/app/perfil-usuario/page.tsx
-"use client"; // Indica que este es un Client Component para Next.js
+"use client"; 
 
 import Image from 'next/image';
 import styles from './userProfile.module.css';
