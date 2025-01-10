@@ -2,15 +2,26 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { FaRegImage, FaPencilAlt } from "react-icons/fa";
+import { FaRegImage, FaPencilAlt, FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaCheck, FaLock, FaLockOpen } from "react-icons/fa";
 import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
 
 const CourseDetail = ({ params }) => {
   const router = useRouter();
   const courseId = params.id;
+
+  console.log("CourseDetail rendered with courseId:", courseId); // Debug log
+
   const [course, setCourse] = useState({
     title: "Introducción a la Programación con Python",
     description:
@@ -82,84 +93,160 @@ const CourseDetail = ({ params }) => {
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const { currentUser, isAdmin } = useAuth();
 
-  useEffect(() => {
-    const fetchCourse = async () => {
+  const [modules, setModules] = useState([]);
+  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
+  const [selectedModuleId, setSelectedModuleId] = useState(null);
+
+  const fetchCourse = async () => {
+    try {
       const docRef = doc(db, "liveCourses", courseId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const fetchedData = docSnap.data();
-        const defaultFeatures = [
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FClock%20Icon.png?alt=media&token=c99653f0-964d-472f-b00b-593aceaa3556",
-            title: "Fecha de inicio",
-            description: "15 de Noviembre.",
-          },
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
-            title: "Atención personalizada",
-            description: "Ayuda del mentor en cualquier momento.",
-          },
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCol%C3%B3n%20icon.png?alt=media&token=07041992-5e34-46c4-b591-f6a8a59abf32",
-            title: "Pago flexible",
-            description: "Matrícula gratis, paga en dos partes.",
-          },
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6",
-            title: "Certificado de finalización",
-            description: "Incrementa tu conocimiento.",
-          },
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de",
-            title: "Horario",
-            description: "Viernes de 7 pm a 9 pm.",
-          },
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FLista%20Tareas%20Icon.png?alt=media&token=1c471825-3471-45e5-909c-6f1aa18d971a",
-            title: "Duración",
-            description: "6 semanas.",
-          },
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FLaptop%20Icon.png?alt=media&token=23fbc61d-e472-4bfa-a02c-33e20746c09a",
-            title: "Material de apoyo adicional",
-            description: "Clases grabadas y material adicional.",
-          },
-          {
-            iconUrl:
-              "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
-            title: "Aprendizaje práctico",
-            description: "Aprende con problemas reales.",
-          },
-        ];
         setCourse({
           ...course,
           ...fetchedData,
-          features:
-            fetchedData.features && fetchedData.features.length > 0
-              ? fetchedData.features
-              : defaultFeatures,
+          features: fetchedData.features && fetchedData.features.length > 0
+            ? fetchedData.features
+            : course.features,
         });
-        document.title = `${course.title} - ZETA`;
       } else {
         console.error("Course not found");
         router.push("/cursos-en-vivo");
       }
+    } catch (error) {
+      console.error("Error fetching course:", error);
+      throw error;
+    }
+  };
+
+  const fetchModules = async () => {
+    try {
+      console.log("Fetching modules for course:", courseId);
+
+      const modulesRef = collection(db, "liveCourses", courseId, "modules");
+      const modulesSnapshot = await getDocs(modulesRef);
+
+      console.log("Found modules:", modulesSnapshot.size);
+
+      const fetchedModules = [];
+
+      for (const moduleDoc of modulesSnapshot.docs) {
+        const moduleData = moduleDoc.data();
+        console.log("Module data:", moduleData);
+
+        // Fetch classes
+        const classesRef = collection(db, "liveCourses", courseId, "modules", moduleDoc.id, "classes");
+        const classesSnapshot = await getDocs(classesRef);
+        const classes = classesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          type: "class" // Añadir tipo para diferenciar
+        }));
+
+        // Fetch projects
+        const projectsRef = collection(db, "liveCourses", courseId, "modules", moduleDoc.id, "projects");
+        const projectsSnapshot = await getDocs(projectsRef);
+        const projects = projectsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          type: "project" // Añadir tipo para diferenciar
+        }));
+
+        fetchedModules.push({
+          id: moduleDoc.id,
+          ...moduleData,
+          classes: classes.sort((a, b) => (a.order || 0) - (b.order || 0)),
+          projects: projects.sort((a, b) => (a.order || 0) - (b.order || 0))
+        });
+      }
+
+      // Sort modules by order
+      fetchedModules.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      console.log("Final modules:", fetchedModules);
+
+      setModules(fetchedModules);
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!currentUser) {
+        console.log("Usuario no autenticado");
+        router.push('/login');
+        return;
+      }
+
+      try {
+        await fetchCourse();
+        await fetchModules();
+      } catch (error) {
+        console.error("Error en fetchData:", error);
+        if (error.code === 'permission-denied') {
+          console.error("Error de permisos - asegúrate de estar autenticado");
+        }
+      }
     };
-    fetchCourse();
-  }, [courseId]);
+
+    if (courseId) {
+      fetchData();
+    }
+  }, [courseId, currentUser, router]);
 
   const handleFieldChange = async (field, value) => {
     const updatedCourse = { ...course, [field]: value };
     setCourse(updatedCourse);
     const docRef = doc(db, "liveCourses", courseId);
     await updateDoc(docRef, { [field]: value });
+  };
+
+  const addModule = async () => {
+    const newModule = { title: "Nuevo Módulo", order: modules.length, classes: [] };
+    const moduleRef = await addDoc(
+      collection(db, "liveCourses", courseId, "modules"),
+      newModule
+    );
+    setModules((prevModules) => [
+      ...prevModules,
+      { id: moduleRef.id, ...newModule },
+    ]);
+  };
+
+  const deleteModule = async (moduleId) => {
+    if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
+      await deleteDoc(doc(db, "liveCourses", courseId, "modules", moduleId));
+      setModules(modules.filter((module) => module.id !== moduleId));
+    }
+  };
+
+  const moveModule = async (index, direction) => {
+    setModules((prevModules) => {
+      const newModules = [...prevModules];
+      const [movedModule] = newModules.splice(index, 1);
+      newModules.splice(index + direction, 0, movedModule);
+
+      // Update the order in the database
+      newModules.forEach(async (module, newIndex) => {
+        try {
+          const moduleRef = doc(
+            db,
+            "liveCourses",
+            courseId,
+            "modules",
+            module.id
+          );
+          await updateDoc(moduleRef, { order: newIndex });
+        } catch (error) {
+          console.error("Error updating module order:", error);
+        }
+      });
+
+      return newModules;
+    });
   };
 
   const handleContactClick = () => {
@@ -189,7 +276,7 @@ const CourseDetail = ({ params }) => {
   const openVideoModal = () => {
     setNewVideoUrl(
       course.videoUrl ||
-        "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
+      "https://www.youtube.com/embed/rc9Db0uuOPI?si=DiiGkghjvsq_QkGU"
     );
     setIsVideoModalOpen(true);
   };
@@ -226,6 +313,138 @@ const CourseDetail = ({ params }) => {
   const closeVideoModal = () => {
     setIsVideoModalOpen(false);
     setNewVideoUrl("");
+  };
+
+  const handleAddItem = (moduleId) => {
+    setSelectedModuleId(moduleId);
+    setIsTypeModalOpen(true);
+  };
+
+  const createNewItem = async (type) => {
+    if (!selectedModuleId) return;
+
+    const collection_name = type === "class" ? "classes" : "projects";
+    const module = modules.find((mod) => mod.id === selectedModuleId);
+    if (!module) return;
+
+    const items = [...(module.classes || []), ...(module.projects || [])];
+    const nextOrder = items.length;
+
+    const newItem = {
+      title: type === "class" ? "Nueva Clase" : "Nuevo Proyecto",
+      order: nextOrder,
+      restricted: false,
+      type: type // Añadir tipo para diferenciar
+    };
+
+    const itemRef = await addDoc(
+      collection(db, "liveCourses", courseId, "modules", selectedModuleId, collection_name),
+      newItem
+    );
+
+    setModules((prevModules) =>
+      prevModules.map((mod) => {
+        if (mod.id === selectedModuleId) {
+          return {
+            ...mod,
+            [collection_name]: [...(mod[collection_name] || []), { id: itemRef.id, ...newItem }]
+          };
+        }
+        return mod;
+      })
+    );
+
+    setIsTypeModalOpen(false);
+  };
+
+  const deleteItem = async (moduleId, itemId, collection_name) => {
+    if (confirm(`¿Estás seguro de que deseas eliminar este ${collection_name === "classes" ? "clase" : "proyecto"}?`)) {
+      await deleteDoc(
+        doc(db, "liveCourses", courseId, "modules", moduleId, collection_name, itemId)
+      );
+      setModules(
+        modules.map((module) => {
+          if (module.id === moduleId) {
+            return {
+              ...module,
+              [collection_name]: module[collection_name].filter((item) => item.id !== itemId)
+            };
+          }
+          return module;
+        })
+      );
+    }
+  };
+
+  const moveItem = async (moduleId, itemIndex, direction, collection_name) => {
+    setModules((prevModules) =>
+      prevModules.map((module) => {
+        if (module.id === moduleId) {
+          const items = [...module[collection_name]];
+          const [movedItem] = items.splice(itemIndex, 1);
+          items.splice(itemIndex + direction, 0, movedItem);
+
+          // Update the order in the database
+          items.forEach(async (item, newIndex) => {
+            try {
+              const itemRef = doc(
+                db,
+                "liveCourses",
+                courseId,
+                "modules",
+                moduleId,
+                collection_name,
+                item.id
+              );
+              await updateDoc(itemRef, { order: newIndex });
+            } catch (error) {
+              console.error(`Error updating ${collection_name} order:`, error);
+            }
+          });
+
+          return { ...module, [collection_name]: items };
+        }
+        return module;
+      })
+    );
+  };
+
+  const toggleClassRestriction = async (moduleId, classId, currentStatus) => {
+    try {
+      const classRef = doc(
+        db,
+        "liveCourses",
+        courseId,
+        "modules",
+        moduleId,
+        "classes",
+        classId
+      );
+      await updateDoc(classRef, { restricted: !currentStatus });
+
+      setModules((prevModules) =>
+        prevModules.map((module) => {
+          if (module.id === moduleId) {
+            return {
+              ...module,
+              classes: module.classes.map((cls) =>
+                cls.id === classId
+                  ? { ...cls, restricted: !currentStatus }
+                  : cls
+              ),
+            };
+          }
+          return module;
+        })
+      );
+    } catch (error) {
+      console.error("Error updating restriction status:", error);
+    }
+  };
+
+  const handleItemClick = (moduleId, itemId, itemType) => {
+    const collection = itemType === "class" ? "classes" : "projects";
+    router.push(`/cursos-en-vivo/${courseId}/${moduleId}/${collection}/${itemId}`);
   };
 
   return (
@@ -284,11 +503,11 @@ const CourseDetail = ({ params }) => {
 
           <div className={styles.priceContainer}>
             <span className={styles.discountedPrice}>
-            $
+              $
               {isAdmin ? (
                 <input
                   type="number"
-                  value={course.discountedPrice || ""}
+                  value={course.discountedPrice}
                   onChange={(e) =>
                     handleFieldChange("discountedPrice", +e.target.value)
                   }
@@ -301,7 +520,7 @@ const CourseDetail = ({ params }) => {
               )}
             </span>
             <span className={styles.originalPrice}>
-            $
+              $
               {isAdmin ? (
                 <input
                   type="number"
@@ -329,12 +548,10 @@ const CourseDetail = ({ params }) => {
             >
               Contáctanos
             </button>
-            {isAdmin ? (
+            {isAdmin && (
               <div className={styles.iconWrapper} onClick={openModal}>
                 <FaRegImage className={styles.editIcon} />
               </div>
-            ) : (
-              null
             )}
           </div>
         </div>
@@ -343,14 +560,12 @@ const CourseDetail = ({ params }) => {
       <div className={styles.features}>
         {(course.features || []).map((feature, index) => (
           <div key={index} className={styles.feature}>
-            {/* Icono de la característica */}
             <img
               src={feature.iconUrl}
               alt={`Icono de ${feature.title}`}
               className={styles.featureIcon}
             />
             <div>
-              {/* Si es administrador, mostrar campos editables */}
               {isAdmin ? (
                 <>
                   <input
@@ -374,7 +589,6 @@ const CourseDetail = ({ params }) => {
                   />
                 </>
               ) : (
-                // Si no es administrador, mostrar como texto estilizado
                 <>
                   <div className={styles.featureTitleInput}>
                     {feature.title || "Sin título"}
@@ -389,58 +603,161 @@ const CourseDetail = ({ params }) => {
         ))}
       </div>
 
-      {/* Modal for Editing Image URL and Course Icon */}
-      {isModalOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>Edit URLs</h3>
-            <label>
-              Image URL:
-              <input
-                type="text"
-                value={currentUrl}
-                onChange={handleUrlChange}
-                placeholder="Enter new image URL"
-                className={styles.modalInput}
-              />
-            </label>
-            <label>
-              Course Icon URL:
-              <input
-                type="text"
-                value={currentIconUrl}
-                onChange={handleIconUrlChange}
-                placeholder="Enter new icon URL"
-                className={styles.modalInput}
-              />
-            </label>
-            <div className={styles.modalActions}>
-              <button onClick={saveUrls}>Save</button>
-              <button onClick={closeModal}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className={styles.modules}>
+        {modules.length > 0 ? (
+          modules.map((module, moduleIndex) => (
+            <div key={module.id} className={styles.module}>
+              <div className={styles.moduleHeader}>
+                {isAdmin ? (
+                  <input
+                    type="text"
+                    value={module.title}
+                    onChange={(e) =>
+                      setModules((prevModules) =>
+                        prevModules.map((mod, index) =>
+                          index === moduleIndex
+                            ? { ...mod, title: e.target.value }
+                            : mod
+                        )
+                      )
+                    }
+                    className={styles.moduleTitle}
+                  />
+                ) : (
+                  <span className={styles.moduleTitle}>{module.title}</span>
+                )}
+                {isAdmin && (
+                  <div className={styles.moduleActions}>
+                    <button
+                      onClick={() => moveModule(moduleIndex, -1)}
+                      disabled={moduleIndex === 0}
+                      className={styles.moveButton}
+                    >
+                      <FaArrowUp />
+                    </button>
+                    <button
+                      onClick={() => moveModule(moduleIndex, 1)}
+                      disabled={moduleIndex === modules.length - 1}
+                      className={styles.moveButton}
+                    >
+                      <FaArrowDown />
+                    </button>
+                    <button
+                      onClick={() => deleteModule(module.id)}
+                      className={styles.deleteButton}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className={styles.moduleContent}>
+                {[...(module.classes || []), ...(module.projects || [])]
+                  .sort((a, b) => (a.order || 0) - (b.order || 0))
+                  .map((item, index) => (
+                    <div
+                      key={item.id}
+                      className={styles.classItem}
+                      onClick={() => handleItemClick(module.id, item.id, item.type)}
+                    >
+                      <div className={styles.classInfo}>
+                        <span className={styles.classTitle}>
+                          {item.title || "Sin título"}
+                          <span className={`${styles.itemType} ${item.type === "project" ? styles.projectType : ""}`}>
+                            {item.type === "class" ? "📚 Clase" : "🛠️ Proyecto"}
+                          </span>
+                        </span>
+                      </div>
+                      {isAdmin && (
+                        <div className={styles.classActions}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const collection = item.type === "class" ? "classes" : "projects";
+                              moveItem(module.id, index, -1, collection);
+                            }}
+                            disabled={index === 0}
+                            className={styles.moveButton}
+                            title="Mover arriba"
+                          >
+                            <FaArrowUp />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const collection = item.type === "class" ? "classes" : "projects";
+                              moveItem(module.id, index, 1, collection);
+                            }}
+                            disabled={index === module[item.type === "class" ? "classes" : "projects"].length - 1}
+                            className={styles.moveButton}
+                            title="Mover abajo"
+                          >
+                            <FaArrowDown />
+                          </button>
+                          {item.type === "class" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleClassRestriction(module.id, item.id, item.restricted);
+                              }}
+                              className={styles.classAction}
+                              title={item.restricted ? "Desbloquear Clase" : "Bloquear Clase"}
+                            >
+                              {item.restricted ? <FaLock /> : <FaLockOpen />}
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const collection = item.type === "class" ? "classes" : "projects";
+                              deleteItem(module.id, item.id, collection);
+                            }}
+                            className={styles.classAction}
+                            title={`Eliminar ${item.type === "class" ? "Clase" : "Proyecto"}`}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
 
-      {/* Modal for Editing Video URL */}
-      {isVideoModalOpen && (
+                {isAdmin && (
+                  <button
+                    onClick={() => handleAddItem(module.id)}
+                    className={styles.addClassButton}
+                  >
+                    <FaPlus /> Añadir Contenido
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No hay módulos disponibles.</p>
+        )}
+        {isAdmin && (
+          <button className={styles.addModuleButton} onClick={addModule}>
+            <FaPlus /> Añadir Módulo
+          </button>
+        )}
+      </div>
+
+      {isTypeModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
-            <h3>Edit Video URL</h3>
-            <label>
-              Video URL:
-              <input
-                type="text"
-                value={newVideoUrl}
-                onChange={handleVideoUrlChange}
-                placeholder="Enter new video URL"
-                className={styles.modalInput}
-              />
-            </label>
-            <div className={styles.modalActions}>
-              <button onClick={saveVideoUrl}>Save</button>
-              <button onClick={closeVideoModal}>Cancel</button>
+            <h3>¿Qué deseas crear?</h3>
+            <div className={styles.typeButtons}>
+              <button onClick={() => createNewItem("class")}>
+                📚 Clase
+              </button>
+              <button onClick={() => createNewItem("project")}>
+                🛠️ Proyecto
+              </button>
             </div>
+            <button onClick={() => setIsTypeModalOpen(false)} className={styles.cancelButton}>
+              Cancelar
+            </button>
           </div>
         </div>
       )}
@@ -449,3 +766,4 @@ const CourseDetail = ({ params }) => {
 };
 
 export default CourseDetail;
+
