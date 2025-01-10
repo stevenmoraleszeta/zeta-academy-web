@@ -2,6 +2,7 @@
 "use client"; // Indica que este componente se ejecuta en el cliente
 
 import React, { useContext, useState, useEffect, createContext } from "react";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
 import { onAuthStateChanged ,  signInWithEmailAndPassword, signOut,createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore"; // Importar funciones de Firestore
@@ -72,21 +73,33 @@ export function AuthProvider({ children }) {
         };
     
 
+
+
+
 // Función para crear usuario con email, contraseña y nombre completo
-const registerWithEmailAndPassword = async (email, password, name) => {
+const registerWithEmailAndPassword = async (email, password, name, profilePicture) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Actualizar el nombre en el perfil del usuario
-        await updateProfile(user, { displayName: name });
+        let photoURL = "";
+
+        if (profilePicture) {
+            // Subir la imagen a Firebase Storage
+            const storageRef = ref(storage, v4());
+            await uploadBytes(storageRef, profilePicture);
+            photoURL = await getDownloadURL(storageRef); // Obtener la URL de la imagen subida
+        }
+
+        // Actualizar el nombre y la foto en el perfil del usuario
+        await updateProfile(user, { displayName: name, photoURL });
 
         // Guardar en Firestore
         const userDocRef = doc(db, "users", user.uid);
         await setDoc(userDocRef, {
             displayName: name,
             email: user.email,
-            photoURL: user.photoURL || "", // Puede ser vacío si no hay foto de perfil
+            photoURL, // URL de la foto de perfil
             role: "student", // Rol por defecto
             pais: "",
             number: "",
@@ -96,7 +109,7 @@ const registerWithEmailAndPassword = async (email, password, name) => {
         setCurrentUser(user);
         setIsAdmin(false);
         setMissingInfo(true); // Se considera que faltan los datos adicionales
-        console.log("Usuario registrado exitosamente");
+        console.log("Usuario registrado exitosamente con foto de perfil");
     } catch (error) {
         console.error("Error al registrar usuario:", error.message);
         throw new Error("Error al registrar usuario");
