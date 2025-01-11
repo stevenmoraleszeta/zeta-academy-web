@@ -47,7 +47,7 @@
     justify-content: start;
     border-radius: 4px;
     padding: 0px;
-    font-size: clamp(1vw, 22px, 1.6vw);
+    font-size: clamp(0.8vw, 17.6px, 1.28vw);
     cursor: pointer;
 
     color: white;

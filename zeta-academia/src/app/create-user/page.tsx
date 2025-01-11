@@ -32,20 +32,20 @@ function createUser() {
     setIsSubmitting(true);
 
     if (password !== confirmPassword) {
-        setError("Las contraseñas no coinciden");
-        setIsSubmitting(false);
-        return;
+      setError("Las contraseñas no coinciden");
+      setIsSubmitting(false);
+      return;
     }
 
     try {
-        await registerWithEmailAndPassword(email, password, name, profilePicture); // Registrar en Firebase con foto
-        router.push("/completeInfoPage");
+      await registerWithEmailAndPassword(email, password, name, profilePicture); // Registrar en Firebase con foto
+      router.push("/completeInfoPage");
     } catch (err: any) {
-        setError(err.message || "Error al registrarse");
+      setError(err.message || "Error al registrarse");
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
-};
+  };
 
   return (
     <section>
@@ -100,11 +100,23 @@ function createUser() {
               className={styles.input}
               required
             />
-           
+
             {error && <p className={styles.errorText}>{error}</p>}
-            <button type="submit" disabled={isSubmitting} className={styles.submitButton}>
-              {isSubmitting ? "Registrando..." : "Crear cuenta"}
-            </button>
+            <div className={styles.buttonContainer}>
+              <button type="submit" disabled={isSubmitting} className={styles.submitButton}>
+                {isSubmitting ? "Registrando..." : "Crear cuenta"}
+              </button>
+            </div>
+            <p className={styles.loginPrompt}>
+              ¿Tienes una cuenta?
+              <button 
+                type="button" 
+                onClick={() => router.push("/login")}
+                className={styles.backButton}
+              >
+                Iniciar sesión
+              </button>
+            </p>
           </form>
         </div>
       </div>

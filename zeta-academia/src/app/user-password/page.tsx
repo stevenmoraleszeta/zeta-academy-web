@@ -65,7 +65,7 @@ function UserAndPassword() {
                 required
               />
             <p className={styles.forgetPassword}>
-               <a href="https://wa.link/6lqs97" className={styles.link}>
+               <a href="https://wa.link/9vy9v9" className={styles.link}>
                 ¿Olvidaste tu contraseña?
                 </a>
               </p>
@@ -82,6 +82,9 @@ function UserAndPassword() {
                   Regístrate aquí
                 </a>
               </p>
+              <a href="/login" className={styles.link}>
+                  Volver
+                </a>
             </form>
 
             {/* Mensaje de error */}

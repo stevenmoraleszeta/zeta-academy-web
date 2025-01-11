@@ -48,16 +48,19 @@
     padding: 20px;
     width: 100%;
 }
+
 .input {
     width: 100%;
-    max-width: 400px; /* Limita el ancho del input */
+    max-width: 400px;
+    /* Limita el ancho del input */
     padding: 10px 12px;
-    border: 1px solid #ccc;
+    border: none;
     border-radius: 6px;
     font-size: 1rem;
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
 .input:focus {
     border-color: #E85D04;
     box-shadow: 0 0 6px rgba(30, 144, 255, 0.4);
@@ -66,11 +69,11 @@
 
 .submitBtn {
     background-color: #E85D04;
-    
     color: white;
     padding: 10px 0;
     width: 100%;
-    max-width: 180px; /* Botón del mismo tamaño que los inputs */
+    max-width: 180px;
+    /* Botón del mismo tamaño que los inputs */
     font-size: 1rem;
     font-weight: bold;
     border: none;
@@ -87,10 +90,44 @@
 
 .errorText {
     margin-top: 10px;
-    color: #E85D04;
+    color: var(--color-secondary);
     font-size: 1rem;
     text-align: center;
 }
+
+.loginPrompt {
+    text-align: center;
+    font-size: 14px;
+}
+
+.loginLink {
+    color: var(--color-secondary);
+    font-weight: bold;
+    /* Adjust the color as needed */
+    text-decoration: none;
+}
+
+.loginLink:hover {
+    text-decoration: underline;
+}
+
+.backButton {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: orange;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+}
+
+.backButton:hover {
+    color: orange;
+    background-color: transparent;
+    text-decoration: underline;
+}
+
 
 /* media queries */
 
@@ -99,8 +136,9 @@
         padding: 15px;
     }
 
-    .input, .submitBtn {
-       
+    .input,
+    .submitBtn {
+
         font-size: 0.9rem;
     }
 
@@ -110,7 +148,7 @@
 }
 
 @media (max-width:768px) {
-    
+
     .zetaLogo {
         width: clamp(38vw, 600px, 43vw);
         height: clamp(7vw, 200px, 17vw);
@@ -156,4 +194,3 @@
         width: 70%;
     }
 }
-
