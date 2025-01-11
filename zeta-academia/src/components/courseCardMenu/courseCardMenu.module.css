@@ -110,13 +110,13 @@
     justify-self: left;
 }
 
-.archiveIconContainer {
+.buttonIconContainer {
     position: absolute;
     bottom: 5px;
     right: 10px;
 }
 
-.archiveButton {
+.archiveButton, .duplicateButton {
     background: transparent;
     border: none;
     cursor: pointer;
@@ -124,7 +124,7 @@
     font-size:  1.2rem;
 }
 
-.archiveButton:hover {
+.archiveButton:hover, .duplicateButton:hover {
     background-color: transparent;
     color: var(--color-secondary);
 }

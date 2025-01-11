@@ -27,6 +27,7 @@ import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import { AlertButton, AlertComponent } from "@/components/alert/alert";
 import CodeBlock from "@/components/codeBlock/CodeBlock"
+import Image from "next/image";
 
 const ClassDetail = () => {
   const router = useRouter();
@@ -34,6 +35,7 @@ const ClassDetail = () => {
   const { courseId, moduleId, classId } = useParams();
 
   console.log("Params:", { courseId, moduleId, classId });
+
   const [classTitle, setClassTitle] = useState("");
   const [resources, setResources] = useState([]);
   const [classesInModule, setClassesInModule] = useState([]);
@@ -62,7 +64,7 @@ const ClassDetail = () => {
       try {
         const classRef = doc(
           db,
-          "onlineCourses",
+          "liveCourses",
           courseId,
           "modules",
           moduleId,
@@ -79,7 +81,7 @@ const ClassDetail = () => {
           document.title = `${data.title} - ZETA`;
         } else {
           console.error("Class not found");
-          router.push("/cursos-en-linea");
+          router.push("/cursos-en-vivo");
         }
       } catch (error) {
         console.error("Error fetching class data:", error);
@@ -90,12 +92,12 @@ const ClassDetail = () => {
       if (!currentUser) return;
 
       try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
+        const courseRef = doc(db, "liveCourses", courseId);
+        const courseSnap = await getDoc(courseRef);
 
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setIsEnrolled(userData.enrolledCourses?.includes(courseId) || false);
+        if (courseSnap.exists()) {
+          const courseData = courseSnap.data();
+          setIsEnrolled(courseData.students?.includes(currentUser.uid) || false);
         }
       } catch (error) {
         console.error("Error checking enrollment:", error);
@@ -127,7 +129,7 @@ const ClassDetail = () => {
       try {
         const classesRef = collection(
           db,
-          "onlineCourses",
+          "liveCourses",
           courseId,
           "modules",
           moduleId,
@@ -149,7 +151,7 @@ const ClassDetail = () => {
 
     const fetchCourseName = async () => {
       try {
-        const courseRef = doc(db, "onlineCourses", courseId);
+        const courseRef = doc(db, "liveCourses", courseId);
         const courseSnapshot = await getDoc(courseRef);
         if (courseSnapshot.exists()) {
           const courseData = courseSnapshot.data();
@@ -248,7 +250,7 @@ const ClassDetail = () => {
     try {
       const classRef = doc(
         db,
-        "onlineCourses",
+        "liveCourses",
         courseId,
         "modules",
         moduleId,
@@ -272,7 +274,20 @@ const ClassDetail = () => {
     width = "",
     height = ""
   ) => {
-    // Limpia el historial de cambios al abrir el modal
+    if (!currentUser) {
+      console.error("El usuario no ha iniciado sesión.");
+      setIsAlertOpen(true); // Abre la alerta si el usuario no ha iniciado sesión
+      return;
+    }
+
+    if (!isEnrolled) {
+      console.error("El usuario no está matriculado.");
+      setIsAlertOpen(true); // Abre la alerta si el usuario no está matriculado
+      return;
+    }
+
+
+    // Clear the change history when opening the modal
     setHistory([content || ""]);
     setHistoryIndex(0);
 
@@ -381,7 +396,7 @@ const ClassDetail = () => {
     try {
       const classRef = doc(
         db,
-        "onlineCourses",
+        "liveCourses",
         courseId,
         "modules",
         moduleId,
@@ -411,7 +426,7 @@ const ClassDetail = () => {
   };
 
   const handleBackToSyllabus = () => {
-    router.push(`/cursos-en-linea/${courseId}`);
+    router.push(`/cursos-en-vivo/${courseId}`);
   };
 
   const handleConsultMentor = () => {
@@ -430,7 +445,7 @@ const ClassDetail = () => {
     if (currentClassIndex > 0) {
       const previousClassId = classesInModule[currentClassIndex - 1].id;
       router.push(
-        `/cursos-en-linea/${courseId}/${moduleId}/${previousClassId}`
+        `/cursos-en-vivo/${courseId}/${moduleId}/${previousClassId}`
       );
     } else {
       console.log("No previous class available.");
@@ -443,7 +458,7 @@ const ClassDetail = () => {
     );
     if (currentClassIndex < classesInModule.length - 1) {
       const nextClassId = classesInModule[currentClassIndex + 1].id;
-      router.push(`/cursos-en-linea/${courseId}/${moduleId}/${nextClassId}`);
+      router.push(`/cursos-en-vivo/${courseId}/${moduleId}/${nextClassId}`);
     } else {
       console.log("No next class available.");
     }
@@ -478,7 +493,7 @@ const ClassDetail = () => {
   };
   const handleCloseAlert = () => {
     setIsAlertOpen(false);
-    router.push(`/cursos-en-linea/${courseId}`);
+    router.push(`/cursos-en-vivo/${courseId}`);
   }
 
   const applyStyleToText = (style) => {
@@ -523,6 +538,82 @@ const ClassDetail = () => {
     textarea.focus();
     textarea.setSelectionRange(selectionStart, selectionStart + selected.length);
   };
+
+  const restrictedContent = () => {
+    if (!currentUser) {
+      return (
+        <AlertComponent
+          title="Acceso restringido"
+          description="Debes iniciar sesión para acceder a esta clase."
+        >
+          <button
+            onClick={() => router.push("/login")}
+            className={styles.modalButton}
+          >
+            Iniciar sesión
+          </button>
+          <button
+            onClick={() => router.push(`/cursos-en-vivo/${courseId}`)}
+            className={styles.modalButton}
+          >
+            Volver
+          </button>
+        </AlertComponent>
+      );
+    }
+
+    if (!isEnrolled && !isAdmin) {
+      return (
+        <AlertComponent
+          title="Acceso restringido"
+          description="Debes matricularte en este curso para acceder."
+        >
+          <button
+            onClick={() => handleEnrollClick()}
+            className={styles.modalButton}
+          >
+            Matricularse
+          </button>
+          <button
+            onClick={() => router.push(`/cursos-en-vivo/${courseId}`)}
+            className={styles.modalButton}
+          >
+            Volver
+          </button>
+        </AlertComponent>
+      );
+    }
+
+    if (isRestricted && !isAdmin) {
+      return (
+        <AlertComponent
+          title="Acceso restringido"
+          description="Esta clase está actualmente restringida y se desbloqueará más tarde."
+        >
+          <button
+            onClick={() => router.push(`/cursos-en-vivo/${courseId}`)}
+            className={styles.modalButton}
+          >
+            Volver
+          </button>
+        </AlertComponent>
+      );
+    }
+
+    return null;
+  };
+
+  const handleEnrollClick = () => {
+    const phoneNumber = "+50661304830"; // Reemplaza con tu número de teléfono
+    const message = `Hola, estoy interesado/a en inscribirme al curso en vivo ${courseName}.`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
+
+  if (!Array.isArray(resources)) return <div>Loading...</div>;
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -572,361 +663,312 @@ const ClassDetail = () => {
     }
   };
 
-  const restrictedContent = () => {
-    if (!currentUser) {
-      return (
-        <AlertComponent
-          title="Acceso restringido"
-          description="Debes iniciar sesión para acceder a este curso"
-        >
-          <button
-            onClick={() => router.push("/login")}
-            className={styles.modalButton}
-          >
-            Iniciar sesión
-          </button>
-          <button
-            onClick={() => router.push(`/cursos-en-linea/${courseId}`)}
-            className={styles.modalButton}
-          >
-            Volver
-          </button>
-        </AlertComponent>
-      );
-    }
-  
-    if (!isAdmin && !isEnrolled) {
-      return (
-        <AlertComponent
-          title="Acceso restringido"
-          description="Debes matricularte en este curso primero"
-        >
-          <button
-            onClick={() =>
-              router.push(`/payment?courseId=${encodeURIComponent(courseId)}`)
-            }
-            className={styles.modalButton}
-          >
-            Matricularse
-          </button>
-          <button
-            onClick={() => router.push(`/cursos-en-linea/${courseId}`)}
-            className={styles.modalButton}
-          >
-            Volver
-          </button>
-        </AlertComponent>
-      );
-    }
-  
-    return null;
-  };
-
   return (
     <div>
-    {isRestricted ? (
-      restrictedContent()
-    ) : (
-    <div className={styles.classDetailContainer}>
-      {isAdmin ? (
-        <div className={styles.titleContainer}>
-          <input
-            type="text"
-            value={classTitle}
-            onChange={handleTitleChange}
-            className={styles.titleInput}
-            placeholder="Class Title"
-          />
-        </div>
+      {(!currentUser || (isRestricted && !isAdmin) || (!isEnrolled && !isAdmin)) ? (
+        restrictedContent()
       ) : (
-        <span className={styles.titleInput}>{classTitle}</span>
-      )}
-
-      <div className={styles.resourcesContainer}>
-        {resources
-          .sort((a, b) => a.order - b.order)
-          .map((resource, index) => (
-            <div key={`${resource.type}-${index}`} className={styles.block}>
-              {isAdmin ? (
-                <div className={styles.resourceActions}>
-                  <FaEdit
-                    onClick={() =>
-                      openModal(
-                        resource.type,
-                        resource.content,
-                        resource.title || "",
-                        resource.start || "",
-                        resource.end || "",
-                        index,
-                        resource.width || "",
-                        resource.height || ""
-                      )
-                    }
-                    className={styles.icon}
-                  />
-                  <FaTrashAlt
-                    onClick={() => handleRemoveResource(index)}
-                    className={styles.icon}
-                  />
-                  <FaArrowUp
-                    onClick={() => handleMoveResource(index, "up")}
-                    className={styles.icon}
-                  />
-                  <FaArrowDown
-                    onClick={() => handleMoveResource(index, "down")}
-                    className={styles.icon}
-                  />
-                </div>
-              ) : null}
-
-              {resource.type === "title" && (
-                <h2 className={styles.titleResource}>
-                  {resource.content || "Untitled"}
-                </h2>
-              )}
-
-              {resource.type === "videoUrl" && (
-                <div className={styles.videoWrapper}>
-                  <iframe
-                    src={generateYouTubeEmbedUrl(
-                      resource.content,
-                      resource.start,
-                      resource.end
-                    )}
-                    title={`Video ${index + 1}`}
-                    className={styles.videoFrame}
-                    id={`video-${index}`}
-                    allow="autoplay; encrypted-media; fullscreen"
-                  ></iframe>
-                  <button
-                    onClick={() => restartVideo(index)}
-                    className={styles.restartButton}
-                  >
-                    Reiniciar video
-                  </button>
-                </div>
-              )}
-              {resource.type === "imageUrl" && (
-                <>
-                  <img
-                    src={resource.content}
-                    alt={resource.title || "Image"}
-                    className={styles.imagePreview}
-                    style={{ width: resource.width || 'auto', height: resource.height || 'auto' }}
-                  />
-                </>
-              )}
-              {resource.type === "link" && (
-                <a
-                  href={resource.content}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${styles.resourceButton}`}
-                >
-                  <FaLink className={styles.resourceButtonIcon} />
-                  {resource.title || "Unnamed Link"}
-                </a>
-              )}
-              {resource.type === "pdfUrl" && (
-                <a
-                  href={resource.content}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${styles.resourceButton}`}
-                >
-                  <FaFilePdf className={styles.resourceButtonIcon} />
-                  {resource.title || "Unnamed PDF"}
-                </a>
-              )}
-              {resource.type === "text" && (
-                <div
-                  className={styles.textResource}
-                  dangerouslySetInnerHTML={{
-                    __html: resource.content
-                      .replace(/^\s+/gm, (match) => "&nbsp;".repeat(match.length)) // Convierte espacios iniciales en &nbsp;
-                      .replace(/\+([\s\S]*?)\+/g, (match, p1) => {
-                        // Convierte bloques entre + en una lista
-                        const items = p1
-                          .split("\n")
-                          .filter((line) => line.trim().startsWith("-")) // Solo líneas que inician con -
-                          .map((line) => `<li>${line.trim().substring(1).trim()}</li>`) // Convierte en <li>
-                          .join("");
-                        return `<ul>${items}</ul>`;
-                      })
-                      .replace(/\n/g, "<br>") // Convierte otros saltos de línea en <br>
-                      .replace(/\*(.*?)\*/g, "<b>$1</b>"), // Convierte *texto* en <b>texto</b>
-                  }}
-                />
-              )}
-
-              {resource.type === "sendProject" && (
-                <button
-                  className={styles.sendProjectButton}
-                  onClick={handleSendProjectClick}
-                >
-                  <FaWhatsapp className={styles.sendProjectIcon} />
-                  {resource.content || "Enviar Proyecto"}
-                </button>
-              )}
-              {resource.type === "code" && (
-                <CodeBlock code={resource.content} />
-              )}
-            </div>
-          ))}
-      </div>
-      {isAdmin ? (
-        <button onClick={() => openModal()} className={styles.addButton}>
-          Add Resource
-        </button>
-      ) : null}
-      {isModalOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>
-              {editingIndex !== null ? "Modify Resource" : "Add New Resource"}
-            </h3>
-            <div>
-              Select Resource Type:
-              <select
-                value={newResourceType}
-                onChange={(e) => setNewResourceType(e.target.value)}
-                className={styles.modalSelect}
-              >
-                <option value="">Select Type</option>
-                <option value="title">Title</option>
-                <option value="text">Text</option>
-                <option value="code">Code</option>
-                <option value="videoUrl">Video URL</option>
-                <option value="imageUrl">Image URL</option>
-                <option value="link">Link</option>
-                <option value="pdfUrl">PDF URL</option>
-                <option value="sendProject">Send Project</option>
-              </select>
-            </div>
-
-            {(newResourceType === "link" || newResourceType === "pdfUrl") && (
-              <div>
-                Enter Title:
-                <input
-                  type="text"
-                  value={newResourceTitle}
-                  onChange={(e) => setNewResourceTitle(e.target.value)}
-                  className={styles.modalInput}
-                  placeholder="Enter title"
-                />
-              </div>
-            )}
-
-            <div>
-              Enter Content:
-              {newResourceType === "text" && (
-                <div className={styles.textEditorButtons}>
-                  <button onClick={() => applyStyleToText("bold")} className={styles.styleButton}>Bold</button>
-                  <button onClick={() => applyStyleToText("bullet")} className={styles.styleButton}>Bullet List</button>
-                  <button onClick={() => applyStyleToText("delimitedList")} className={styles.styleButton}>Delimited List</button>
-                </div>
-              )}
-              <textarea
+        <div className={styles.classDetailContainer}>
+          {isAdmin ? (
+            <div className={styles.titleContainer}>
+              <input
                 type="text"
-                value={newResourceContent}
-                onChange={(e) => handleContentChange(e.target.value)}
-                className={styles.modalInput}
-                placeholder="Enter content"
+                value={classTitle}
+                onChange={handleTitleChange}
+                className={styles.titleInput}
+                placeholder="Class Title"
               />
             </div>
+          ) : (
+            <span className={styles.titleInput}>{classTitle}</span>
+          )}
 
-            {newResourceType === "videoUrl" && (
-              <>
-                <label>
-                  Start Time (seconds):
-                  <input
-                    type="number"
-                    value={videoStart}
-                    onChange={(e) => setVideoStart(e.target.value)}
+          <div className={styles.resourcesContainer}>
+            {resources
+              .sort((a, b) => a.order - b.order)
+              .map((resource, index) => (
+                <div key={`${resource.type}-${index}`} className={styles.block}>
+                  {isAdmin ? (
+                    <div className={styles.resourceActions}>
+                      <FaEdit
+                        onClick={() =>
+                          openModal(
+                            resource.type,
+                            resource.content,
+                            resource.title || "",
+                            resource.start || "",
+                            resource.end || "",
+                            index,
+                            resource.width || "",
+                            resource.height || ""
+                          )
+                        }
+                        className={styles.icon}
+                      />
+                      <FaTrashAlt
+                        onClick={() => handleRemoveResource(index)}
+                        className={styles.icon}
+                      />
+                      <FaArrowUp
+                        onClick={() => handleMoveResource(index, "up")}
+                        className={styles.icon}
+                      />
+                      <FaArrowDown
+                        onClick={() => handleMoveResource(index, "down")}
+                        className={styles.icon}
+                      />
+                    </div>
+                  ) : null}
+
+                  {resource.type === "title" && (
+                    <h2 className={styles.titleResource}>
+                      {resource.content || "Untitled"}
+                    </h2>
+                  )}
+
+                  {resource.type === "videoUrl" && (
+                    <div className={styles.videoWrapper}>
+                      <iframe
+                        src={generateYouTubeEmbedUrl(
+                          resource.content,
+                          resource.start,
+                          resource.end
+                        )}
+                        title={`Video ${index + 1}`}
+                        className={styles.videoFrame}
+                        id={`video-${index}`}
+                        allow="autoplay; encrypted-media; fullscreen"
+                      ></iframe>
+                      <button
+                        onClick={() => restartVideo(index)}
+                        className={styles.restartButton}
+                      >
+                        Reiniciar video
+                      </button>
+                    </div>
+                  )}
+                  {resource.type === "imageUrl" && (
+                    <>
+                      <img
+                        src={resource.content}
+                        alt={resource.title || "Image"}
+                        className={styles.imagePreview}
+                        style={{ width: resource.width || 'auto', height: resource.height || 'auto' }}
+                      />
+                    </>
+                  )}
+                  {resource.type === "link" && (
+                    <a
+                      href={resource.content}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.resourceButton}`}
+                    >
+                      <FaLink className={styles.resourceButtonIcon} />
+                      {resource.title || "Unnamed Link"}
+                    </a>
+                  )}
+                  {resource.type === "pdfUrl" && (
+                    <a
+                      href={resource.content}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.resourceButton}`}
+                    >
+                      <FaFilePdf className={styles.resourceButtonIcon} />
+                      {resource.title || "Unnamed PDF"}
+                    </a>
+                  )}
+                  {resource.type === "text" && (
+                    <div
+                      className={styles.textResource}
+                      dangerouslySetInnerHTML={{
+                        __html: resource.content
+                          .replace(/^\s+/gm, (match) => "&nbsp;".repeat(match.length)) // Convierte espacios iniciales en &nbsp;
+                          .replace(/\+([\s\S]*?)\+/g, (match, p1) => {
+                            // Convierte bloques entre + en una lista
+                            const items = p1
+                              .split("\n")
+                              .filter((line) => line.trim().startsWith("-")) // Solo líneas que inician con -
+                              .map((line) => `<li>${line.trim().substring(1).trim()}</li>`) // Convierte en <li>
+                              .join("");
+                            return `<ul>${items}</ul>`;
+                          })
+                          .replace(/\n/g, "<br>") // Convierte otros saltos de línea en <br>
+                          .replace(/\*(.*?)\*/g, "<b>$1</b>"), // Convierte *texto* en <b>texto</b>
+                      }}
+                    />
+                  )}
+
+                  {resource.type === "sendProject" && (
+                    <button
+                      className={styles.sendProjectButton}
+                      onClick={handleSendProjectClick}
+                    >
+                      <FaWhatsapp className={styles.sendProjectIcon} />
+                      {resource.content || "Enviar Proyecto"}
+                    </button>
+                  )}
+                  {resource.type === "code" && (
+                    <CodeBlock code={resource.content} />
+                  )}
+                </div>
+              ))}
+          </div>
+          {isAdmin ? (
+            <button onClick={() => openModal()} className={styles.addButton}>
+              Add Resource
+            </button>
+          ) : null}
+          {isModalOpen && (
+            <div className={styles.modalOverlay}>
+              <div className={styles.modalContent}>
+                <h3>
+                  {editingIndex !== null ? "Modify Resource" : "Add New Resource"}
+                </h3>
+                <div>
+                  Select Resource Type:
+                  <select
+                    value={newResourceType}
+                    onChange={(e) => setNewResourceType(e.target.value)}
+                    className={styles.modalSelect}
+                  >
+                    <option value="">Select Type</option>
+                    <option value="title">Title</option>
+                    <option value="text">Text</option>
+                    <option value="code">Code</option>
+                    <option value="videoUrl">Video URL</option>
+                    <option value="imageUrl">Image URL</option>
+                    <option value="link">Link</option>
+                    <option value="pdfUrl">PDF URL</option>
+                    <option value="sendProject">Send Project</option>
+                  </select>
+                </div>
+
+                {(newResourceType === "link" || newResourceType === "pdfUrl") && (
+                  <div>
+                    Enter Title:
+                    <input
+                      type="text"
+                      value={newResourceTitle}
+                      onChange={(e) => setNewResourceTitle(e.target.value)}
+                      className={styles.modalInput}
+                      placeholder="Enter title"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  Enter Content:
+                  {newResourceType === "text" && (
+                    <div className={styles.textEditorButtons}>
+                      <button onClick={() => applyStyleToText("bold")} className={styles.styleButton}>Bold</button>
+                      <button onClick={() => applyStyleToText("bullet")} className={styles.styleButton}>Bullet List</button>
+                      <button onClick={() => applyStyleToText("delimitedList")} className={styles.styleButton}>Delimited List</button>
+                    </div>
+                  )}
+                  <textarea
+                    type="text"
+                    value={newResourceContent}
+                    onChange={(e) => handleContentChange(e.target.value)}
                     className={styles.modalInput}
+                    placeholder="Enter content"
                   />
-                </label>
-                <label>
-                  End Time (seconds):
-                  <input
-                    type="number"
-                    value={videoEnd}
-                    onChange={(e) => setVideoEnd(e.target.value)}
-                    className={styles.modalInput}
-                  />
-                </label>
-              </>
+                </div>
+
+                {newResourceType === "videoUrl" && (
+                  <>
+                    <label>
+                      Start Time (seconds):
+                      <input
+                        type="number"
+                        value={videoStart}
+                        onChange={(e) => setVideoStart(e.target.value)}
+                        className={styles.modalInput}
+                      />
+                    </label>
+                    <label>
+                      End Time (seconds):
+                      <input
+                        type="number"
+                        value={videoEnd}
+                        onChange={(e) => setVideoEnd(e.target.value)}
+                        className={styles.modalInput}
+                      />
+                    </label>
+                  </>
+                )}
+                {newResourceType === "imageUrl" && (
+                  <>
+                    <label>
+                      Ancho de la imagen (px):
+                      <input
+                        type="number"
+                        value={newResourceWidth}
+                        onChange={(e) => setNewResourceWidth(e.target.value)}
+                        className={styles.modalInput}
+                        placeholder="Ancho de la imagen"
+                      />
+                    </label>
+                  </>
+                )}
+                <div className={styles.modalActions}>
+                  {newResourceType !== "" && (
+                    <button onClick={handleSaveResource}>
+                      {editingIndex !== null ? "Save Changes" : "Add"}
+                    </button>
+                  )}
+                  <button onClick={closeModal}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {isAlertOpen && (
+            <>
+              <AlertComponent title="No se puede completar la clase" description="Parece ser que la clase anterior no se ha completado aún">
+                <AlertButton text="Cerrar" funct={handleCloseAlert}></AlertButton>
+              </AlertComponent>
+            </>
+          )}
+          <div className={styles.fixedBar}>
+            <button
+              className={styles.syllabusButton}
+              onClick={handleBackToSyllabus}
+            >
+              <FaBook className={styles.btnIcon} /> Volver al temario
+            </button>
+
+            {classesInModule.findIndex((cls) => cls.id === classId) > 0 && (
+              <button className={styles.backButton} onClick={handlePreviousClass}>
+                <FaChevronLeft className={styles.btnIcon} /> Clase anterior
+              </button>
             )}
-            {newResourceType === "imageUrl" && (
-              <>
-                <label>
-                  Ancho de la imagen (px):
-                  <input
-                    type="number"
-                    value={newResourceWidth}
-                    onChange={(e) => setNewResourceWidth(e.target.value)}
-                    className={styles.modalInput}
-                    placeholder="Ancho de la imagen"
-                  />
-                </label>
-              </>
-            )}
-            <div className={styles.modalActions}>
-              {newResourceType !== "" && (
-                <button onClick={handleSaveResource}>
-                  {editingIndex !== null ? "Save Changes" : "Add"}
+
+            <button
+              className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ""
+                }`}
+              onClick={handleCompleteClass}
+              disabled={!isPreviousClassCompleted && !isCompleted}
+            >
+              <FaCheck className={styles.btnIcon} /> {isCompleted ? "Clase completada" : "Completar clase"}
+            </button>
+            {classesInModule.findIndex((cls) => cls.id === classId) <
+              classesInModule.length - 1 && (
+                <button className={styles.nextButton} onClick={handleNextClass}>
+                  Clase siguiente <FaChevronRight className={styles.btnIcon} />
                 </button>
               )}
-              <button onClick={closeModal}>Cancel</button>
-            </div>
+            <button
+              className={styles.syllabusButton}
+              onClick={handleConsultMentor}
+            >
+              <FaWhatsapp className={styles.btnIcon} /> Consultar mentor
+            </button>
           </div>
         </div>
       )}
-
-
-      {isAlertOpen && (
-        <>
-          <AlertComponent title="No se puede completar la clase" description="Parece ser que la clase anterior no se ha completado aún">
-            <AlertButton text="Cerrar" funct={handleCloseAlert}></AlertButton>
-          </AlertComponent>
-        </>
-      )}
-      <div className={styles.fixedBar}>
-        <button
-          className={styles.syllabusButton}
-          onClick={handleBackToSyllabus}
-        >
-          <FaBook className={styles.btnIcon} /> Volver al temario
-        </button>
-
-        {classesInModule.findIndex((cls) => cls.id === classId) > 0 && (
-          <button className={styles.backButton} onClick={handlePreviousClass}>
-            <FaChevronLeft className={styles.btnIcon} /> Clase anterior
-          </button>
-        )}
-
-        <button
-          className={`${styles.completeButton} ${isCompleted ? styles.completedButton : ""
-            }`}
-          onClick={handleCompleteClass}
-          disabled={!isPreviousClassCompleted && !isCompleted}
-        >
-          <FaCheck className={styles.btnIcon} /> {isCompleted ? "Clase completada" : "Completar clase"}
-        </button>
-        {classesInModule.findIndex((cls) => cls.id === classId) <
-          classesInModule.length - 1 && (
-            <button className={styles.nextButton} onClick={handleNextClass}>
-              Clase siguiente <FaChevronRight className={styles.btnIcon} />
-            </button>
-          )}
-        <button
-          className={styles.syllabusButton}
-          onClick={handleConsultMentor}
-        >
-          <FaWhatsapp className={styles.btnIcon} /> Consultar mentor
-        </button>
-      </div>
-    </div>)}
     </div>
   );
 };

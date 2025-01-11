@@ -1,6 +1,6 @@
 // File: src/components/CourseCardMenu.jsx
 import React, { useState } from "react";
-import { FaArchive } from "react-icons/fa";
+import { FaArchive, FaCopy } from "react-icons/fa";
 import styles from "./courseCardMenu.module.css";
 import { useRouter } from "next/navigation";
 import { doc, updateDoc } from "firebase/firestore";
@@ -8,7 +8,7 @@ import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 
 
-const CourseCardMenu = ({ course, courseType }) => {
+const CourseCardMenu = ({ course, courseType, onDuplicate }) => {
   const router = useRouter();
   const [isArchived, setIsArchived] = useState(course.archived); // Estado local para controlar el archivado
   const { user, isAdmin } = useAuth();
@@ -59,7 +59,7 @@ const CourseCardMenu = ({ course, courseType }) => {
         <p>{course.description}</p>
         <div className={styles.priceContainer}>
           <span className={styles.discountedPrice}>
-          ${course.discountedPrice}
+            ${course.discountedPrice}
           </span>
           <span className={styles.originalPrice}>${course.originalPrice}</span>
         </div>
@@ -70,12 +70,24 @@ const CourseCardMenu = ({ course, courseType }) => {
           Ver Información
         </button>
 
-        {isAdmin ? (
-          <div className={styles.archiveIconContainer}>
+        {isAdmin && (
+          <div className={styles.buttonIconContainer}>
+            {onDuplicate && (
+              <button
+                className={styles.duplicateButton}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent navigation on button click
+                  onDuplicate(course); // Call the duplicate function
+                }}
+                title="Duplicar curso"
+              >
+                <FaCopy />
+              </button>
+            )}
             <button
               className={styles.archiveButton}
               onClick={(e) => {
-                e.stopPropagation(); // Evita la navegación al hacer clic en el botón
+                e.stopPropagation(); // Prevent navigation on button click
                 handleArchiveCourse(course.id);
               }}
               title="Archivar curso"
@@ -83,7 +95,7 @@ const CourseCardMenu = ({ course, courseType }) => {
               <FaArchive />
             </button>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );

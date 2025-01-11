@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import useFetchData from "@/app/hooks/useFetchData";
 import { useRouter } from "next/navigation";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
@@ -97,6 +97,47 @@ const LiveCourses = () => {
     );
   };
 
+  const handleDuplicateCourse = async (course) => {
+    try {
+      // Duplicate the main course document
+      const newCourse = {
+        ...course,
+        title: `${course.title} (Copy)`,
+        archived: false,
+      };
+      delete newCourse.id; // Remove the id to avoid conflicts
+      const docRef = await addDoc(collection(db, "liveCourses"), newCourse);
+
+      // Fetch and duplicate modules
+      const modulesSnapshot = await getDocs(
+        collection(db, `liveCourses/${course.id}/modules`)
+      );
+      modulesSnapshot.forEach(async (moduleDoc) => {
+        const moduleData = moduleDoc.data();
+        const newModuleRef = await addDoc(
+          collection(db, `liveCourses/${docRef.id}/modules`),
+          moduleData
+        );
+
+        // Fetch and duplicate classes for each module
+        const classesSnapshot = await getDocs(
+          collection(db, `liveCourses/${course.id}/modules/${moduleDoc.id}/classes`)
+        );
+        classesSnapshot.forEach(async (classDoc) => {
+          const classData = classDoc.data();
+          await addDoc(
+            collection(db, `liveCourses/${docRef.id}/modules/${newModuleRef.id}/classes`),
+            classData
+          );
+        });
+      });
+
+      router.push(`/cursos-en-vivo/${docRef.id}`);
+    } catch (error) {
+      console.error("Error duplicating course: ", error);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -161,6 +202,7 @@ const LiveCourses = () => {
               key={course.id}
               course={course}
               courseType={"live"}
+              onDuplicate={handleDuplicateCourse}
             />
           ))
         ) : (

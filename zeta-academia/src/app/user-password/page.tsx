@@ -64,13 +64,13 @@ function UserAndPassword() {
                 className={styles.input}
                 required
               />
-            <p className={styles.forgetPassword}>
-               <a href="https://wa.link/9vy9v9" className={styles.link}>
-                ¿Olvidaste tu contraseña?
+              <p className={styles.forgetPassword}>
+                <a href="https://wa.link/9vy9v9" className={styles.link}>
+                  ¿Olvidaste tu contraseña?
                 </a>
               </p>
-             
-              
+
+
 
               <button type="submit" className={styles.submitBtn}>
                 Iniciar Sesión
@@ -83,8 +83,8 @@ function UserAndPassword() {
                 </a>
               </p>
               <a href="/login" className={styles.link}>
-                  Volver
-                </a>
+                Volver
+              </a>
             </form>
 
             {/* Mensaje de error */}

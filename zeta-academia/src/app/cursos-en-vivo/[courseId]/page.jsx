@@ -10,15 +10,18 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { FaRegImage, FaPencilAlt, FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaCheck, FaLock, FaLockOpen } from "react-icons/fa";
+import { FaRegImage, FaPencilAlt, FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaCheck, FaLock, FaLockOpen, FaUser } from "react-icons/fa";
 import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
+import debounce from "lodash/debounce";
 
 const CourseDetail = ({ params }) => {
   const router = useRouter();
-  const courseId = params.id;
+  const courseId = params.courseId;
 
   console.log("CourseDetail rendered with courseId:", courseId); // Debug log
 
@@ -96,6 +99,13 @@ const CourseDetail = ({ params }) => {
   const [modules, setModules] = useState([]);
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
+  const [studentUsers, setStudentUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchCourse = async () => {
     try {
@@ -173,17 +183,37 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+  const fetchUsers = async () => {
+    const usersRef = collection(db, "users");
+    const usersSnapshot = await getDocs(usersRef);
+    const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Filtrar usuarios por rol
+    const adminUsers = usersList.filter(user => user.role === 'admin');
+    const studentUsers = usersList.filter(user => user.role === 'student');
+
+    setAllUsers(usersList);
+    setAdminUsers(adminUsers); // Agregar estado para usuarios admin
+    setStudentUsers(studentUsers); // Agregar estado para usuarios student
+  };
+
+  const fetchStudents = async () => {
+    const docRef = doc(db, "liveCourses", courseId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const fetchedData = docSnap.data();
+      setStudents(fetchedData.students || []);
+      console.log("Estudiantes: ", fetchedData.students);
+      setSelectedMentor(fetchedData.mentor || null);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!currentUser) {
-        console.log("Usuario no autenticado");
-        router.push('/login');
-        return;
-      }
-
       try {
         await fetchCourse();
         await fetchModules();
+        await fetchStudents();
       } catch (error) {
         console.error("Error en fetchData:", error);
         if (error.code === 'permission-denied') {
@@ -196,6 +226,11 @@ const CourseDetail = ({ params }) => {
       fetchData();
     }
   }, [courseId, currentUser, router]);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchStudents();
+  }, [courseId]);
 
   const handleFieldChange = async (field, value) => {
     const updatedCourse = { ...course, [field]: value };
@@ -447,6 +482,73 @@ const CourseDetail = ({ params }) => {
     router.push(`/cursos-en-vivo/${courseId}/${moduleId}/${collection}/${itemId}`);
   };
 
+  const handleModuleTitleChange = (moduleId, newTitle) => {
+    setModules((prevModules) =>
+      prevModules.map((module) =>
+        module.id === moduleId ? { ...module, title: newTitle } : module
+      )
+    );
+    debouncedUpdateModuleTitle(moduleId, newTitle);
+  };
+
+  const handleClassClick = (moduleId, classId) => {
+    router.push(`/cursos-en-vivo/${courseId}/${moduleId}/${classId}`);
+  };
+
+  const debouncedUpdateModuleTitle = debounce(async (moduleId, newTitle) => {
+    try {
+      const moduleRef = doc(db, "liveCourses", courseId, "modules", moduleId);
+      await updateDoc(moduleRef, { title: newTitle });
+    } catch (error) {
+      console.error("Error al actualizar el título del módulo:", error);
+    }
+  }, 500);
+
+  const openGroupModal = async (currentMentor) => {
+    // Cargar el mentor actual desde Firebase
+    const docRef = doc(db, "liveCourses", courseId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const fetchedData = docSnap.data();
+      setSelectedMentor(fetchedData.mentor || null); // Establecer el mentor actual
+    }
+    setIsGroupModalOpen(true);
+  };
+
+  const assignMentor = async (mentorId) => {
+    const docRef = doc(db, "liveCourses", courseId);
+    await updateDoc(docRef, {
+      mentor: mentorId,
+    });
+  };
+
+  const addStudent = async (studentId) => {
+    const docRef = doc(db, "liveCourses", courseId);
+    await updateDoc(docRef, {
+      students: arrayUnion(studentId), // Agregar estudiante al array
+    });
+  };
+
+  const removeStudent = async (studentId) => {
+    const docRef = doc(db, "liveCourses", courseId);
+    await updateDoc(docRef, {
+      students: arrayRemove(studentId), // Quitar estudiante del array
+    });
+  };
+
+  const handleAddStudent = async (studentId) => {
+    await addStudent(studentId);
+    fetchStudents();
+  };
+
+  const handleRemoveStudent = async (studentId) => {
+    const confirmed = confirm("¿Estás seguro de que deseas quitar este estudiante?");
+    if (confirmed) {
+      await removeStudent(studentId);
+      fetchStudents(); // Actualizar la lista de estudiantes después de eliminar
+    }
+  };
+
   return (
     <div className={styles.container}>
       {isAdmin ? (
@@ -539,8 +641,13 @@ const CourseDetail = ({ params }) => {
           </div>
 
           <div className={styles.buttonContainer}>
-            <button className={styles.enrollButton} onClick={handleEnrollClick}>
-              Inscríbete
+            <button
+              className={styles.enrollButton}
+              onClick={
+                students.includes(currentUser?.uid) ? null : handleEnrollClick
+              }
+            >
+              {students.includes(currentUser?.uid) ? "Inscrito" : "Inscríbete"}
             </button>
             <button
               className={styles.contactButton}
@@ -551,6 +658,11 @@ const CourseDetail = ({ params }) => {
             {isAdmin && (
               <div className={styles.iconWrapper} onClick={openModal}>
                 <FaRegImage className={styles.editIcon} />
+              </div>
+            )}
+            {isAdmin && (
+              <div className={styles.iconWrapper} onClick={openGroupModal}>
+                <FaUser className={styles.editIcon} />
               </div>
             )}
           </div>
@@ -613,20 +725,14 @@ const CourseDetail = ({ params }) => {
                     type="text"
                     value={module.title}
                     onChange={(e) =>
-                      setModules((prevModules) =>
-                        prevModules.map((mod, index) =>
-                          index === moduleIndex
-                            ? { ...mod, title: e.target.value }
-                            : mod
-                        )
-                      )
+                      handleModuleTitleChange(module.id, e.target.value)
                     }
                     className={styles.moduleTitle}
                   />
                 ) : (
                   <span className={styles.moduleTitle}>{module.title}</span>
                 )}
-                {isAdmin && (
+                {isAdmin ? (
                   <div className={styles.moduleActions}>
                     <button
                       onClick={() => moveModule(moduleIndex, -1)}
@@ -643,92 +749,94 @@ const CourseDetail = ({ params }) => {
                       <FaArrowDown />
                     </button>
                     <button
+                      onClick={() => addClass(module.id)}
+                      title="Añadir Clase"
+                    >
+                      <FaPlus />
+                    </button>
+                    <button
                       onClick={() => deleteModule(module.id)}
-                      className={styles.deleteButton}
+                      title="Eliminar Módulo"
                     >
                       <FaTrash />
                     </button>
                   </div>
+                ) : (
+                  null
                 )}
               </div>
-              <div className={styles.moduleContent}>
-                {[...(module.classes || []), ...(module.projects || [])]
-                  .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((item, index) => (
+
+              <div className={styles.classes}>
+                {module.classes && module.classes.length > 0 ? (
+                  module.classes.map((cls, classIndex) => (
                     <div
-                      key={item.id}
-                      className={styles.classItem}
-                      onClick={() => handleItemClick(module.id, item.id, item.type)}
+                      key={`${module.id}-${cls.id}`}
+                      className={`${styles.class} ${cls.completed ? styles.completedClass : ""
+                        } ${cls.highlight ? styles.highlightClass : ""}`}
+                      onClick={() => handleClassClick(module.id, cls.id)}
                     >
-                      <div className={styles.classInfo}>
-                        <span className={styles.classTitle}>
-                          {item.title || "Sin título"}
-                          <span className={`${styles.itemType} ${item.type === "project" ? styles.projectType : ""}`}>
-                            {item.type === "class" ? "📚 Clase" : "🛠️ Proyecto"}
-                          </span>
-                        </span>
+                      <div className={styles.classCircle}>
+                        {cls.completed && <FaCheck />}
                       </div>
-                      {isAdmin && (
-                        <div className={styles.classActions}>
+                      <span className={styles.classTitle}>{cls.title}</span>
+                      {isAdmin ? (
+                        <div className={styles.moduleActions}>
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const collection = item.type === "class" ? "classes" : "projects";
-                              moveItem(module.id, index, -1, collection);
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              moveClass(module.id, classIndex, -1);
                             }}
-                            disabled={index === 0}
+                            disabled={classIndex === 0}
                             className={styles.moveButton}
-                            title="Mover arriba"
                           >
                             <FaArrowUp />
                           </button>
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const collection = item.type === "class" ? "classes" : "projects";
-                              moveItem(module.id, index, 1, collection);
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              moveClass(module.id, classIndex, 1);
                             }}
-                            disabled={index === module[item.type === "class" ? "classes" : "projects"].length - 1}
+                            disabled={classIndex === module.classes.length - 1}
                             className={styles.moveButton}
-                            title="Mover abajo"
                           >
                             <FaArrowDown />
                           </button>
-                          {item.type === "class" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleClassRestriction(module.id, item.id, item.restricted);
-                              }}
-                              className={styles.classAction}
-                              title={item.restricted ? "Desbloquear Clase" : "Bloquear Clase"}
-                            >
-                              {item.restricted ? <FaLock /> : <FaLockOpen />}
-                            </button>
-                          )}
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const collection = item.type === "class" ? "classes" : "projects";
-                              deleteItem(module.id, item.id, collection);
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleClassRestriction(
+                                module.id,
+                                cls.id,
+                                cls.restricted
+                              );
                             }}
                             className={styles.classAction}
-                            title={`Eliminar ${item.type === "class" ? "Clase" : "Proyecto"}`}
+                            title={
+                              cls.restricted
+                                ? "Desbloquear Clase"
+                                : "Bloquear Clase"
+                            }
+                          >
+                            {cls.restricted ? <FaLock /> : <FaLockOpen />}
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              deleteClass(module.id, cls.id);
+                            }}
+                            className={styles.classAction}
+                            title="Eliminar Clase"
                           >
                             <FaTrash />
                           </button>
                         </div>
+                      ) : (
+                        null
                       )}
                     </div>
-                  ))}
-
-                {isAdmin && (
-                  <button
-                    onClick={() => handleAddItem(module.id)}
-                    className={styles.addClassButton}
-                  >
-                    <FaPlus /> Añadir Contenido
-                  </button>
+                  ))
+                ) : (
+                  <p>No hay clases en este módulo.</p>
                 )}
               </div>
             </div>
@@ -736,10 +844,16 @@ const CourseDetail = ({ params }) => {
         ) : (
           <p>No hay módulos disponibles.</p>
         )}
-        {isAdmin && (
-          <button className={styles.addModuleButton} onClick={addModule}>
-            <FaPlus /> Añadir Módulo
+        {isAdmin ? (
+          <button
+            onClick={addModule}
+            className={styles.addModuleButton}
+            title="Añadir Módulo"
+          >
+            Add Module
           </button>
+        ) : (
+          null
         )}
       </div>
 
@@ -758,6 +872,82 @@ const CourseDetail = ({ params }) => {
             <button onClick={() => setIsTypeModalOpen(false)} className={styles.cancelButton}>
               Cancelar
             </button>
+          </div>
+        </div>
+      )}
+
+      {isGroupModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Asignar Mentor</h3>
+            <select
+              value={selectedMentor || ""}
+              onChange={async (e) => {
+                const mentorId = e.target.value;
+                setSelectedMentor(mentorId);
+                if (mentorId) {
+                  await assignMentor(mentorId);
+                }
+              }}
+            >
+              <option value="">Selecciona un mentor</option>
+              {adminUsers.map(user => (
+                <option key={user.id} value={user.id}>
+                  {user.displayName || "Nombre no disponible"}
+                </option>
+              ))}
+            </select>
+            <h3>Asignar Estudiantes</h3>
+            <input
+              type="text"
+              placeholder="Buscar estudiante por nombre"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            <div className={styles.buttonContainer}>
+              <select id="studentSelect">
+                <option value="">Selecciona un estudiante</option>
+                {studentUsers
+                  .filter(user => user.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.displayName || "Nombre no disponible"}
+                    </option>
+                  ))}
+              </select>
+              <button onClick={() => handleAddStudent(document.getElementById('studentSelect').value)}>
+                <FaPlus />
+              </button>
+            </div>
+            <table className={styles.studentTable}>
+              <thead>
+                <tr>
+                  <th>Estudiantes</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map(studentId => {
+                  const student = allUsers.find(user => user.id === studentId);
+                  return (
+                    <tr key={studentId}>
+                      <td>{student ? student.displayName : "Nombre no disponible"}</td>
+                      <td>
+                        <button onClick={() => handleRemoveStudent(studentId)}>
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className={styles.buttonContainer}>
+              <button onClick={() => setIsGroupModalOpen(false)} className={styles.secondaryButton}>
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
