@@ -18,6 +18,8 @@ import { FaRegImage, FaPencilAlt, FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaChe
 import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
+import { storage } from "@/firebase/firebase"; // Importar configuración de storage
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const CourseDetail = ({ params }) => {
   const router = useRouter();
@@ -95,7 +97,10 @@ const CourseDetail = ({ params }) => {
   const [currentIconUrl, setCurrentIconUrl] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const { currentUser, isAdmin } = useAuth();
-
+  const [projects, setProjects] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editedProject, setEditedProject] = useState(null);
+  const [file, setFile] = useState(null);
   const [modules, setModules] = useState([]);
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
@@ -116,10 +121,9 @@ const CourseDetail = ({ params }) => {
         setCourse({
           ...course,
           ...fetchedData,
-          features: fetchedData.features && fetchedData.features.length > 0
-            ? fetchedData.features
-            : course.features,
+          features: fetchedData.features && fetchedData.features.length > 0 ? fetchedData.features : course.features,
         });
+        setProjects(fetchedData.projects || []); // Carga los proyectos directamente
       } else {
         console.error("Course not found");
         router.push("/cursos-en-vivo");
@@ -130,57 +134,96 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+
   const fetchModules = async () => {
     try {
-      console.log("Fetching modules for course:", courseId);
-
       const modulesRef = collection(db, "liveCourses", courseId, "modules");
       const modulesSnapshot = await getDocs(modulesRef);
 
-      console.log("Found modules:", modulesSnapshot.size);
+      const fetchedModules = await Promise.all(
+        modulesSnapshot.docs.map(async (moduleDoc) => {
+          const moduleData = moduleDoc.data();
 
-      const fetchedModules = [];
+          // Obtener clases de cada módulo
+          const classesRef = collection(db, "liveCourses", courseId, "modules", moduleDoc.id, "classes");
+          const classesSnapshot = await getDocs(classesRef);
 
-      for (const moduleDoc of modulesSnapshot.docs) {
-        const moduleData = moduleDoc.data();
-        console.log("Module data:", moduleData);
+          const classes = classesSnapshot.docs.map((classDoc) => ({
+            id: classDoc.id,
+            ...classDoc.data(),
+          }));
 
-        // Fetch classes
-        const classesRef = collection(db, "liveCourses", courseId, "modules", moduleDoc.id, "classes");
-        const classesSnapshot = await getDocs(classesRef);
-        const classes = classesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          type: "class" // Añadir tipo para diferenciar
-        }));
+          return {
+            id: moduleDoc.id,
+            ...moduleData,
+            classes: classes.sort((a, b) => (a.order || 0) - (b.order || 0)),
+          };
+        })
+      );
 
-        // Fetch projects
-        const projectsRef = collection(db, "liveCourses", courseId, "modules", moduleDoc.id, "projects");
-        const projectsSnapshot = await getDocs(projectsRef);
-        const projects = projectsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          type: "project" // Añadir tipo para diferenciar
-        }));
-
-        fetchedModules.push({
-          id: moduleDoc.id,
-          ...moduleData,
-          classes: classes.sort((a, b) => (a.order || 0) - (b.order || 0)),
-          projects: projects.sort((a, b) => (a.order || 0) - (b.order || 0))
-        });
-      }
-
-      // Sort modules by order
-      fetchedModules.sort((a, b) => (a.order || 0) - (b.order || 0));
-
-      console.log("Final modules:", fetchedModules);
-
-      setModules(fetchedModules);
+      setModules(fetchedModules.sort((a, b) => (a.order || 0) - (b.order || 0)));
     } catch (error) {
-      console.error("Error fetching modules:", error);
-      throw error;
+      console.error("Error fetching modules and classes:", error);
     }
+  };
+
+  const fetchProjects = async () => {
+    const projectsRef = collection(db, "projects");
+    const projectsSnapshot = await getDocs(projectsRef);
+    const fetchedProjects = projectsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setProjects(fetchedProjects.filter((project) => project.courseId === courseId));
+  };
+
+  const handleEditProject = (project) => {
+    setEditedProject(project);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProject = async () => {
+    try {
+      const projectRef = doc(db, "projects", editedProject.id);
+      const updatedProject = { ...editedProject };
+  
+      if (file) {
+        // Crear referencia al archivo en Firebase Storage
+        const fileRef = ref(storage, `project-files/${file.name}`);
+        // Subir archivo a Firebase Storage
+        await uploadBytes(fileRef, file);
+        // Obtener URL del archivo subido
+        const fileUrl = await getDownloadURL(fileRef);
+        updatedProject.fileUrl = fileUrl;
+      }
+  
+      // Asignar automáticamente el curso al proyecto
+      updatedProject.courseId = courseId;
+  
+      // Actualizar Firestore con los cambios
+      await updateDoc(projectRef, updatedProject);
+  
+      // Actualizar estado local
+      setProjects((prevProjects) =>
+        prevProjects.map((proj) =>
+          proj.id === editedProject.id ? updatedProject : proj
+        )
+      );
+  
+      // Cerrar el modal y limpiar el archivo seleccionado
+      setIsEditModalOpen(false);
+      setFile(null);
+    } catch (error) {
+      console.error("Error updating project:", error);
+    }
+  };  
+
+  const handleInputChange = (field, value) => {
+    setEditedProject((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
   };
 
   const fetchUsers = async () => {
@@ -213,6 +256,7 @@ const CourseDetail = ({ params }) => {
       try {
         await fetchCourse();
         await fetchModules();
+        await fetchProjects();
         await fetchStudents();
       } catch (error) {
         console.error("Error en fetchData:", error);
@@ -327,6 +371,42 @@ const CourseDetail = ({ params }) => {
   const handleVideoUrlChange = (e) => {
     setNewVideoUrl(e.target.value);
   };
+
+  const addProject = async () => {
+    const newProject = {
+      title: "Nuevo Proyecto",
+      courseId, // Relacionar el proyecto con el curso
+      order: projects.length,
+    };
+    const projectRef = await addDoc(collection(db, "projects"), newProject);
+    setProjects((prevProjects) => [
+      ...prevProjects,
+      { id: projectRef.id, ...newProject },
+    ]);
+  };
+
+  const deleteProject = async (projectId) => {
+    if (confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
+      await deleteDoc(doc(db, "projects", projectId));
+      setProjects(projects.filter((project) => project.id !== projectId));
+    }
+  };
+
+
+  const moveProject = async (index, direction) => {
+    const newProjects = [...projects];
+    const [movedProject] = newProjects.splice(index, 1);
+    newProjects.splice(index + direction, 0, movedProject);
+
+    // Actualizar orden en Firestore
+    newProjects.forEach(async (project, newIndex) => {
+      const projectRef = doc(db, "projects", project.id);
+      await updateDoc(projectRef, { order: newIndex });
+    });
+
+    setProjects(newProjects);
+  };
+
 
   const saveUrls = () => {
     handleFieldChange("imageUrl", currentUrl);
@@ -715,145 +795,219 @@ const CourseDetail = ({ params }) => {
         ))}
       </div>
 
-      <div className={styles.modules}>
-        {modules.length > 0 ? (
-          modules.map((module, moduleIndex) => (
-            <div key={module.id} className={styles.module}>
-              <div className={styles.moduleHeader}>
-                {isAdmin ? (
-                  <input
-                    type="text"
-                    value={module.title}
-                    onChange={(e) =>
-                      handleModuleTitleChange(module.id, e.target.value)
-                    }
-                    className={styles.moduleTitle}
-                  />
-                ) : (
-                  <span className={styles.moduleTitle}>{module.title}</span>
-                )}
-                {isAdmin ? (
-                  <div className={styles.moduleActions}>
-                    <button
-                      onClick={() => moveModule(moduleIndex, -1)}
-                      disabled={moduleIndex === 0}
-                      className={styles.moveButton}
-                    >
-                      <FaArrowUp />
-                    </button>
-                    <button
-                      onClick={() => moveModule(moduleIndex, 1)}
-                      disabled={moduleIndex === modules.length - 1}
-                      className={styles.moveButton}
-                    >
-                      <FaArrowDown />
-                    </button>
-                    <button
-                      onClick={() => addClass(module.id)}
-                      title="Añadir Clase"
-                    >
-                      <FaPlus />
-                    </button>
-                    <button
-                      onClick={() => deleteModule(module.id)}
-                      title="Eliminar Módulo"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                ) : (
-                  null
-                )}
-              </div>
-
-              <div className={styles.classes}>
-                {module.classes && module.classes.length > 0 ? (
-                  module.classes.map((cls, classIndex) => (
-                    <div
-                      key={`${module.id}-${cls.id}`}
-                      className={`${styles.class} ${cls.completed ? styles.completedClass : ""
-                        } ${cls.highlight ? styles.highlightClass : ""}`}
-                      onClick={() => handleClassClick(module.id, cls.id)}
-                    >
-                      <div className={styles.classCircle}>
-                        {cls.completed && <FaCheck />}
-                      </div>
-                      <span className={styles.classTitle}>{cls.title}</span>
-                      {isAdmin ? (
-                        <div className={styles.moduleActions}>
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              moveClass(module.id, classIndex, -1);
-                            }}
-                            disabled={classIndex === 0}
-                            className={styles.moveButton}
-                          >
-                            <FaArrowUp />
-                          </button>
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              moveClass(module.id, classIndex, 1);
-                            }}
-                            disabled={classIndex === module.classes.length - 1}
-                            className={styles.moveButton}
-                          >
-                            <FaArrowDown />
-                          </button>
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              toggleClassRestriction(
-                                module.id,
-                                cls.id,
-                                cls.restricted
-                              );
-                            }}
-                            className={styles.classAction}
-                            title={
-                              cls.restricted
-                                ? "Desbloquear Clase"
-                                : "Bloquear Clase"
-                            }
-                          >
-                            {cls.restricted ? <FaLock /> : <FaLockOpen />}
-                          </button>
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              deleteClass(module.id, cls.id);
-                            }}
-                            className={styles.classAction}
-                            title="Eliminar Clase"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      ) : (
-                        null
-                      )}
+      <div className={styles.modulesProjectsContainer}>
+        {/* Módulos */}
+        <div className={styles.modules}>
+          {modules.length > 0 ? (
+            modules.map((module, moduleIndex) => (
+              <div key={module.id} className={styles.module}>
+                <div className={styles.moduleHeader}>
+                  {isAdmin ? (
+                    <input
+                      type="text"
+                      value={module.title}
+                      onChange={(e) =>
+                        handleModuleTitleChange(module.id, e.target.value)
+                      }
+                      className={styles.moduleTitle}
+                    />
+                  ) : (
+                    <span className={styles.moduleTitle}>{module.title}</span>
+                  )}
+                  {isAdmin ? (
+                    <div className={styles.moduleActions}>
+                      <button
+                        onClick={() => moveModule(moduleIndex, -1)}
+                        disabled={moduleIndex === 0}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowUp />
+                      </button>
+                      <button
+                        onClick={() => moveModule(moduleIndex, 1)}
+                        disabled={moduleIndex === modules.length - 1}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowDown />
+                      </button>
+                      <button
+                        onClick={() => addClass(module.id)}
+                        title="Añadir Clase"
+                      >
+                        <FaPlus />
+                      </button>
+                      <button
+                        onClick={() => deleteModule(module.id)}
+                        title="Eliminar Módulo"
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <p>No hay clases en este módulo.</p>
-                )}
+                  ) : (
+                    null
+                  )}
+                </div>
+
+                <div className={styles.classes}>
+                  {module.classes && module.classes.length > 0 ? (
+                    module.classes.map((cls, classIndex) => (
+                      <div
+                        key={`${module.id}-${cls.id}`}
+                        className={`${styles.class} ${cls.completed ? styles.completedClass : ""
+                          } ${cls.highlight ? styles.highlightClass : ""}`}
+                        onClick={() => handleClassClick(module.id, cls.id)}
+                      >
+                        <div className={styles.classCircle}>
+                          {cls.completed && <FaCheck />}
+                        </div>
+                        <span className={styles.classTitle}>{cls.title}</span>
+                        {isAdmin ? (
+                          <div className={styles.moduleActions}>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                moveClass(module.id, classIndex, -1);
+                              }}
+                              disabled={classIndex === 0}
+                              className={styles.moveButton}
+                            >
+                              <FaArrowUp />
+                            </button>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                moveClass(module.id, classIndex, 1);
+                              }}
+                              disabled={classIndex === module.classes.length - 1}
+                              className={styles.moveButton}
+                            >
+                              <FaArrowDown />
+                            </button>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                toggleClassRestriction(
+                                  module.id,
+                                  cls.id,
+                                  cls.restricted
+                                );
+                              }}
+                              className={styles.classAction}
+                              title={
+                                cls.restricted
+                                  ? "Desbloquear Clase"
+                                  : "Bloquear Clase"
+                              }
+                            >
+                              {cls.restricted ? <FaLock /> : <FaLockOpen />}
+                            </button>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                deleteClass(module.id, cls.id);
+                              }}
+                              className={styles.classAction}
+                              title="Eliminar Clase"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        ) : (
+                          null
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p>No hay clases en este módulo.</p>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No hay módulos disponibles.</p>
+          )}
+          {isAdmin ? (
+            <button
+              onClick={addModule}
+              className={styles.addModuleButton}
+              title="Añadir Módulo"
+            >
+              Add Module
+            </button>
+          ) : (
+            null
+          )}
+        </div>
+        {/* Proyectos */}
+        <div className={styles.projects}>
+          <h3>Proyectos</h3>
+          {projects.map((project, index) => (
+            <div key={project.id} className={styles.projectItem}  onClick={() => handleEditProject(project)}>
+              <span>{project.title}</span>
+              {isAdmin && (
+                <div className={styles.projectActions}>
+                  <button
+                    onClick={() => moveProject(index, -1)}
+                    disabled={index === 0}
+                    className={styles.projectAction} // Reutilizar estilo del botón de mover
+                  >
+                    <FaArrowUp />
+                  </button>
+                  <button
+                    onClick={() => moveProject(index, 1)}
+                    disabled={index === projects.length - 1}
+                    className={styles.projectAction} // Reutilizar estilo del botón de mover
+                  >
+                    <FaArrowDown />
+                  </button>
+                  <button
+                    onClick={() => deleteProject(project.id)}
+                    className={styles.projectAction} // Reutilizar si existe, o usa styles.classAction
+                    title="Eliminar Proyecto"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+          {isAdmin && (
+            <button onClick={addProject} className={styles.addProjectButton}>
+              Añadir Proyecto
+            </button>
+          )}
+        </div>
+
+        {isEditModalOpen && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+              <h3>Editar Proyecto</h3>
+              <label>
+                Nombre:
+                <input
+                  type="text"
+                  value={editedProject?.title || ""}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                />
+              </label>
+              <label>
+                Fecha de Entrega:
+                <input
+                  type="date"
+                  value={editedProject?.dueDate || ""}
+                  onChange={(e) => handleInputChange("dueDate", e.target.value)}
+                />
+              </label>
+              <label>
+                Subir Archivo:
+                <input type="file" onChange={handleFileChange} />
+              </label>
+              <div className={styles.modalActions}>
+                <button onClick={handleSaveProject}>Guardar</button>
+                <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
               </div>
             </div>
-          ))
-        ) : (
-          <p>No hay módulos disponibles.</p>
-        )}
-        {isAdmin ? (
-          <button
-            onClick={addModule}
-            className={styles.addModuleButton}
-            title="Añadir Módulo"
-          >
-            Add Module
-          </button>
-        ) : (
-          null
+          </div>
         )}
       </div>
 

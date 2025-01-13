@@ -352,7 +352,6 @@
   width: 90%;
   max-width: 500px;
   text-align: left;
-  /* Align modal content to the left */
 }
 
 .modalContent h3 {
@@ -367,6 +366,14 @@
   color: var(--text-color);
   text-align: left;
   font-weight: bold;
+  margin-bottom: 10px; /* Añade espacio inferior entre los labels */
+  display: block; /* Asegura que cada label ocupe su propia línea */
+}
+
+.modalContent input,
+.modalContent select,
+.modalContent textarea {
+  margin-bottom: 20px; /* Añade espacio inferior a los inputs relacionados */
 }
 
 .modalInput {
@@ -566,8 +573,14 @@
   color: var(--color-secondary);
 }
 
-.addModuleButton {
+.addModuleButton{
   margin-top: 10vh;
+  width: 100%;
+  background-color: transparent;
+  border: dashed 5px var(--color-secondary);
+}
+
+.addModuleButton, .addProjectButton {
   width: 100%;
   background-color: transparent;
   border: dashed 5px var(--color-secondary);
@@ -780,45 +793,10 @@
   color: var(--color-secondary);
 }
 
-.addClassButton {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: transparent;
-  border: dashed 2px var(--color-secondary);
-  border-radius: 5px;
-  cursor: pointer;
-  color: var(--text-color);
-  width: 100%;
-  justify-content: center;
-}
-
-.addClassButton:hover {
-  background-color: var(--color-primary-hover);
-}
-
 .moduleContent {
   padding: 10px;
   background: var(--color-dark-hover);
   border-radius: 5px;
-}
-
-/* Ajustar los botones de mover */
-.moveButton {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--text-color);
-  transition: color 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.moveButton:hover {
-  color: var(--color-secondary);
 }
 
 .moveButton:disabled {
@@ -923,4 +901,96 @@
 
 .cancelButton:hover {
   background: var(--color-secondary-hover);
+}
+
+.modulesProjectsContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.projectItem {
+  display: flex;
+  justify-content: space-between; /* Botones en el lado derecho */
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: var(--color-dark-hover);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.projectItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+@media (max-width: 768px) {
+  .projectItem {
+    flex-direction: column; /* Cambia a diseño vertical si no hay suficiente espacio */
+    align-items: flex-start;
+  }
+
+  .projectActions {
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+
+.projects {
+  flex: 0.3; /* Ocupa el 70% del espacio actual */
+  background: linear-gradient(var(--color-dark), var(--color-black));
+  padding: 1rem;
+  border-radius: 10px;
+  transition: all 0.3s ease; /* Transición suave para cambios de diseño */
+}
+
+.modules {
+  flex: 1; /* Ocupa el espacio restante */
+}
+
+/* Estilo para resoluciones pequeñas */
+@media (max-width: 768px) {
+  .modulesProjectsContainer {
+    flex-direction: column; /* Cambia a diseño vertical */
+  }
+
+  .projects {
+    flex: 1; /* Ocupa todo el ancho disponible */
+  }
+}
+
+.projectActions {
+  display: flex;
+  gap: 10px;
+}
+
+.projectActions {
+  display: flex;
+  gap: 10px; /* Espacio entre botones */
+}
+
+.projectAction {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.projectAction:hover {
+  background-color: transparent;
+  color: var(--color-secondary);
+}
+
+.moveButton:disabled {
+  color: var(--color-dark);
+  cursor: not-allowed;
 }

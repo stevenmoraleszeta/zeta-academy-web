@@ -3,12 +3,12 @@ import React, { useState } from "react";
 import { FaArchive, FaCopy } from "react-icons/fa";
 import styles from "./courseCardMenu.module.css";
 import { useRouter } from "next/navigation";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 
 
-const CourseCardMenu = ({ course, courseType, onDuplicate }) => {
+const CourseCardMenu = ({ course, courseType }) => {
   const router = useRouter();
   const [isArchived, setIsArchived] = useState(course.archived); // Estado local para controlar el archivado
   const { user, isAdmin } = useAuth();
@@ -37,6 +37,73 @@ const CourseCardMenu = ({ course, courseType, onDuplicate }) => {
       console.error("Error archiving course: ", error);
     }
   };
+
+  const handleDuplicateCourse = async (course) => {
+    const collectionChoice = window.confirm(
+      "¿Deseas duplicar este curso en liveCourses? (Cancel para onlineCourses)"
+    )
+      ? "liveCourses"
+      : "onlineCourses";
+  
+    try {
+      // Duplicar el curso principal
+      const newCourse = {
+        ...course,
+        title: `${course.title} (Copy)`,
+        archived: false,
+      };
+      delete newCourse.id; // Eliminar id para evitar conflictos
+      const docRef = await addDoc(collection(db, collectionChoice), newCourse);
+  
+      // Obtener y duplicar módulos del curso original
+      const modulesSnapshot = await getDocs(
+        collection(db, `${collectionName}/${course.id}/modules`)
+      );
+  
+      const modulePromises = modulesSnapshot.docs.map(async (moduleDoc) => {
+        const moduleData = moduleDoc.data();
+        delete moduleData.id;
+  
+        // Crear nuevo módulo en el curso duplicado
+        const newModuleRef = await addDoc(
+          collection(db, `${collectionChoice}/${docRef.id}/modules`),
+          moduleData
+        );
+  
+        // Obtener y duplicar clases para este módulo
+        const classesSnapshot = await getDocs(
+          collection(
+            db,
+            `${collectionName}/${course.id}/modules/${moduleDoc.id}/classes`
+          )
+        );
+  
+        const classPromises = classesSnapshot.docs.map((classDoc) => {
+          const classData = classDoc.data();
+          delete classData.id;
+  
+          return addDoc(
+            collection(db, `${collectionChoice}/${docRef.id}/modules/${newModuleRef.id}/classes`),
+            classData
+          );
+        });
+  
+        // Esperar a que se dupliquen todas las clases
+        await Promise.all(classPromises);
+      });
+  
+      // Esperar a que se dupliquen todos los módulos
+      await Promise.all(modulePromises);
+  
+      router.push(
+        `/${collectionChoice === "liveCourses" ? "cursos-en-vivo" : "cursos-en-linea"}/${docRef.id}`
+      );
+      window.location.reload(); // Recarga la página después de duplicar el curso
+    } catch (error) {
+      console.error("Error duplicating course: ", error);
+    }
+  };
+  
 
   // No renderiza el curso si está archivado
   if (isArchived) return null;
@@ -72,18 +139,16 @@ const CourseCardMenu = ({ course, courseType, onDuplicate }) => {
 
         {isAdmin && (
           <div className={styles.buttonIconContainer}>
-            {onDuplicate && (
-              <button
-                className={styles.duplicateButton}
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent navigation on button click
-                  onDuplicate(course); // Call the duplicate function
-                }}
-                title="Duplicar curso"
-              >
-                <FaCopy />
-              </button>
-            )}
+            <button
+              className={styles.duplicateButton}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent navigation on button click
+                handleDuplicateCourse(course); // Llama a la función de duplicar
+              }}
+              title="Duplicar curso"
+            >
+              <FaCopy />
+            </button>
             <button
               className={styles.archiveButton}
               onClick={(e) => {

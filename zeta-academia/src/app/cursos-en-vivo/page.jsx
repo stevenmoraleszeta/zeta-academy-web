@@ -97,47 +97,6 @@ const LiveCourses = () => {
     );
   };
 
-  const handleDuplicateCourse = async (course) => {
-    try {
-      // Duplicate the main course document
-      const newCourse = {
-        ...course,
-        title: `${course.title} (Copy)`,
-        archived: false,
-      };
-      delete newCourse.id; // Remove the id to avoid conflicts
-      const docRef = await addDoc(collection(db, "liveCourses"), newCourse);
-
-      // Fetch and duplicate modules
-      const modulesSnapshot = await getDocs(
-        collection(db, `liveCourses/${course.id}/modules`)
-      );
-      modulesSnapshot.forEach(async (moduleDoc) => {
-        const moduleData = moduleDoc.data();
-        const newModuleRef = await addDoc(
-          collection(db, `liveCourses/${docRef.id}/modules`),
-          moduleData
-        );
-
-        // Fetch and duplicate classes for each module
-        const classesSnapshot = await getDocs(
-          collection(db, `liveCourses/${course.id}/modules/${moduleDoc.id}/classes`)
-        );
-        classesSnapshot.forEach(async (classDoc) => {
-          const classData = classDoc.data();
-          await addDoc(
-            collection(db, `liveCourses/${docRef.id}/modules/${newModuleRef.id}/classes`),
-            classData
-          );
-        });
-      });
-
-      router.push(`/cursos-en-vivo/${docRef.id}`);
-    } catch (error) {
-      console.error("Error duplicating course: ", error);
-    }
-  };
-
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -202,7 +161,6 @@ const LiveCourses = () => {
               key={course.id}
               course={course}
               courseType={"live"}
-              onDuplicate={handleDuplicateCourse}
             />
           ))
         ) : (

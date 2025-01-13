@@ -4,7 +4,11 @@
 import React, { useState, useEffect } from "react";
 import useFetchData from "@/app/hooks/useFetchData";
 import { useRouter } from "next/navigation";
-import { collection, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
@@ -91,13 +95,6 @@ const OnlineCourses = () => {
     } catch (error) {
       console.error("Error adding course: ", error);
     }
-  };
-
-  const handleCourseArchived = (courseId) => {
-    // Actualiza el estado de filteredCourses excluyendo el curso archivado
-    setFilteredCourses((prevCourses) =>
-      prevCourses.filter((course) => course.id !== courseId)
-    );
   };
 
   return (

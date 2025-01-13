@@ -86,13 +86,13 @@
 }
 
 .discountedPrice {
-    font-size:  1.5rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: var(--color-secondary);
 }
 
 .originalPrice {
-    font-size:  1.5rem;
+    font-size: 1.5rem;
     color: var(--color-lighter);
     font-weight: bold;
     text-decoration: line-through;
@@ -116,15 +116,17 @@
     right: 10px;
 }
 
-.archiveButton, .duplicateButton {
+.archiveButton,
+.duplicateButton {
     background: transparent;
     border: none;
     cursor: pointer;
     color: var(--color-lighter);
-    font-size:  1.2rem;
+    font-size: 1.2rem;
 }
 
-.archiveButton:hover, .duplicateButton:hover {
+.archiveButton:hover,
+.duplicateButton:hover {
     background-color: transparent;
     color: var(--color-secondary);
 }
