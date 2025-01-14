@@ -7,7 +7,6 @@ import { doc, updateDoc, addDoc, collection, getDocs } from "firebase/firestore"
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 
-
 const CourseCardMenu = ({ course, courseType }) => {
   const router = useRouter();
   const [isArchived, setIsArchived] = useState(course.archived); // Estado local para controlar el archivado
