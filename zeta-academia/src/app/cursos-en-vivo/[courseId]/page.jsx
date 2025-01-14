@@ -42,13 +42,13 @@ const CourseDetail = ({ params }) => {
     features: [
       {
         iconUrl:
-          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCalendar%20Icon.png?alt=media&token=example",
+          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FClock%20Icon.png?alt=media&token=c99653f0-964d-472f-b00b-593aceaa3556",
         title: "Fecha de inicio",
         description: "15 de Noviembre.",
       },
       {
         iconUrl:
-          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPago%20Icon.png?alt=media&token=example",
+          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCol%C3%B3n%20icon.png?alt=media&token=07041992-5e34-46c4-b591-f6a8a59abf32",
         title: "Pago flexible",
         description: "Matrícula gratis, paga en dos partes.",
       },
@@ -60,7 +60,7 @@ const CourseDetail = ({ params }) => {
       },
       {
         iconUrl:
-          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FMaterial%20Icon.png?alt=media&token=example",
+          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FLaptop%20Icon.png?alt=media&token=23fbc61d-e472-4bfa-a02c-33e20746c09a",
         title: "Material de apoyo adicional",
         description: "Clases grabadas y material adicional.",
       },
@@ -78,13 +78,13 @@ const CourseDetail = ({ params }) => {
       },
       {
         iconUrl:
-          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FDuracion%20Icon.png?alt=media&token=example",
+          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FLista%20Tareas%20Icon.png?alt=media&token=1c471825-3471-45e5-909c-6f1aa18d971a",
         title: "Duración",
         description: "6 semanas.",
       },
       {
         iconUrl:
-          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPractica%20Icon.png?alt=media&token=example",
+          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
         title: "Aprendizaje práctico",
         description: "Aprende con problemas reales.",
       },
