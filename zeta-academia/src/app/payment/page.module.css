@@ -176,3 +176,27 @@
 .paymentBox:hover {
     transform: none; /* Evita el movimiento por hover */
 }
+
+.paymentInput {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid var(--color-lighter);
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.paymentInput:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+.paymentLabel {
+    display: block;
+    margin-bottom: 8px; /* Espacio entre el label y el input */
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-lighter); /* Usa tu color definido */
+}
