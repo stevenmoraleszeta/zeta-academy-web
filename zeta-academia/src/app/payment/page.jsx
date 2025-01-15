@@ -16,11 +16,6 @@ const PaymentPage = ({ searchParams }) => {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
-  // constantes para settear el titulo y descripcion
-  const [paymentTitle, setPaymentTitle] = useState("");
-  const [paymentDetails, setPaymentDetails] = useState("");
-  const [customAmount, setCustomAmount] = useState("");
-
   // Para pagos personalizados
   const [customPayment, setCustomPayment] = useState({
     title: "",
@@ -118,20 +113,23 @@ const PaymentPage = ({ searchParams }) => {
   };
 
   const validateAndCreateOrder = async () => {
+    //TODO : El error lo está dando porque no se están guardando los datos de los inputs en el customPayment, entonces el API de PayPal, recibe 0 en el pago, por lo que da error.
+    const title = customPayment.title.trim();
+    const description = customPayment.description.trim();
+    const amount = customPayment.amount.trim();
+  
+    console.log("Datos de customPayment:", { title, description, finalAmount }); //Esto está imprimiendo un array con valores vacíos.
+    
     const newErrors = [];
   
     // Validar campos personalizados si no hay courseId
-    /*if (!courseId) {
-      if (!customPayment.title.trim()) newErrors.push("El título es obligatorio.");
-      if (!customPayment.description.trim())
-        newErrors.push("La descripción es obligatoria.");
-      if (
-        !customPayment.amount.trim() ||
-        isNaN(customPayment.amount) ||
-        Number(customPayment.amount) <= 0
-      ) {
+    if (!courseId) {
+      if (!title) newErrors.push("El título es obligatorio.");
+      if (!description) newErrors.push("La descripción es obligatoria.");
+      if (!amount || isNaN(amount) || Number(amount) <= 0) {
         newErrors.push("El monto debe ser un número mayor a 0.");
       }
+  
       setErrors(newErrors);
   
       // Si hay errores, termina aquí
@@ -139,18 +137,18 @@ const PaymentPage = ({ searchParams }) => {
         console.log("Errores de validación:", newErrors);
         return null;
       }
-    }*/
+    }
   
     // Crear orden
     try {
-      const amount = courseId
-        ? course.discountedPrice
-        : Number(customPayment.amount);
+      const finalAmount = courseId ? course.discountedPrice : Number(amount);
+  
+      console.log("Datos de customPayment:", { title, description, finalAmount });
   
       const response = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify({ amount: finalAmount }),
       });
   
       if (!response.ok) throw new Error("Error al crear la orden");
@@ -161,7 +159,8 @@ const PaymentPage = ({ searchParams }) => {
       console.error("Error al crear la orden:", error);
       return null;
     }
-  };  
+  };
+  
 
   if (isAlreadyEnrolled) {
     return (
@@ -209,11 +208,13 @@ const PaymentPage = ({ searchParams }) => {
             <input
               id="paymentTitle"
               className={`${styles.paymentInput}`}
-              value={paymentTitle}
-              onChange={(e) => setPaymentTitle(e.target.value)}
-              onFocus={() => {
-                if (!paymentTitle.trim()) setPaymentTitle("");
-              }}
+              value={customPayment.title}
+              onChange={(e) =>
+                setCustomPayment((prev) => ({
+                  ...prev,
+                  title: e.target.value,
+                }))
+              }
               placeholder="Servicio, curso, clases, software, etc."
             />
           </div>
@@ -226,11 +227,13 @@ const PaymentPage = ({ searchParams }) => {
             <input
               id="paymentDetails"
               className={`${styles.paymentInput}`}
-              value={paymentDetails}
-              onChange={(e) => setPaymentDetails(e.target.value)}
-              onFocus={() => {
-                if (!paymentDetails.trim()) setPaymentDetails("");
-              }}
+              value={customPayment.description}
+              onChange={(e) =>
+                setCustomPayment((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="Escribe una descripción breve del pago..."
             />
           </div>
@@ -244,11 +247,13 @@ const PaymentPage = ({ searchParams }) => {
               id="customAmount"
               type="number"
               className={`${styles.paymentInput}`}
-              value={customAmount}
-              onChange={(e) => setCustomAmount(e.target.value)}
-              onFocus={() => {
-                if (customAmount === "0") setCustomAmount("");
-              }}
+              value={customPayment.amount}
+              onChange={(e) =>
+                setCustomPayment((prev) => ({
+                  ...prev,
+                  amount: e.target.value,
+                }))
+              }
               placeholder="Ejemplo: 25.00"
             />
           </div>
