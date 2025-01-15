@@ -1,7 +1,7 @@
 "use client";
 
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CrudMenu from "@/components/crud-menu/CrudMenu";
 import { getDocs, collection, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
@@ -23,7 +23,39 @@ interface StudentProject {
 }
 
 const StudentsProjects: React.FC = () => {
+    const [projects, setProjects] = useState<StudentProject[]>([]);
     const collectionName = "projects";
+
+    useEffect(() => {
+        const fetchStudentProjects = async () => {
+            try {
+                const projectsRef = collection(db, collectionName);
+                const projectsSnapshot = await getDocs(projectsRef);
+                const studentProjectsList: StudentProject[] = [];
+
+                for (const projectDoc of projectsSnapshot.docs) {
+                    const projectId = projectDoc.id;
+
+                    // Obtener los documentos de la subcolección studentsProjects
+                    const studentsProjectsRef = collection(db, `${collectionName}/${projectId}/studentsProjects`);
+                    const studentsProjectsSnapshot = await getDocs(studentsProjectsRef);
+                    const studentsProjects = studentsProjectsSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        projectId,
+                        ...doc.data()
+                    })) as StudentProject[];
+
+                    studentProjectsList.push(...studentsProjects);
+                }
+
+                setProjects(studentProjectsList);
+            } catch (error) {
+                console.error("Error fetching student projects:", error);
+            }
+        };
+
+        fetchStudentProjects();
+    }, []);
 
     const handleFileUpload = async (file: File): Promise<string> => {
         const uniqueName = `${uuidv4()}-${file.name}`;
@@ -212,6 +244,7 @@ const StudentsProjects: React.FC = () => {
             onDelete={deleteStudentProject}
             determineState={determineState}
             getStateColor={getStateColor}
+            data={projects}
         />
     );
 };

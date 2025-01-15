@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
 interface CrudMenuProps {
     collectionName: string;
-    displayFields: { label: string; field: string; type?: string; selectType?: string ;  computeField?: (item: any) => string;}[];
+    displayFields: { label: string; field: string; type?: string; selectType?: string; computeField?: (item: any) => string; }[];
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;
@@ -24,6 +24,7 @@ interface CrudMenuProps {
     onDelete?: (item: any) => Promise<void>;
     determineState?: (item: any) => string;
     getStateColor?: (state: string) => string;
+    data?: any[];
 }
 
 const CrudMenu: React.FC<CrudMenuProps> = ({
@@ -37,7 +38,8 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     onSave,
     onDelete,
     determineState,
-    getStateColor
+    getStateColor,
+    data: propData,
 }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
@@ -54,11 +56,11 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     const router = useRouter();
 
     useEffect(() => {
-        setData(fetchedData);
-        const filtered = filterFunction ? fetchedData.filter(filterFunction) : fetchedData;
+        const combinedData = propData ?? fetchedData;
+        const filtered = filterFunction ? combinedData.filter(filterFunction) : combinedData;
         setFilteredData(filtered);
         initializeSelectOptions();
-    }, [fetchedData, editFields, filterFunction]);
+    }, [fetchedData, propData, editFields, filterFunction]);
 
     const handleGoToFicha = (item: any) => {
         router.push(`/admin/students/${item.id}`);
