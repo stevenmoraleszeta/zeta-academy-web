@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
 interface CrudMenuProps {
     collectionName: string;
-    displayFields: { label: string; field: string; type?: string; selectType?: string }[];
+    displayFields: { label: string; field: string; type?: string; selectType?: string ;  computeField?: (item: any) => string;}[];
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;

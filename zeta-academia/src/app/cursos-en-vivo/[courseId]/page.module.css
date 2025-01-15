@@ -994,3 +994,24 @@
   color: var(--color-dark);
   cursor: not-allowed;
 }
+
+
+.revisado {
+  background-color: #38a169; /* verde */
+}
+
+.entregado-tarde {
+  background-color: #ecc94b; /* amarillo */
+}
+
+.pendiente-revision {
+  background-color: #3182ce; /* azul */
+}
+
+.entregable {
+  background-color: #e2e8f0; /* gris */
+}
+
+.no-entregado {
+  background-color: #f56565; /* rojo */
+}

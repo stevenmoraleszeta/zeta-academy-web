@@ -17,6 +17,7 @@ import { db } from "@/firebase/firebase";
 import { FaRegImage, FaPencilAlt, FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaCheck, FaLock, FaLockOpen, FaUser } from "react-icons/fa";
 import styles from "./page.module.css";
 import { useAuth } from "@/context/AuthContext";
+import { getAuth } from "firebase/auth";
 import debounce from "lodash/debounce";
 import { storage } from "@/firebase/firebase"; // Importar configuración de storage
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -111,6 +112,14 @@ const CourseDetail = ({ params }) => {
   const [adminUsers, setAdminUsers] = useState([]);
   const [studentUsers, setStudentUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [score, setScore] = useState(null);
+  const [updatedProject, setUpdatedProject] = useState(null);
+  const [displayName, setDisplayName] = useState("");
+  const [projectState, setProjectState] = useState("");
+
+  
+
+
 
   const fetchCourse = async () => {
     try {
@@ -182,41 +191,154 @@ const CourseDetail = ({ params }) => {
     setIsEditModalOpen(true);
   };
 
-  const handleSaveProject = async () => {
-    try {
-      const projectRef = doc(db, "projects", editedProject.id);
-      const updatedProject = { ...editedProject };
-  
-      if (file) {
-        // Crear referencia al archivo en Firebase Storage
-        const fileRef = ref(storage, `project-files/${file.name}`);
-        // Subir archivo a Firebase Storage
-        await uploadBytes(fileRef, file);
-        // Obtener URL del archivo subido
-        const fileUrl = await getDownloadURL(fileRef);
-        updatedProject.fileUrl = fileUrl;
-      }
-  
-      // Asignar automáticamente el curso al proyecto
-      updatedProject.courseId = courseId;
-  
-      // Actualizar Firestore con los cambios
-      await updateDoc(projectRef, updatedProject);
-  
-      // Actualizar estado local
-      setProjects((prevProjects) =>
-        prevProjects.map((proj) =>
-          proj.id === editedProject.id ? updatedProject : proj
-        )
-      );
-  
-      // Cerrar el modal y limpiar el archivo seleccionado
-      setIsEditModalOpen(false);
-      setFile(null);
-    } catch (error) {
-      console.error("Error updating project:", error);
+//    useEffect(() => {
+//   if (isEditModalOpen && editedProject?.id) {
+//     // Cargar el proyecto desde Firestore para asegurarnos de que tiene los datos más recientes
+//     const fetchProjectData = async () => {
+//       try {
+//         const projectRef = doc(db, "projects", editedProject.id);
+//         const projectSnap = await getDoc(projectRef);
+        
+//         if (projectSnap.exists()) {
+//           const projectData = projectSnap.data();
+//           setEditedProject(projectData); // Establecer el proyecto con la información actualizada
+
+//           // Asignar el estado y la puntuación (si es que existen en la subcolección)
+//           const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
+//           const studentProjectSnap = await getDocs(studentProjectRef);
+
+//           studentProjectSnap.forEach((doc) => {
+//             const studentProject = doc.data();
+//             setScore(studentProject.score || null);
+//             setProjectState(studentProject.state || "Estado desconocido");
+//             if (studentProject.fileUrl) {
+//               setFileUrl(studentProject.fileUrl);
+//             }
+//           });
+//         }
+//       } catch (error) {
+//         console.error("Error fetching project data:", error);
+//       }
+//     };
+    
+//     fetchProjectData();
+//   }
+// }, [isEditModalOpen, editedProject?.id]);
+
+const handleScoreChange = async (newScore) => {
+  setScore(newScore);
+
+  try {
+    const projectRef = doc(db, "projects", editedProject.id);
+    await updateDoc(projectRef, { latestScore: newScore });
+    console.log("Score updated successfully!");
+  } catch (error) {
+    console.error("Error updating score:", error);
+  }
+};
+
+
+const handleSaveProject = async () => {
+  try {
+    // Obtener el usuario autenticado dinámicamente
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.error("No user is authenticated.");
+      return;
     }
-  };  
+
+    const userId = user.uid; // ID del usuario autenticado
+    const projectRef = doc(db, "projects", editedProject.id);
+    const updatedProject = { ...editedProject };
+
+    // Obtener el displayName del usuario
+    const displayName = user.displayName || "Usuario sin nombre";
+
+    // Manejo del archivo para el proyecto principal
+    if (file) {
+      const fileRef = ref(storage, `project-files/${file.name}`);
+      await uploadBytes(fileRef, file);
+      const fileUrl = await getDownloadURL(fileRef);
+      updatedProject.fileUrl = fileUrl;
+    }
+
+    // Asignar automáticamente el curso y el usuario al proyecto
+    updatedProject.courseId = courseId;
+    updatedProject.userId = userId;
+
+    // Calcular el estado dinámico del proyecto basado en las condiciones
+    const dueDate = new Date(editedProject.dueDate).getTime();
+    const currentDate = new Date().getTime();
+
+    if (score) {
+      updatedProject.state = "revisado";
+    } else if (updatedProject.fileUrl && currentDate > dueDate) {
+      updatedProject.state = "entregado tarde";
+    } else if (updatedProject.fileUrl && !score) {
+      updatedProject.state = "pendiente de revisión";
+    } else if (!updatedProject.fileUrl && currentDate <= dueDate) {
+      updatedProject.state = "entregable";
+    } else if (!updatedProject.fileUrl && currentDate > dueDate) {
+      updatedProject.state = "no entregado";
+    }
+
+    // Actualizar el proyecto principal en Firestore
+    await updateDoc(projectRef, updatedProject);
+
+    // Agregar un proyecto de estudiante a la subcolección
+    const studentProject = {
+      fileUrl: updatedProject.fileUrl || null,
+      userId: userId,
+      deliveredDay: new Date().toISOString(),
+      score: score || null,
+      state: updatedProject.state,
+    };
+
+    const studentProjectRef = collection(
+      db,
+      "projects",
+      editedProject.id,
+      "studentsProjects"
+    );
+    await addDoc(studentProjectRef, studentProject);
+     
+    // Recuperar la última calificación guardada
+    const querySnapshot = await getDocs(studentProjectRef);
+    let latestScore = null;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.score !== null) {
+        latestScore = data.score; // Guardar la última calificación encontrada
+      }
+    });
+
+    // Actualizar el estado local para reflejar los cambios
+    setProjects((prevProjects) =>
+      prevProjects.map((proj) =>
+        proj.id === editedProject.id ? { ...updatedProject, latestScore } : proj
+      )
+    );
+
+    // Actualizar valores en el formulario/modal
+    setDisplayName(displayName);
+    setProjectState(updatedProject.state);
+    setScore(latestScore); // Asignar la última calificación al estado
+
+    // Cerrar el modal y limpiar valores
+    setIsEditModalOpen(false);
+    setFile(null);
+    setScore(null);
+
+    console.log("Project and student project saved successfully!");
+  } catch (error) {
+    console.error("Error saving project and student project:", error);
+  }
+};
+
+ 
+  
 
   const handleInputChange = (field, value) => {
     setEditedProject((prev) => ({ ...prev, [field]: value }));
@@ -225,6 +347,8 @@ const CourseDetail = ({ params }) => {
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
+
+
 
   const fetchUsers = async () => {
     const usersRef = collection(db, "users");
@@ -258,6 +382,7 @@ const CourseDetail = ({ params }) => {
         await fetchModules();
         await fetchProjects();
         await fetchStudents();
+    
       } catch (error) {
         console.error("Error en fetchData:", error);
         if (error.code === 'permission-denied') {
@@ -629,6 +754,7 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+ 
   return (
     <div className={styles.container}>
       {isAdmin ? (
@@ -978,7 +1104,9 @@ const CourseDetail = ({ params }) => {
           )}
         </div>
 
-        {isEditModalOpen && (
+           {/* //modal de editar proyecto */}
+
+           {isEditModalOpen && (
           <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
               <h3>Editar Proyecto</h3>
@@ -1002,14 +1130,39 @@ const CourseDetail = ({ params }) => {
                 Subir Archivo:
                 <input type="file" onChange={handleFileChange} />
               </label>
-              <div className={styles.modalActions}>
-                <button onClick={handleSaveProject}>Guardar</button>
-                <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
-              </div>
+             {/* <label>
+              Puntuación:
+            <input
+               type="number"
+               value={score || ""}
+               onChange={(e) => handleScoreChange(Number(e.target.value))}
+             />
+             </label>
+             <label htmlFor="displayName">Nombre del Usuario</label>
+<input 
+  type="text" 
+  id="displayName" 
+  value={displayName} 
+  disabled // Deshabilitar el campo si solo quieres mostrarlo
+/>
+        
+<label htmlFor="projectState">Estado del Proyecto</label>
+<input
+  id="projectState"
+  type="text"
+  value={projectState} // Muestra el estado del proyecto
+  readOnly // Campo solo de lectura
+/> */}
+        <div className={styles.modalActions}>
+           <button onClick={handleSaveProject}>Guardar Proyecto</button>
+           <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
+          </div>
             </div>
           </div>
+           
         )}
-      </div>
+      </div> 
+
 
       {isTypeModalOpen && (
         <div className={styles.modalOverlay}>
