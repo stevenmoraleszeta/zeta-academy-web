@@ -207,8 +207,9 @@ const StudentsProjects: React.FC = () => {
             editFields={[
                 { label: "Título", field: "title", type: "text" },
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
+                { label: "Puntuación", field: "score", type: "text" },
+                { label: "Fecha de Entregado", field: "deliveredDate", type: "date" },
                 { label: "Archivo", field: "fileUrl", type: "file" },
-                { label: "Orden", field: "order", type: "number" },
             ]}
             fileUploadHandler={handleFileUpload}
             onSave={saveStudentProject}
