@@ -36,7 +36,6 @@ const StudentsProjects: React.FC = () => {
                 for (const projectDoc of projectsSnapshot.docs) {
                     const projectId = projectDoc.id;
 
-                    // Obtener los documentos de la subcolección studentsProjects
                     const studentsProjectsRef = collection(db, `${collectionName}/${projectId}/studentsProjects`);
                     const studentsProjectsSnapshot = await getDocs(studentsProjectsRef);
                     const studentsProjects = studentsProjectsSnapshot.docs.map(doc => ({
