@@ -23,7 +23,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getAuth } from "firebase/auth";
 import debounce from "lodash/debounce";
 import { storage } from "@/firebase/firebase"; // Importar configuración de storage
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { format } from 'date-fns';
 
 const CourseDetail = ({ params }) => {
@@ -356,6 +356,33 @@ const CourseDetail = ({ params }) => {
       console.log("Project and student projects saved successfully!");
     } catch (error) {
       console.error("Error saving project and student projects:", error);
+    }
+  };
+
+  const handleDeleteFile = async () => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        console.error("No user is authenticated.");
+        return;
+      }
+
+      const userId = user.uid; // ID del usuario autenticado
+
+      if (editedProject.fileUrl) {
+        const fileRef = ref(storage, editedProject.fileUrl);
+        await deleteObject(fileRef);
+
+        const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
+        await updateDoc(studentProjectDocRef, { fileUrl: null });
+
+        setEditedProject((prev) => ({ ...prev, fileUrl: null }));
+        console.log("File deleted successfully!");
+      }
+    } catch (error) {
+      console.error("Error deleting file:", error);
     }
   };
 
@@ -1209,6 +1236,9 @@ const CourseDetail = ({ params }) => {
               <label>
                 Subir Archivo:
                 <input type="file" onChange={handleFileChange} />
+                {editedProject.fileUrl && (
+                  <button onClick={handleDeleteFile}>Eliminar Archivo</button>
+                )}
               </label>
               <div className={styles.modalActions}>
                 {(isStudentInCourse || isAdmin) && (
