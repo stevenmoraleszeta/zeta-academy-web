@@ -1233,13 +1233,25 @@ const CourseDetail = ({ params }) => {
                   disabled={!isAdmin} // Deshabilitar si no es admin
                 />
               </label>
-              <label>
-                Subir Archivo:
-                <input type="file" onChange={handleFileChange} />
-                {editedProject.fileUrl && (
-                  <button onClick={handleDeleteFile}>Eliminar Archivo</button>
-                )}
-              </label>
+              {(isStudentInCourse || isAdmin) && (
+                <label>
+                  {isAdmin ? "Subir Proyecto" : "Descargar Proyecto: "}
+                  {isAdmin ? (
+                    <>
+                      <input type="file" onChange={handleFileChange} />
+                      {editedProject.fileUrl && (
+                        <button onClick={handleDeleteFile}>Eliminar Archivo</button>
+                      )}
+                    </>
+                  ) : (
+                    editedProject.fileUrl && (
+                      <a href={editedProject.fileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">
+                        Descargar Proyecto
+                      </a>
+                    )
+                  )}
+                </label>
+              )}
               <div className={styles.modalActions}>
                 {(isStudentInCourse || isAdmin) && (
                   <button onClick={handleSaveProject}>
