@@ -24,6 +24,7 @@ import { getAuth } from "firebase/auth";
 import debounce from "lodash/debounce";
 import { storage } from "@/firebase/firebase"; // Importar configuración de storage
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { format } from 'date-fns';
 
 const CourseDetail = ({ params }) => {
   const router = useRouter();
@@ -307,6 +308,13 @@ const CourseDetail = ({ params }) => {
         }
       });
 
+      if (!isAdmin) {
+        const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
+        await updateDoc(studentProjectDocRef, {
+          deliveredDay: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"), // Formato local
+        });
+      }
+
 
       // Actualizar el estado local para reflejar los cambios
       setProjects((prevProjects) =>
@@ -367,8 +375,8 @@ const CourseDetail = ({ params }) => {
           fileUrl: updatedProject.fileUrl || null,
           userId: studentId,
           displayName: displayName,
-          deliveredDay: '', //new Date().toISOString()
-          dueDate: updatedProject.dueDate, //new Date().toISOString()
+          deliveredDay: null,
+          dueDate: updatedProject.dueDate,
           score: null,
           state: updatedProject.state || "sin estado",
         };
@@ -1182,7 +1190,11 @@ const CourseDetail = ({ params }) => {
                 <input type="file" onChange={handleFileChange} />
               </label>
               <div className={styles.modalActions}>
-                <button onClick={handleSaveProject}>Guardar Proyecto</button>
+                {(isStudentInCourse || isAdmin) && (
+                  <button onClick={handleSaveProject}>
+                    {isAdmin ? "Guardar Proyecto" : "Entregar Proyecto"}
+                  </button>
+                )}
                 <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
               </div>
             </div>
