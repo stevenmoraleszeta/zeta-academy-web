@@ -274,6 +274,26 @@ const CourseDetail = ({ params }) => {
       updatedProject.courseId = courseId;
       updatedProject.userId = userId;
 
+      // Obtener el ID del mentor desde el documento del curso
+      const courseDocRef = doc(db, "liveCourses", courseId);
+      const courseDocSnap = await getDoc(courseDocRef);
+
+      if (!courseDocSnap.exists()) {
+        throw new Error("Course document does not exist");
+      }
+
+      const courseData = courseDocSnap.data();
+      const mentorId = courseData.mentor;
+
+      // Obtener el nombre del mentor desde la colección users
+      const mentorDocRef = doc(db, "users", mentorId);
+      const mentorDocSnap = await getDoc(mentorDocRef);
+      const mentorData = mentorDocSnap.exists() ? mentorDocSnap.data() : {};
+      const mentorName = mentorData.displayName || "Mentor sin nombre";
+
+      // Agregar el nombre del mentor al proyecto principal
+      updatedProject.mentor = mentorName;
+
       // Calcular el estado dinámico del proyecto basado en las condiciones
       const dueDate = new Date(editedProject.dueDate).getTime();
       const currentDate = new Date().getTime();
@@ -296,7 +316,7 @@ const CourseDetail = ({ params }) => {
       await updateDoc(projectRef, updatedProject);
 
       // Llamar a la función fetchStudents para obtener los datos de los estudiantes y crear los documentos en la subcolección
-      await fetchStudentsAndCreateSubcollection(updatedProject);
+      await fetchStudentsAndCreateSubcollection(updatedProject, mentorName);
 
       const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
       const querySnapshot = await getDocs(studentProjectRef);
@@ -339,7 +359,7 @@ const CourseDetail = ({ params }) => {
     }
   };
 
-  const fetchStudentsAndCreateSubcollection = async (updatedProject) => {
+  const fetchStudentsAndCreateSubcollection = async (updatedProject, mentorName) => {
     try {
       // Obtener el documento del curso en la colección liveCourses
       const courseDocRef = doc(db, "liveCourses", courseId);
@@ -379,6 +399,7 @@ const CourseDetail = ({ params }) => {
           dueDate: updatedProject.dueDate,
           score: null,
           state: updatedProject.state || "sin estado",
+          mentor: mentorName,
         };
         const newDocRef = doc(studentProjectRef, studentId);
         batch.set(newDocRef, studentProject);

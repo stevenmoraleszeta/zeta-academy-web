@@ -203,6 +203,7 @@ const StudentsProjects: React.FC = () => {
                 { label: "User", field: "displayName", type: "text" },
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
                 { label: "Score", field: "score", type: "number" },
+                { label: "Mentor", field: "mentor", type: "text" },
             ]}
             editFields={[
                 { label: "Título", field: "title", type: "text" },
