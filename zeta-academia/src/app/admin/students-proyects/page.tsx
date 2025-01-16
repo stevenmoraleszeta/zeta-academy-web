@@ -229,7 +229,7 @@ const StudentsProjects: React.FC = () => {
             displayFields={[
                 { label: "Título", field: "title", type: "text" },
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
-                { label: "Orden", field: "order", type: "number" },
+                { label: "Score", field: "score", type: "number" },
                 { label: "Estado", field: "state", type: "text" },
             ]}
             editFields={[

@@ -285,6 +285,8 @@ const CourseDetail = ({ params }) => {
         updatedProject.state = "entregable";
       } else if (!updatedProject.fileUrl && currentDate > dueDate) {
         updatedProject.state = "no entregado";
+      } else {
+        updatedProject.state = "sin estado"; // Valor por defecto si no se cumple ninguna condición
       }
 
       // Actualizar el proyecto principal en Firestore
@@ -293,17 +295,28 @@ const CourseDetail = ({ params }) => {
       // Llamar a la función fetchStudents para obtener los datos de los estudiantes y crear los documentos en la subcolección
       await fetchStudentsAndCreateSubcollection(updatedProject);
 
+      const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
+      const querySnapshot = await getDocs(studentProjectRef);
+      let latestScore = null;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.score !== null) {
+          latestScore = data.score; // Guardar la última calificación encontrada
+        }
+      });
+
+
       // Actualizar el estado local para reflejar los cambios
       setProjects((prevProjects) =>
         prevProjects.map((proj) =>
-          proj.id === editedProject.id ? { ...updatedProject } : proj
+          proj.id === editedProject.id ? { ...updatedProject, latestScore } : proj
         )
       );
 
       // Actualizar valores en el formulario/modal
       setDisplayName(displayName);
       setProjectState(updatedProject.state);
-      /* setScore(latestScore); */ // Asignar la última calificación al estado
+      setScore(latestScore); // Asignar la última calificación al estado
 
       // Cerrar el modal y limpiar valores
       setIsEditModalOpen(false);
@@ -340,17 +353,26 @@ const CourseDetail = ({ params }) => {
 
       const batch = writeBatch(db);
 
-      studentsList.forEach(studentId => {
+      for (const studentId of studentsList) {
+        // Obtener el displayName del usuario
+        const userDocRef = doc(db, "users", studentId);
+        const userDocSnap = await getDoc(userDocRef);
+        const userData = userDocSnap.exists() ? userDocSnap.data() : {};
+        const displayName = userData.displayName || "Usuario sin nombre";
+
         const studentProject = {
+          title: updatedProject.title,
           fileUrl: updatedProject.fileUrl || null,
           userId: studentId,
-          deliveredDay: new Date().toISOString(),
+          displayName: displayName,
+          deliveredDay: '', //new Date().toISOString()
+          dueDate: updatedProject.dueDate, //new Date().toISOString()
           score: null,
           state: updatedProject.state || "sin estado",
         };
-        const newDocRef = doc(studentProjectRef, studentId); // Usar studentId como ID del documento
+        const newDocRef = doc(studentProjectRef, studentId);
         batch.set(newDocRef, studentProject);
-      });
+      }
 
       await batch.commit();
 
