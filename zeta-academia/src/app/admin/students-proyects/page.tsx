@@ -200,9 +200,9 @@ const StudentsProjects: React.FC = () => {
             pageTitle="Proyectos de Estudiantes"
             displayFields={[
                 { label: "Título", field: "title", type: "text" },
+                { label: "User", field: "displayName", type: "text" },
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
                 { label: "Score", field: "score", type: "number" },
-                { label: "Estado", field: "state", type: "text" },
             ]}
             editFields={[
                 { label: "Título", field: "title", type: "text" },
