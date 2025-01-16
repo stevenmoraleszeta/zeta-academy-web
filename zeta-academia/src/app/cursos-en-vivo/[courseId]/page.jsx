@@ -462,10 +462,8 @@ const CourseDetail = ({ params }) => {
         const studentProject = {
           title: updatedProject.title,
           fileUrl: updatedProject.fileUrl || null,
-          studentFileUrl: null,
           userId: studentId,
           displayName: displayName,
-          deliveredDay: null,
           dueDate: updatedProject.dueDate,
           score: null,
           state: updatedProject.state || "sin estado",
