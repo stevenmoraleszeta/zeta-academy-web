@@ -74,34 +74,6 @@ const StudentsProjects: React.FC = () => {
         });
     };
 
-    const fetchProjectWithSubCollection = async (): Promise<StudentProject[]> => {
-        try {
-            const mainCollectionRef = collection(db, collectionName);
-            const mainSnapshot = await getDocs(mainCollectionRef);
-
-            const projects = await Promise.all(
-                mainSnapshot.docs.map(async (doc) => {
-                    const data = doc.data() as Omit<StudentProject, "id" | "studentsProjects">;
-                    const subCollectionRef = collection(db, `${collectionName}/${doc.id}/studentsProjects`);
-                    const subSnapshot = await getDocs(subCollectionRef);
-
-                    const studentsProjects = subSnapshot.docs.map((subDoc) => ({
-                        id: subDoc.id,
-                        ...subDoc.data(),
-                    })) as StudentProject[];
-
-                    return { id: doc.id, ...data, studentsProjects };
-                })
-            );
-
-            return projects;
-        } catch (err) {
-            console.error("Error al cargar proyectos con subcolecciones:", err);
-            return [];
-        }
-    };
-
-
     const validateProject = (project: StudentProject): boolean => {
         if (!project.title) {
             alert("El título es obligatorio.");

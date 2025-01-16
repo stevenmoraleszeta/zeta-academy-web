@@ -119,9 +119,44 @@ const CourseDetail = ({ params }) => {
   const [updatedProject, setUpdatedProject] = useState(null);
   const [displayName, setDisplayName] = useState("");
   const [projectState, setProjectState] = useState("");
+  const [isStudentInCourse, setIsStudentInCourse] = useState(false);
 
 
+  useEffect(() => {
+    const checkStudentInCourse = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
 
+        if (!user) {
+          console.error("No user is authenticated.");
+          return;
+        }
+
+        const userId = user.uid;
+        const courseDocRef = doc(db, "liveCourses", courseId);
+        const courseDocSnap = await getDoc(courseDocRef);
+
+        if (!courseDocSnap.exists()) {
+          console.error("Course document does not exist.");
+          return;
+        }
+
+        const courseData = courseDocSnap.data();
+        const studentsList = courseData.students || [];
+
+        if (studentsList.includes(userId)) {
+          setIsStudentInCourse(true);
+        } else {
+          setIsStudentInCourse(false);
+        }
+      } catch (error) {
+        console.error("Error checking student in course:", error);
+      }
+    };
+
+    checkStudentInCourse();
+  }, [courseId]);
 
 
   const fetchCourse = async () => {
@@ -194,39 +229,6 @@ const CourseDetail = ({ params }) => {
     setIsEditModalOpen(true);
   };
 
-  //    useEffect(() => {
-  //   if (isEditModalOpen && editedProject?.id) {
-  //     // Cargar el proyecto desde Firestore para asegurarnos de que tiene los datos más recientes
-  //     const fetchProjectData = async () => {
-  //       try {
-  //         const projectRef = doc(db, "projects", editedProject.id);
-  //         const projectSnap = await getDoc(projectRef);
-
-  //         if (projectSnap.exists()) {
-  //           const projectData = projectSnap.data();
-  //           setEditedProject(projectData); // Establecer el proyecto con la información actualizada
-
-  //           // Asignar el estado y la puntuación (si es que existen en la subcolección)
-  //           const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
-  //           const studentProjectSnap = await getDocs(studentProjectRef);
-
-  //           studentProjectSnap.forEach((doc) => {
-  //             const studentProject = doc.data();
-  //             setScore(studentProject.score || null);
-  //             setProjectState(studentProject.state || "Estado desconocido");
-  //             if (studentProject.fileUrl) {
-  //               setFileUrl(studentProject.fileUrl);
-  //             }
-  //           });
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching project data:", error);
-  //       }
-  //     };
-
-  //     fetchProjectData();
-  //   }
-  // }, [isEditModalOpen, editedProject?.id]);
 
   const handleScoreChange = async (newScore) => {
     setScore(newScore);
@@ -1110,44 +1112,46 @@ const CourseDetail = ({ params }) => {
           )}
         </div>
         {/* Proyectos */}
-        <div className={styles.projects}>
-          <h3>Proyectos</h3>
-          {projects.map((project, index) => (
-            <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
-              <span>{project.title}</span>
-              {isAdmin && (
-                <div className={styles.projectActions}>
-                  <button
-                    onClick={() => moveProject(index, -1)}
-                    disabled={index === 0}
-                    className={styles.projectAction} // Reutilizar estilo del botón de mover
-                  >
-                    <FaArrowUp />
-                  </button>
-                  <button
-                    onClick={() => moveProject(index, 1)}
-                    disabled={index === projects.length - 1}
-                    className={styles.projectAction} // Reutilizar estilo del botón de mover
-                  >
-                    <FaArrowDown />
-                  </button>
-                  <button
-                    onClick={() => deleteProject(project.id)}
-                    className={styles.projectAction} // Reutilizar si existe, o usa styles.classAction
-                    title="Eliminar Proyecto"
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-          {isAdmin && (
-            <button onClick={addProject} className={styles.addProjectButton}>
-              Añadir Proyecto
-            </button>
-          )}
-        </div>
+        {(isStudentInCourse || isAdmin) && (
+          <div className={styles.projects}>
+            <h3>Proyectos</h3>
+            {projects.map((project, index) => (
+              <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
+                <span>{project.title}</span>
+                {isAdmin && (
+                  <div className={styles.projectActions}>
+                    <button
+                      onClick={() => moveProject(index, -1)}
+                      disabled={index === 0}
+                      className={styles.projectAction} // Reutilizar estilo del botón de mover
+                    >
+                      <FaArrowUp />
+                    </button>
+                    <button
+                      onClick={() => moveProject(index, 1)}
+                      disabled={index === projects.length - 1}
+                      className={styles.projectAction} // Reutilizar estilo del botón de mover
+                    >
+                      <FaArrowDown />
+                    </button>
+                    <button
+                      onClick={() => deleteProject(project.id)}
+                      className={styles.projectAction} // Reutilizar si existe, o usa styles.classAction
+                      title="Eliminar Proyecto"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+            {isAdmin && (
+              <button onClick={addProject} className={styles.addProjectButton}>
+                Añadir Proyecto
+              </button>
+            )}
+          </div>
+        )}
 
         {/* //modal de editar proyecto */}
 
@@ -1161,6 +1165,7 @@ const CourseDetail = ({ params }) => {
                   type="text"
                   value={editedProject?.title || ""}
                   onChange={(e) => handleInputChange("title", e.target.value)}
+                  disabled={!isAdmin} // Deshabilitar si no es admin
                 />
               </label>
               <label>
@@ -1169,42 +1174,19 @@ const CourseDetail = ({ params }) => {
                   type="date"
                   value={editedProject?.dueDate || ""}
                   onChange={(e) => handleInputChange("dueDate", e.target.value)}
+                  disabled={!isAdmin} // Deshabilitar si no es admin
                 />
               </label>
               <label>
                 Subir Archivo:
                 <input type="file" onChange={handleFileChange} />
               </label>
-              {/* <label>
-              Puntuación:
-            <input
-               type="number"
-               value={score || ""}
-               onChange={(e) => handleScoreChange(Number(e.target.value))}
-             />
-             </label>
-             <label htmlFor="displayName">Nombre del Usuario</label>
-<input 
-  type="text" 
-  id="displayName" 
-  value={displayName} 
-  disabled // Deshabilitar el campo si solo quieres mostrarlo
-/>
-        
-<label htmlFor="projectState">Estado del Proyecto</label>
-<input
-  id="projectState"
-  type="text"
-  value={projectState} // Muestra el estado del proyecto
-  readOnly // Campo solo de lectura
-/> */}
               <div className={styles.modalActions}>
                 <button onClick={handleSaveProject}>Guardar Proyecto</button>
                 <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
               </div>
             </div>
           </div>
-
         )}
       </div>
 
