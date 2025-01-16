@@ -313,7 +313,14 @@ const CourseDetail = ({ params }) => {
       }
 
       // Actualizar el proyecto principal en Firestore
-      await updateDoc(projectRef, updatedProject);
+      if (isAdmin) {
+        await updateDoc(projectRef, updatedProject);
+      }
+
+      if (isAdmin) {
+        await fetchStudentsAndCreateSubcollection(updatedProject, mentorName);
+      }
+
 
       // Llamar a la función fetchStudents para obtener los datos de los estudiantes y crear los documentos en la subcolección
       await fetchStudentsAndCreateSubcollection(updatedProject, mentorName);
@@ -327,13 +334,6 @@ const CourseDetail = ({ params }) => {
           latestScore = data.score; // Guardar la última calificación encontrada
         }
       });
-
-      if (!isAdmin) {
-        const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
-        await updateDoc(studentProjectDocRef, {
-          deliveredDay: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"), // Formato local
-        });
-      }
 
 
       // Actualizar el estado local para reflejar los cambios
@@ -386,6 +386,48 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+  const handleSubmitProject = async () => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        console.error("No user is authenticated.");
+        return;
+      }
+
+      const userId = user.uid;
+      const projectRef = doc(db, "projects", editedProject.id);
+      const updatedProject = { ...editedProject };
+
+      if (file) {
+        const fileRef = ref(storage, `studentProjects/${file.name}`);
+        await uploadBytes(fileRef, file);
+        const fileUrl = await getDownloadURL(fileRef);
+        updatedProject.studentFileUrl = fileUrl;
+      }
+
+      const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
+      await updateDoc(studentProjectDocRef, {
+        studentFileUrl: updatedProject.studentFileUrl || null,
+        deliveredDay: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+      });
+
+      setProjects((prevProjects) =>
+        prevProjects.map((proj) =>
+          proj.id === editedProject.id ? { ...updatedProject } : proj
+        )
+      );
+
+      setIsEditModalOpen(false);
+      setFile(null);
+
+      console.log("Student project submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting student project:", error);
+    }
+  };
+
   const fetchStudentsAndCreateSubcollection = async (updatedProject, mentorName) => {
     try {
       // Obtener el documento del curso en la colección liveCourses
@@ -420,6 +462,7 @@ const CourseDetail = ({ params }) => {
         const studentProject = {
           title: updatedProject.title,
           fileUrl: updatedProject.fileUrl || null,
+          studentFileUrl: null,
           userId: studentId,
           displayName: displayName,
           deliveredDay: null,
@@ -440,9 +483,6 @@ const CourseDetail = ({ params }) => {
     }
   };
 
-
-
-
   const handleInputChange = (field, value) => {
     setEditedProject((prev) => ({ ...prev, [field]: value }));
   };
@@ -450,8 +490,6 @@ const CourseDetail = ({ params }) => {
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
-
-
 
   const fetchUsers = async () => {
     const usersRef = collection(db, "users");
@@ -1245,18 +1283,31 @@ const CourseDetail = ({ params }) => {
                     </>
                   ) : (
                     editedProject.fileUrl && (
-                      <a href={editedProject.fileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">
-                        Descargar Proyecto
-                      </a>
+                      <>
+                        <a href={editedProject.fileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">
+                          Descargar Proyecto
+                        </a>
+                        <label htmlFor="">Subir mi proyecto</label>
+                        <input type="file" onChange={handleFileChange} />
+                      </>
                     )
                   )}
                 </label>
               )}
               <div className={styles.modalActions}>
                 {(isStudentInCourse || isAdmin) && (
-                  <button onClick={handleSaveProject}>
-                    {isAdmin ? "Guardar Proyecto" : "Entregar Proyecto"}
-                  </button>
+                  <>
+                    {isAdmin && (
+                      <button onClick={handleSaveProject}>
+                        Guardar Proyecto
+                      </button>
+                    )}
+                    {!isAdmin && (
+                      <button onClick={handleSubmitProject}>
+                        Entregar Proyecto
+                      </button>
+                    )}
+                  </>
                 )}
                 <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
               </div>
