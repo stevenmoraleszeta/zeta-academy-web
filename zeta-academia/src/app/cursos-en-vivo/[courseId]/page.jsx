@@ -257,20 +257,6 @@ const CourseDetail = ({ params }) => {
     setIsEditModalOpen(true);
   };
 
-
-  const handleScoreChange = async (newScore) => {
-    setScore(newScore);
-
-    try {
-      const projectRef = doc(db, "projects", editedProject.id);
-      await updateDoc(projectRef, { latestScore: newScore });
-      console.log("Score updated successfully!");
-    } catch (error) {
-      console.error("Error updating score:", error);
-    }
-  };
-
-
   const handleSaveProject = async () => {
     try {
       // Obtener el usuario autenticado dinámicamente
