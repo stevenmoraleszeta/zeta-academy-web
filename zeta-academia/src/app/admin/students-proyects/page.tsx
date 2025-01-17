@@ -210,8 +210,9 @@ const StudentsProjects: React.FC = () => {
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
                 { label: "Puntuación", field: "score", type: "text" },
                 { label: "Fecha de Entregado", field: "deliveredDate", type: "date" },
-                { label: "Archivo", field: "fileUrl", type: "file" },
+                { label: "Proyecto", field: "fileUrl", type: "file" },
             ]}
+            downloadBtn={true}
             fileUploadHandler={handleFileUpload}
             onSave={saveStudentProject}
             onDelete={deleteStudentProject}

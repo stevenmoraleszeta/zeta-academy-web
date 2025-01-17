@@ -25,6 +25,7 @@ interface CrudMenuProps {
     determineState?: (item: any) => string;
     getStateColor?: (state: string) => string;
     data?: any[];
+    downloadBtn?: boolean;
 }
 
 const CrudMenu: React.FC<CrudMenuProps> = ({
@@ -40,6 +41,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     determineState,
     getStateColor,
     data: propData,
+    downloadBtn,
 }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
@@ -390,6 +392,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                 )}
                             </div>
                         ))}
+                        {downloadBtn && selectedItem?.studentFileUrl && (
+                            <>
+                                <label htmlFor="">Proyecto de estudiante: </label>
+                                <a href={selectedItem?.studentFileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">Descargar archivo</a>
+                            </>
+                        )}
                         <div className={styles.modalButtons}>
                             <button
                                 onClick={handleSave}
