@@ -109,18 +109,18 @@ const StudentsProjects: React.FC = () => {
                     dueDate: data.dueDate || null,
                     score: data.score || null,
                     fileUrl: data.fileUrl || null,
-                    /* state: determineState(data), */
+                    state: determineState(data)
                 });
             } else {
                 // Crear un nuevo documento en la subcolección
                 const subCollectionRef = collection(db, subCollectionPath);
                 await addDoc(subCollectionRef, {
-                    projectId: projectId, // Asegúrate de incluir projectId
-                    userId: data.userId || "default-user-id", // Proporciona un userId predeterminado si está ausente
+                    projectId: projectId,
+                    userId: data.userId || "default-user-id",
                     dueDate: data.dueDate || null,
                     score: data.score || null,
                     fileUrl: data.fileUrl || null,
-                    /* state: determineState(data), */
+                    state: determineState(data),
                 });
             }
         } catch (err) {
