@@ -159,6 +159,7 @@ const CourseDetail = ({ params }) => {
     checkStudentInCourse();
   }, [courseId]);
 
+
   const fetchCourse = async () => {
     try {
       const docRef = doc(db, "liveCourses", courseId);
@@ -215,13 +216,29 @@ const CourseDetail = ({ params }) => {
   };
 
   const fetchProjects = async () => {
-    const projectsRef = collection(db, "projects");
-    const projectsSnapshot = await getDocs(projectsRef);
-    const fetchedProjects = projectsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setProjects(fetchedProjects.filter((project) => project.courseId === courseId));
+    try {
+      const projectsRef = collection(db, "projects");
+      const projectsSnapshot = await getDocs(projectsRef);
+      const fetchedProjects = await Promise.all(
+        projectsSnapshot.docs.map(async (doc) => {
+          const projectData = doc.data();
+          const studentsProjectsRef = collection(db, "projects", doc.id, "studentsProjects");
+          const studentsProjectsSnapshot = await getDocs(studentsProjectsRef);
+          const studentsProjects = studentsProjectsSnapshot.docs.map((studentDoc) => ({
+            id: studentDoc.id,
+            ...studentDoc.data(),
+          }));
+          return {
+            id: doc.id,
+            ...projectData,
+            studentsProjects,
+          };
+        })
+      );
+      setProjects(fetchedProjects.filter((project) => project.courseId === courseId));
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
   };
 
   const handleEditProject = (project) => {
@@ -1239,8 +1256,8 @@ const CourseDetail = ({ params }) => {
         {(isStudentInCourse || isAdmin) && (
           <div className={styles.projects}>
             <h3>Proyectos</h3>
-            {projects.map((project, index) => {
-              const studentProject = project.studentsProjects ? project.studentsProjects.find(sp => sp.userId === currentUser.id) : null;
+            {projects.map((project) => {
+              const studentProject = project.studentsProjects.find(sp => sp.userId === currentUser.id);
               return (
                 <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
                   <span>{project.title}</span>
