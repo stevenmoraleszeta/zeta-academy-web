@@ -20,6 +20,7 @@ interface StudentProject {
     title?: string; // Agregado para manejar el título del proyecto
     courseId?: string; // Agregado para manejar el ID del curso
     order?: number; // Agregado para manejar el orden
+    studentFileUrl?: string;
 }
 
 const StudentsProjects: React.FC = () => {
@@ -140,18 +141,22 @@ const StudentsProjects: React.FC = () => {
     };
 
     const determineState = (project: StudentProject): string => {
-        const today = new Date();
+        const deliveredDate = project?.deliveredDay ? new Date(project.deliveredDay) : null;
         const dueDate = project?.dueDate ? new Date(project.dueDate) : null;
-        const deliveredDay = project?.deliveredDay ? new Date(project.deliveredDay) : null;
+        const today = new Date();
 
-        if (project?.fileUrl && project?.score !== null && project?.score !== undefined) return "Revisado";
-        if (!project?.fileUrl && dueDate && dueDate > today) return "No Entregado";
-        if (project?.fileUrl && (project?.score === null || project?.score === undefined)) return "Pendiente de Revisión";
-        if (!project?.fileUrl && dueDate && dueDate <= today) return "Fuera de Tiempo";
+        if (project?.score !== null && project?.score !== undefined) return "Revisado";
+
+        if (project?.studentFileUrl && (project?.score === null || project?.score === undefined)) return "Pendientes de revisión";
+
+        if (project?.studentFileUrl && deliveredDate && dueDate && deliveredDate > dueDate) return "Entregado tarde";
+
+        if (!project?.studentFileUrl && dueDate && dueDate > today) return "Entregable";
+
+        if (!project?.studentFileUrl && dueDate && dueDate <= today) return "No entregado";
 
         return "Desconocido";
     };
-
     const getStateColor = (state: string): string => {
         switch (state) {
             case "Revisado":
