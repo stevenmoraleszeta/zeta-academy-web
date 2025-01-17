@@ -957,8 +957,9 @@ const CourseDetail = ({ params }) => {
         const studentProjectsSnapshot = await getDocs(q);
 
         studentProjectsSnapshot.forEach(doc => {
-          const score = doc.data().score;
-          if (typeof score === 'number') {
+          let score = doc.data().score;
+          score = Number(score);
+          if (!isNaN(score)) {
             totalScore += score;
             projectCount += 1;
           }
