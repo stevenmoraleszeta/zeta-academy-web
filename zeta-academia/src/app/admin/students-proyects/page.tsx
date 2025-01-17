@@ -102,17 +102,15 @@ const StudentsProjects: React.FC = () => {
             const subCollectionPath = `${collectionName}/${projectId}/studentsProjects`;
 
             if (isEditMode && id) {
-                // Actualizar un documento existente en la subcolección
                 const subDocRef = doc(db, subCollectionPath, id);
                 await updateDoc(subDocRef, {
-                    projectId: projectId, // Asegúrate de incluir projectId
+                    projectId: projectId,
                     dueDate: data.dueDate || null,
                     score: data.score || null,
                     fileUrl: data.fileUrl || null,
                     state: determineState(data)
                 });
             } else {
-                // Crear un nuevo documento en la subcolección
                 const subCollectionRef = collection(db, subCollectionPath);
                 await addDoc(subCollectionRef, {
                     projectId: projectId,
