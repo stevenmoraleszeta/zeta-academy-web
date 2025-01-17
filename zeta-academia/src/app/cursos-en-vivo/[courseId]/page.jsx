@@ -1332,7 +1332,7 @@ const CourseDetail = ({ params }) => {
               {!isAdmin && (
                 <>
                   <span>Promedio: </span>
-                  <span style={{ color: averageScore >= 80 ? 'blue' : 'red' }}>
+                  <span style={{ color: averageScore >= 80 ? '#005F73' : '#E85D04' }}>
                     {averageScore.toFixed(2)}/100
                   </span>
                 </>
