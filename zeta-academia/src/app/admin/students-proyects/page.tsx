@@ -95,58 +95,31 @@ const StudentsProjects: React.FC = () => {
     };
 
     const saveStudentProject = async (item: StudentProject, isEditMode: boolean): Promise<void> => {
-        const { id, ...data } = item;
+        const { id, projectId, ...data } = item;
 
         try {
-            // Crear o actualizar el proyecto principal en la colección 'projects'
-            let projectId = item.projectId;
-
-            if (!isEditMode || !projectId) {
-                // Si no es modo edición o no hay `projectId`, crea un nuevo proyecto principal
-                const mainCollectionRef = collection(db, collectionName);
-                const projectDoc = await addDoc(mainCollectionRef, {
-                    title: data.title,
-                    dueDate: data.dueDate,
-                    courseId: data.courseId,
-                    order: data.order,
-                    state: determineState(data), // Estado inicial
-                    fileUrl: data.fileUrl || null,
-                });
-                projectId = projectDoc.id; // Asignar el nuevo ID generado
-            } else {
-                // Actualizar el proyecto principal existente
-                const mainDocRef = doc(db, collectionName, projectId);
-                await updateDoc(mainDocRef, {
-                    title: data.title,
-                    dueDate: data.dueDate,
-                    courseId: data.courseId,
-                    order: data.order,
-                    state: determineState(data),
-                    fileUrl: data.fileUrl || null,
-                });
-            }
-
-            // Ahora trabajar con la subcolección 'studentsProjects'
             const subCollectionPath = `${collectionName}/${projectId}/studentsProjects`;
 
-            if (item.id) {
+            if (isEditMode && id) {
                 // Actualizar un documento existente en la subcolección
-                const subDocRef = doc(db, subCollectionPath, item.id);
+                const subDocRef = doc(db, subCollectionPath, id);
                 await updateDoc(subDocRef, {
-                    deliveredDay: data.deliveredDay,
-                    score: data.score,
+                    projectId: projectId, // Asegúrate de incluir projectId
+                    dueDate: data.dueDate || null,
+                    score: data.score || null,
                     fileUrl: data.fileUrl || null,
-                    state: determineState(data),
+                    /* state: determineState(data), */
                 });
             } else {
                 // Crear un nuevo documento en la subcolección
                 const subCollectionRef = collection(db, subCollectionPath);
                 await addDoc(subCollectionRef, {
+                    projectId: projectId, // Asegúrate de incluir projectId
                     userId: data.userId || "default-user-id", // Proporciona un userId predeterminado si está ausente
-                    deliveredDay: data.deliveredDay || null,
+                    dueDate: data.dueDate || null,
                     score: data.score || null,
                     fileUrl: data.fileUrl || null,
-                    state: determineState(data),
+                    /* state: determineState(data), */
                 });
             }
         } catch (err) {
@@ -209,7 +182,7 @@ const StudentsProjects: React.FC = () => {
                 { label: "Título", field: "title", type: "text" },
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
                 { label: "Puntuación", field: "score", type: "text" },
-                { label: "Fecha de Entregado", field: "deliveredDate", type: "date" },
+                { label: "Fecha de Entregado", field: "deliveredDay", type: "date" },
                 { label: "Proyecto", field: "fileUrl", type: "file" },
             ]}
             downloadBtn={true}

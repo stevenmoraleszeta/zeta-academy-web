@@ -410,7 +410,7 @@ const CourseDetail = ({ params }) => {
       const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
       await updateDoc(studentProjectDocRef, {
         studentFileUrl: updatedProject.studentFileUrl || null,
-        deliveredDay: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+        deliveredDay: format(new Date(), "yyyy-MM-dd"),
       });
 
       setProjects((prevProjects) =>
