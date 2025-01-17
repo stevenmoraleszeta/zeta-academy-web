@@ -465,6 +465,10 @@ const CourseDetail = ({ params }) => {
       const batch = writeBatch(db);
 
       for (const studentId of studentsList) {
+        // Verificar si el documento del estudiante ya existe en la subcolección
+        const existingDocRef = doc(studentProjectRef, studentId);
+        const existingDocSnap = await getDoc(existingDocRef);
+
         // Obtener el displayName del usuario
         const userDocRef = doc(db, "users", studentId);
         const userDocSnap = await getDoc(userDocRef);
@@ -481,15 +485,21 @@ const CourseDetail = ({ params }) => {
           state: updatedProject.state || "sin estado",
           mentor: mentorName,
         };
-        const newDocRef = doc(studentProjectRef, studentId);
-        batch.set(newDocRef, studentProject);
+
+        if (existingDocSnap.exists()) {
+          // Actualizar el documento existente
+          batch.update(existingDocRef, studentProject);
+        } else {
+          // Crear un nuevo documento
+          batch.set(existingDocRef, studentProject);
+        }
       }
 
       await batch.commit();
 
-      console.log("Student projects created successfully!");
+      console.log("Student projects created/updated successfully!");
     } catch (error) {
-      console.error("Error fetching students and creating subcollection:", error);
+      console.error("Error fetching students and creating/updating subcollection:", error);
     }
   };
 
