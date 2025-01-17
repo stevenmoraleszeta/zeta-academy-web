@@ -96,8 +96,6 @@ const CourseDetail = ({ params }) => {
     ],
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
   const [currentIconUrl, setCurrentIconUrl] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
@@ -117,9 +115,6 @@ const CourseDetail = ({ params }) => {
   const [studentUsers, setStudentUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [score, setScore] = useState(null);
-  const [updatedProject, setUpdatedProject] = useState(null);
-  const [displayName, setDisplayName] = useState("");
-  const [projectState, setProjectState] = useState("");
   const [isStudentInCourse, setIsStudentInCourse] = useState(false);
   const [studentProjects, setStudentProjects] = useState([]);
 
