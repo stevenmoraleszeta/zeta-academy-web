@@ -375,8 +375,20 @@ const CourseDetail = ({ params }) => {
         const fileRef = ref(storage, editedProject.fileUrl);
         await deleteObject(fileRef);
 
-        const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
-        await updateDoc(studentProjectDocRef, { fileUrl: null });
+        // Actualizar el campo fileUrl en el documento principal del proyecto
+        const projectDocRef = doc(db, "projects", editedProject.id);
+        await updateDoc(projectDocRef, { fileUrl: null });
+
+        // Obtener todos los documentos en la subcolección studentsProjects
+        const studentProjectsRef = collection(db, "projects", editedProject.id, "studentsProjects");
+        const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+
+        // Actualizar el campo fileUrl en cada documento de la subcolección
+        const batch = writeBatch(db);
+        studentProjectsSnapshot.forEach((doc) => {
+          batch.update(doc.ref, { fileUrl: null });
+        });
+        await batch.commit();
 
         setEditedProject((prev) => ({ ...prev, fileUrl: null }));
         console.log("File deleted successfully!");
