@@ -146,13 +146,9 @@ const StudentsProjects: React.FC = () => {
         const today = new Date();
 
         if (project?.score !== null && project?.score !== undefined) return "Revisado";
-
         if (project?.studentFileUrl && (project?.score === null || project?.score === undefined)) return "Pendientes de revisión";
-
         if (project?.studentFileUrl && deliveredDate && dueDate && deliveredDate > dueDate) return "Entregado tarde";
-
         if (!project?.studentFileUrl && dueDate && dueDate > today) return "Entregable";
-
         if (!project?.studentFileUrl && dueDate && dueDate <= today) return "No entregado";
 
         return "Desconocido";
