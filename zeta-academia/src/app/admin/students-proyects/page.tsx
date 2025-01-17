@@ -157,16 +157,19 @@ const StudentsProjects: React.FC = () => {
 
         return "Desconocido";
     };
+
     const getStateColor = (state: string): string => {
         switch (state) {
             case "Revisado":
                 return "green";
-            case "No Entregado":
+            case "No entregado":
                 return "yellow";
-            case "Pendiente de Revisión":
+            case "Pendientes de revisión":
                 return "red";
-            case "Fuera de Tiempo":
+            case "Entregado tarde":
                 return "black";
+            case "Entregable":
+                return "blue";
             default:
                 return "gray";
         }
