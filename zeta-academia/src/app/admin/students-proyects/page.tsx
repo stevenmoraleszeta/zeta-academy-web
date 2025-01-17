@@ -183,7 +183,7 @@ const StudentsProjects: React.FC = () => {
             editFields={[
                 { label: "Título", field: "title", type: "text" },
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
-                { label: "Puntuación", field: "score", type: "text" },
+                { label: "Puntuación", field: "score", type: "number" },
                 { label: "Fecha de Entregado", field: "deliveredDay", type: "date" },
                 { label: "Proyecto", field: "fileUrl", type: "file" },
             ]}
