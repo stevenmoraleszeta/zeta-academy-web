@@ -117,6 +117,7 @@ const CourseDetail = ({ params }) => {
   const [score, setScore] = useState(null);
   const [isStudentInCourse, setIsStudentInCourse] = useState(false);
   const [studentProjects, setStudentProjects] = useState([]);
+  const [averageScore, setAverageScore] = useState(0);
 
 
   useEffect(() => {
@@ -177,7 +178,6 @@ const CourseDetail = ({ params }) => {
       throw error;
     }
   };
-
 
   const fetchModules = async () => {
     try {
@@ -562,6 +562,7 @@ const CourseDetail = ({ params }) => {
         await fetchModules();
         await fetchProjects();
         await fetchStudents();
+        await fetchAverageScore();
 
       } catch (error) {
         console.error("Error en fetchData:", error);
@@ -934,6 +935,44 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+  const fetchAverageScore = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      const avgScore = await calculateFinalAverage(user.uid);
+      setAverageScore(avgScore);
+    }
+  };
+
+  const calculateFinalAverage = async (studentId) => {
+    try {
+      const projectsRef = collection(db, "projects");
+      const projectsSnapshot = await getDocs(projectsRef);
+      let totalScore = 0;
+      let projectCount = 0;
+
+      for (const projectDoc of projectsSnapshot.docs) {
+        const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+        const q = query(studentProjectsRef, where("userId", "==", studentId));
+        const studentProjectsSnapshot = await getDocs(q);
+
+        studentProjectsSnapshot.forEach(doc => {
+          const score = doc.data().score;
+          if (typeof score === 'number') {
+            totalScore += score;
+            projectCount += 1;
+          }
+        });
+      }
+
+      const averageScore = projectCount > 0 ? totalScore / projectCount : 0;
+      return averageScore;
+    } catch (error) {
+      console.error("Error calculating final average score:", error);
+      return 0;
+    }
+  };
+
 
   return (
     <div className={styles.container}>
@@ -1251,39 +1290,46 @@ const CourseDetail = ({ params }) => {
             {(isAdmin ? projects : studentProjects).map((project, index) => {
               const studentProject = studentProjects.find(sp => sp.projectId === project.id);
               return (
-                <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
-                  <span>{project.title}</span>
-                  {!isAdmin && (
-                    <span>{studentProject ? studentProject.score : 'No score'}</span>
-                  )}
-                  {isAdmin && (
-                    <div className={styles.projectActions}>
-                      <button
-                        onClick={() => moveProject(index, -1)}
-                        disabled={index === 0}
-                        className={styles.projectAction}
-                      >
-                        <FaArrowUp />
-                      </button>
-                      <button
-                        onClick={() => moveProject(index, 1)}
-                        disabled={index === projects.length - 1}
-                        className={styles.projectAction}
-                      >
-                        <FaArrowDown />
-                      </button>
-                      <button
-                        onClick={() => deleteProject(project.id)}
-                        className={styles.projectAction}
-                        title="Eliminar Proyecto"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <>
+                  <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
+                    <span>{project.title}</span>
+                    {!isAdmin && (
+                      <span>{studentProject ? studentProject.score : 'No score'}</span>
+                    )}
+                    {isAdmin && (
+                      <div className={styles.projectActions}>
+                        <button
+                          onClick={() => moveProject(index, -1)}
+                          disabled={index === 0}
+                          className={styles.projectAction}
+                        >
+                          <FaArrowUp />
+                        </button>
+                        <button
+                          onClick={() => moveProject(index, 1)}
+                          disabled={index === projects.length - 1}
+                          className={styles.projectAction}
+                        >
+                          <FaArrowDown />
+                        </button>
+                        <button
+                          onClick={() => deleteProject(project.id)}
+                          className={styles.projectAction}
+                          title="Eliminar Proyecto"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
               );
             })}
+            <div>
+              {!isAdmin && (
+                <span>Ponderado Final: {averageScore}</span>
+              )}
+            </div>
             {isAdmin && (
               <button onClick={addProject} className={styles.addProjectButton}>
                 Añadir Proyecto
