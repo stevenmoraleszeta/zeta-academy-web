@@ -1258,7 +1258,9 @@ const CourseDetail = ({ params }) => {
               return (
                 <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
                   <span>{project.title}</span>
-                  <span>{studentProject ? studentProject.score : 'No score'}</span>
+                  {!isAdmin && (
+                    <span>{studentProject ? studentProject.score : 'No score'}</span>
+                  )}
                   {isAdmin && (
                     <div className={styles.projectActions}>
                       <button
