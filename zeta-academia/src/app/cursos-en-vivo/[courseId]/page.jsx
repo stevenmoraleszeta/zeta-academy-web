@@ -974,6 +974,8 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+  const averageScoreColor = averageScore >= 80 ? 'blue' : 'red';
+
 
   return (
     <div className={styles.container}>
@@ -1328,7 +1330,12 @@ const CourseDetail = ({ params }) => {
             })}
             <div>
               {!isAdmin && (
-                <span>Ponderado Final: {averageScore}</span>
+                <>
+                  <span>Promedio: </span>
+                  <span style={{ color: averageScore >= 80 ? 'blue' : 'red' }}>
+                    {averageScore.toFixed(2)}/100
+                  </span>
+                </>
               )}
             </div>
             {isAdmin && (
