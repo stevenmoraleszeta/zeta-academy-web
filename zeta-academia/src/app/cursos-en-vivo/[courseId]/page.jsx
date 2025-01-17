@@ -159,7 +159,6 @@ const CourseDetail = ({ params }) => {
     checkStudentInCourse();
   }, [courseId]);
 
-
   const fetchCourse = async () => {
     try {
       const docRef = doc(db, "liveCourses", courseId);
@@ -1229,36 +1228,40 @@ const CourseDetail = ({ params }) => {
         {(isStudentInCourse || isAdmin) && (
           <div className={styles.projects}>
             <h3>Proyectos</h3>
-            {projects.map((project, index) => (
-              <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
-                <span>{project.title}</span>
-                {isAdmin && (
-                  <div className={styles.projectActions}>
-                    <button
-                      onClick={() => moveProject(index, -1)}
-                      disabled={index === 0}
-                      className={styles.projectAction} // Reutilizar estilo del botón de mover
-                    >
-                      <FaArrowUp />
-                    </button>
-                    <button
-                      onClick={() => moveProject(index, 1)}
-                      disabled={index === projects.length - 1}
-                      className={styles.projectAction} // Reutilizar estilo del botón de mover
-                    >
-                      <FaArrowDown />
-                    </button>
-                    <button
-                      onClick={() => deleteProject(project.id)}
-                      className={styles.projectAction} // Reutilizar si existe, o usa styles.classAction
-                      title="Eliminar Proyecto"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+            {projects.map((project, index) => {
+              const studentProject = project.studentsProjects ? project.studentsProjects.find(sp => sp.userId === currentUser.id) : null;
+              return (
+                <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
+                  <span>{project.title}</span>
+                  <span>{studentProject ? studentProject.score : 'No score'}</span>
+                  {isAdmin && (
+                    <div className={styles.projectActions}>
+                      <button
+                        onClick={() => moveProject(index, -1)}
+                        disabled={index === 0}
+                        className={styles.projectAction} // Reutilizar estilo del botón de mover
+                      >
+                        <FaArrowUp />
+                      </button>
+                      <button
+                        onClick={() => moveProject(index, 1)}
+                        disabled={index === projects.length - 1}
+                        className={styles.projectAction} // Reutilizar estilo del botón de mover
+                      >
+                        <FaArrowDown />
+                      </button>
+                      <button
+                        onClick={() => deleteProject(project.id)}
+                        className={styles.projectAction} // Reutilizar si existe, o usa styles.classAction
+                        title="Eliminar Proyecto"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {isAdmin && (
               <button onClick={addProject} className={styles.addProjectButton}>
                 Añadir Proyecto
