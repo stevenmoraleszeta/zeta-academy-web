@@ -370,7 +370,7 @@ const CourseDetail = ({ params }) => {
 
       const userId = user.uid; // ID del usuario autenticado
 
-      if (editedProject.fileUrl) {
+      if (editedProject.fileUrl && isAdmin) {
         const fileRef = ref(storage, editedProject.fileUrl);
         await deleteObject(fileRef);
 
@@ -391,6 +391,17 @@ const CourseDetail = ({ params }) => {
 
         setEditedProject((prev) => ({ ...prev, fileUrl: null }));
         console.log("File deleted successfully!");
+      } else if (editedProject.studentFileUrl && !isAdmin) {
+        const fileRef = ref(storage, editedProject.studentFileUrl);
+        await deleteObject(fileRef);
+
+        // Actualizar el campo studentFileUrl en el documento de estudiantes
+        const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
+        await updateDoc(studentProjectDocRef, { studentFileUrl: null });
+
+        setEditedProject((prev) => ({ ...prev, studentFileUrl: null }));
+        console.log("File deleted successfully!");
+
       }
     } catch (error) {
       console.error("Error deleting file:", error);
@@ -1301,7 +1312,7 @@ const CourseDetail = ({ params }) => {
                     <>
                       <input type="file" onChange={handleFileChange} />
                       {editedProject.fileUrl && (
-                        <button onClick={handleDeleteFile}>Eliminar Archivo</button>
+                        <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
                       )}
                     </>
                   ) : (
@@ -1311,7 +1322,8 @@ const CourseDetail = ({ params }) => {
                           Descargar Proyecto
                         </a>
                         <label htmlFor="">Subir mi proyecto</label>
-                        <input type="file" onChange={handleFileChange} />
+                        <input type="file" onChange={handleFileChange} ></input>
+                        <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
                       </>
                     )
                   )}
