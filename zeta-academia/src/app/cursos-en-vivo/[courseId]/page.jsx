@@ -118,6 +118,7 @@ const CourseDetail = ({ params }) => {
   const [isStudentInCourse, setIsStudentInCourse] = useState(false);
   const [studentProjects, setStudentProjects] = useState([]);
   const [averageScore, setAverageScore] = useState(0);
+  const [displayName, setDisplayName] = useState("");
 
 
   useEffect(() => {
@@ -330,8 +331,6 @@ const CourseDetail = ({ params }) => {
       }
 
 
-      // Llamar a la función fetchStudents para obtener los datos de los estudiantes y crear los documentos en la subcolección
-      await fetchStudentsAndCreateSubcollection(updatedProject, mentorName);
 
       const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
       const querySnapshot = await getDocs(studentProjectRef);
@@ -353,7 +352,7 @@ const CourseDetail = ({ params }) => {
 
       // Actualizar valores en el formulario/modal
       setDisplayName(displayName);
-      setProjectState(updatedProject.state);
+      /* setProjectState(updatedProject.state); */
       setScore(latestScore); // Asignar la última calificación al estado
 
       // Cerrar el modal y limpiar valores
@@ -485,7 +484,7 @@ const CourseDetail = ({ params }) => {
 
       for (const studentId of studentsList) {
         // Verificar si el documento del estudiante ya existe en la subcolección
-        const existingDocRef = doc(studentProjectRef, studentId);
+        const existingDocRef = doc(studentProjectRef);
         const existingDocSnap = await getDoc(existingDocRef);
 
         // Obtener el displayName del usuario
@@ -499,7 +498,7 @@ const CourseDetail = ({ params }) => {
           fileUrl: updatedProject.fileUrl || null,
           userId: studentId,
           displayName: displayName,
-          dueDate: updatedProject.dueDate,
+          dueDate: updatedProject.dueDate || null,
           score: null,
           state: updatedProject.state || "sin estado",
           mentor: mentorName,
