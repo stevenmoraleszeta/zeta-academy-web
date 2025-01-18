@@ -200,3 +200,22 @@
     font-weight: 500;
     color: var(--color-lighter); /* Usa tu color definido */
 }
+
+.paymentRecommendation {
+    font-size: 14px;
+    color: var(--color-lighter);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.errorList {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 20px;
+    color: red; /* Set the text color to red for visibility */
+    font-size: 16px;
+}
+
+.errorItem {
+    margin-bottom: 5px;
+}
