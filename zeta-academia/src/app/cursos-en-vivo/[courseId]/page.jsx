@@ -493,6 +493,11 @@ const CourseDetail = ({ params }) => {
         const userData = userDocSnap.exists() ? userDocSnap.data() : {};
         const displayName = userData.displayName || "Usuario sin nombre";
 
+        const courseDocRef = doc(db, "liveCourses", courseId);
+        const courseDocSnap = await getDoc(courseDocRef);
+        const courseData = courseDocSnap.exists() ? courseDocSnap.data() : {};
+        const courseName = courseData.title || "Curso sin nombre";
+
         const studentProject = {
           title: updatedProject.title,
           fileUrl: updatedProject.fileUrl || null,
@@ -501,7 +506,9 @@ const CourseDetail = ({ params }) => {
           dueDate: updatedProject.dueDate || null,
           score: null,
           state: updatedProject.state || "sin estado",
-          mentor: mentorName,
+          mentor: mentorName || "Mentor sin nombre",
+          courseId: courseId,
+          courseName: courseName,
         };
 
         if (existingDocSnap.exists()) {

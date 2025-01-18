@@ -173,11 +173,13 @@ const StudentsProjects: React.FC = () => {
             collectionName={collectionName}
             pageTitle="Proyectos de Estudiantes"
             displayFields={[
+                { label: "Título", field: "courseName", type: "text" },
                 { label: "Título", field: "title", type: "text" },
-                { label: "User", field: "displayName", type: "text" },
-                { label: "Fecha Límite", field: "dueDate", type: "date" },
-                { label: "Score", field: "score", type: "number" },
-                { label: "Mentor", field: "mentor", type: "text" },
+                { label: "displayName", field: "displayName", type: "text" },
+                { label: "dueDate", field: "dueDate", type: "date" },
+                { label: "score", field: "score", type: "number" },
+                { label: "mentor", field: "mentor", type: "text" },
+                { label: "state", field: "state", type: "text" },
             ]}
             editFields={[
                 { label: "Título", field: "title", type: "text" },
