@@ -28,33 +28,32 @@ const StudentsProjects: React.FC = () => {
     const collectionName = "projects";
 
     useEffect(() => {
-        const fetchStudentProjects = async () => {
+        const fetchProjects = async () => {
             try {
-                const projectsRef = collection(db, collectionName);
+                const projectsRef = collection(db, "projects");
                 const projectsSnapshot = await getDocs(projectsRef);
-                const studentProjectsList: StudentProject[] = [];
+                const fetchedProjects = [];
 
                 for (const projectDoc of projectsSnapshot.docs) {
-                    const projectId = projectDoc.id;
+                    const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+                    const studentProjectsSnapshot = await getDocs(studentProjectsRef);
 
-                    const studentsProjectsRef = collection(db, `${collectionName}/${projectId}/studentsProjects`);
-                    const studentsProjectsSnapshot = await getDocs(studentsProjectsRef);
-                    const studentsProjects = studentsProjectsSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        projectId,
-                        ...doc.data()
-                    })) as StudentProject[];
-
-                    studentProjectsList.push(...studentsProjects);
+                    studentProjectsSnapshot.forEach(doc => {
+                        fetchedProjects.push({
+                            id: doc.id,
+                            projectId: projectDoc.id,
+                            ...doc.data(),
+                        });
+                    });
                 }
 
-                setProjects(studentProjectsList);
+                setProjects(fetchedProjects);
             } catch (error) {
                 console.error("Error fetching student projects:", error);
             }
         };
 
-        fetchStudentProjects();
+        fetchProjects();
     }, []);
 
     const handleFileUpload = async (file: File): Promise<string> => {

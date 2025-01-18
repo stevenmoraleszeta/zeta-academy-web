@@ -58,11 +58,14 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     const router = useRouter();
 
     useEffect(() => {
-        const combinedData = propData ?? fetchedData;
-        const filtered = filterFunction ? combinedData.filter(filterFunction) : combinedData;
-        setFilteredData(filtered);
-        initializeSelectOptions();
-    }, [fetchedData, propData, editFields, filterFunction]);
+        if (propData) {
+            setData(propData);
+            setFilteredData(propData);
+        } else if (fetchedData) {
+            setData(fetchedData);
+            setFilteredData(fetchedData);
+        }
+    }, [propData, fetchedData]);
 
     const handleGoToFicha = (item: any) => {
         router.push(`/admin/students/${item.id}`);
@@ -81,6 +84,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
+
+        if (term.trim() === '') {
+            // Restaurar el estado original de los datos cuando el término está vacío
+            setFilteredData(data);
+            return;
+        }
 
         const filtered = data.filter(item =>
             displayFields.some(({ field }) => {
