@@ -391,19 +391,22 @@ const CourseDetail = ({ params }) => {
         setEditedProject((prev) => ({ ...prev, fileUrl: null }));
         console.log("File deleted successfully!");
       } else if (editedProject.studentFileUrl && !isAdmin) {
-        const fileRef = ref(storage, editedProject.studentFileUrl);
-        await deleteObject(fileRef);
-
-        // Actualizar el campo studentFileUrl en el documento de estudiantes
-        const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
         const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
         const q = query(studentProjectRef, where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
-        await updateDoc(querySnapshot, { studentFileUrl: null });
 
-        setEditedProject((prev) => ({ ...prev, studentFileUrl: null }));
-        console.log("File deleted successfully!");
+        if (!querySnapshot.empty) {
+          const batch = writeBatch(db);
+          querySnapshot.forEach((docSnap) => {
+            batch.update(docSnap.ref, { studentFileUrl: null });
+          });
+          await batch.commit();
 
+          setEditedProject((prev) => ({ ...prev, studentFileUrl: null }));
+          console.log("Student file removed successfully!");
+        } else {
+          console.error("No matching student project found for this user.");
+        }
       }
     } catch (error) {
       console.error("Error deleting file:", error);
