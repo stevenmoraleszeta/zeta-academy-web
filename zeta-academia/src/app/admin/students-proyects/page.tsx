@@ -230,6 +230,7 @@ const StudentsProjects: React.FC = () => {
             determineState={determineState}
             getStateColor={getStateColor}
             data={projects}
+            isCheckStatus={true}
         />
     );
 };

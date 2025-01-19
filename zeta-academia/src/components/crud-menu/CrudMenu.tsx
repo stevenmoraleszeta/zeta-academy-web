@@ -23,6 +23,7 @@ interface CrudMenuProps {
     onSave?: (item: any, isEditMode: boolean) => Promise<void>;
     onDelete?: (item: any) => Promise<void>;
     determineState?: (item: any) => string;
+    isCheckStatus?: boolean;
     getStateColor?: (state: string) => string;
     data?: any[];
     downloadBtn?: boolean;
@@ -42,6 +43,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     getStateColor,
     data: propData,
     downloadBtn,
+    isCheckStatus,
 }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
@@ -70,6 +72,10 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     const handleGoToFicha = (item: any) => {
         router.push(`/admin/students/${item.id}`);
     };
+
+    const handleCheckStatus = () => {
+        window.location.reload();
+    }
 
     const initializeSelectOptions = () => {
         const options: { [key: string]: any[] } = {};
@@ -302,6 +308,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                     onChange={handleSearchChange}
                 />
                 <button onClick={handleAddClick}>Agregar</button>
+                {isCheckStatus && (
+                    <button onClick={handleCheckStatus}>Revisar estados</button>
+                )}
             </section>
             <section className={styles.itemsSection}>
                 {filteredData.length > 0 ? (
@@ -322,11 +331,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                             )}
                                         </div>
                                     ))}
-                                    {state && (
-                                        <div className={styles.state} style={{ color: stateColor }}>
-                                            {state}
-                                        </div>
-                                    )}
                                 </div>
                                 <div className={styles.iconButtons}>
                                     <button
