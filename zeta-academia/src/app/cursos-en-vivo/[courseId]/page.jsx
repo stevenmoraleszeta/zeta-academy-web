@@ -304,10 +304,10 @@ const CourseDetail = ({ params }) => {
       updatedProject.mentor = mentorName;
 
       // Calcular el estado dinámico del proyecto basado en las condiciones
-      const dueDate = new Date(editedProject.dueDate).getTime();
-      const currentDate = new Date().getTime();
+      /* const dueDate = new Date(editedProject.dueDate).getTime();
+      const currentDate = new Date().getTime(); */
 
-      if (score) {
+      /* if (score) {
         updatedProject.state = "revisado";
       } else if (updatedProject.fileUrl && currentDate > dueDate) {
         updatedProject.state = "entregado tarde";
@@ -319,7 +319,7 @@ const CourseDetail = ({ params }) => {
         updatedProject.state = "no entregado";
       } else {
         updatedProject.state = "sin estado"; // Valor por defecto si no se cumple ninguna condición
-      }
+      } */
 
       // Actualizar el proyecto principal en Firestore
       if (isAdmin) {
@@ -426,26 +426,44 @@ const CourseDetail = ({ params }) => {
         return;
       }
 
-      const userId = user.uid;
-      const projectRef = doc(db, "projects", editedProject.id);
+      const userId = user.uid; // Este es el identificador del estudiante.
+      const projectId = editedProject.id; // Asegúrate de que este valor sea válido.
       const updatedProject = { ...editedProject };
 
+      let studentFileUrl = null;
       if (file) {
         const fileRef = ref(storage, `studentProjects/${file.name}`);
         await uploadBytes(fileRef, file);
-        const fileUrl = await getDownloadURL(fileRef);
-        updatedProject.studentFileUrl = fileUrl;
+        studentFileUrl = await getDownloadURL(fileRef);
+        updatedProject.studentFileUrl = studentFileUrl;
       }
 
-      const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
-      await updateDoc(studentProjectDocRef, {
-        studentFileUrl: updatedProject.studentFileUrl || null,
+      console.log("Searching for the student's project:", { projectId, userId });
+
+      // Consulta para encontrar el documento correspondiente al userId
+      const studentProjectRef = collection(db, "projects", projectId, "studentsProjects");
+      const q = query(studentProjectRef, where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        console.error("No student project found for this user.");
+        return;
+      }
+
+      // Obtener el ID del documento encontrado
+      const studentDoc = querySnapshot.docs[0];
+      const studentDocRef = doc(db, "projects", projectId, "studentsProjects", studentDoc.id);
+
+      // Actualizar el documento encontrado
+      await updateDoc(studentDocRef, {
+        studentFileUrl: studentFileUrl || null,
         deliveredDay: format(new Date(), "yyyy-MM-dd"),
       });
 
+      // Actualiza el estado del proyecto en el frontend
       setProjects((prevProjects) =>
         prevProjects.map((proj) =>
-          proj.id === editedProject.id ? { ...updatedProject } : proj
+          proj.id === projectId ? { ...updatedProject } : proj
         )
       );
 
