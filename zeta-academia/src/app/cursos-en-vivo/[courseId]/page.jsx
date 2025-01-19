@@ -1296,7 +1296,7 @@ const CourseDetail = ({ params }) => {
         {(isStudentInCourse || isAdmin) && (
           <div className={styles.projects}>
             <h3>Proyectos</h3>
-            {(isAdmin ? projects : studentProjects).map((project, index) => {
+            {(isAdmin ? projects : studentProjects).filter((project) => project.courseId === courseId).map((project, index) => {
               const studentProject = studentProjects.find(sp => sp.projectId === project.id);
               return (
                 <>
