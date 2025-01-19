@@ -7,6 +7,7 @@ import { getDocs, collection, doc, updateDoc, deleteDoc, addDoc } from "firebase
 import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
+import { getAuth } from "firebase/auth";
 
 interface StudentProject {
     id?: string;
@@ -21,6 +22,7 @@ interface StudentProject {
     courseId?: string; // Agregado para manejar el ID del curso
     order?: number; // Agregado para manejar el orden
     studentFileUrl?: string;
+    courseName?: string;
 }
 
 const StudentsProjects: React.FC = () => {
@@ -95,10 +97,51 @@ const StudentsProjects: React.FC = () => {
     };
 
     const saveStudentProject = async (item: StudentProject, isEditMode: boolean): Promise<void> => {
-        const { id, projectId, ...data } = item;
+        const { id, projectId, courseName, ...data } = item;
 
         try {
-            const subCollectionPath = `${collectionName}/${projectId}/studentsProjects`;
+            // Buscar si el curso existe en "liveCourses"
+
+            const auth = getAuth();
+            const user = auth.currentUser;
+
+            if (!user) {
+                alert("Usuario no autenticado. Por favor, inicia sesión.");
+                return;
+            }
+            const liveCoursesRef = collection(db, "liveCourses");
+            const liveCoursesSnapshot = await getDocs(liveCoursesRef);
+            const matchingCourse = liveCoursesSnapshot.docs.find(
+                (doc) => doc.data().title === courseName
+            );
+            console.log("matchingCourse: ", matchingCourse);
+
+            if (!matchingCourse) {
+                alert(`El curso "${courseName}" no existe. Por favor, verifica el nombre.`);
+                return;
+            }
+
+            if (!isEditMode) {
+                const courseData = matchingCourse.data();
+                const courseId = matchingCourse.id;
+                const mentor = courseData.mentor;
+
+                // Crear un nuevo proyecto en "projects"
+                const projectData = {
+                    courseId: courseId,
+                    dueDate: data.dueDate,
+                    fileUrl: data.fileUrl,
+                    mentor: mentor,
+                    title: courseName,
+                    userId: user.uid,
+                };
+
+                alert("El proyecto ha sido creados exitosamente.");
+                return; // Finaliza la función si se creó el proyecto
+            }
+
+            // Si es modo edición, actualiza los datos en la subcolección correspondiente
+            const subCollectionPath = `projects/${projectId}/studentsProjects`;
 
             if (isEditMode && id) {
                 const subDocRef = doc(db, subCollectionPath, id);
@@ -107,21 +150,12 @@ const StudentsProjects: React.FC = () => {
                     dueDate: data.dueDate || null,
                     score: data.score || null,
                     fileUrl: data.fileUrl || null,
-                    state: determineState(data)
-                });
-            } else {
-                const subCollectionRef = collection(db, subCollectionPath);
-                await addDoc(subCollectionRef, {
-                    projectId: projectId,
-                    userId: data.userId || "default-user-id",
-                    dueDate: data.dueDate || null,
-                    score: data.score || null,
-                    fileUrl: data.fileUrl || null,
                     state: determineState(data),
                 });
             }
         } catch (err) {
             console.error("Error guardando el proyecto principal o la subcolección:", err);
+            alert("Ocurrió un error al guardar el proyecto.");
         }
     };
 
@@ -186,7 +220,8 @@ const StudentsProjects: React.FC = () => {
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
                 { label: "Puntuación", field: "score", type: "number" },
                 { label: "Fecha de Entregado", field: "deliveredDay", type: "date" },
-                { label: "Proyecto", field: "fileUrl", type: "file" },
+                { label: "Archivo del Proyecto", field: "fileUrl", type: "file" },
+                { label: "Curso", field: "courseName", type: "text" },
             ]}
             downloadBtn={true}
             fileUploadHandler={handleFileUpload}
