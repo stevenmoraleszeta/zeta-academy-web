@@ -303,64 +303,55 @@ const CourseDetail = ({ params }) => {
       // Agregar el nombre del mentor al proyecto principal
       updatedProject.mentor = mentorName;
 
-      // Calcular el estado dinámico del proyecto basado en las condiciones
-      /* const dueDate = new Date(editedProject.dueDate).getTime();
-      const currentDate = new Date().getTime(); */
-
-      /* if (score) {
-        updatedProject.state = "revisado";
-      } else if (updatedProject.fileUrl && currentDate > dueDate) {
-        updatedProject.state = "entregado tarde";
-      } else if (updatedProject.fileUrl && !score) {
-        updatedProject.state = "pendiente de revisión";
-      } else if (!updatedProject.fileUrl && currentDate <= dueDate) {
-        updatedProject.state = "entregable";
-      } else if (!updatedProject.fileUrl && currentDate > dueDate) {
-        updatedProject.state = "no entregado";
-      } else {
-        updatedProject.state = "sin estado"; // Valor por defecto si no se cumple ninguna condición
-      } */
-
       // Actualizar el proyecto principal en Firestore
       if (isAdmin) {
         await updateDoc(projectRef, updatedProject);
       }
 
       if (isAdmin) {
+        // Crear documentos en la subcolección si no existen
         await fetchStudentsAndCreateSubcollection(updatedProject, mentorName);
       }
 
+      // Actualizar los documentos en la subcolección `studentsProjects`
+      const studentProjectRef = collection(
+        db,
+        "projects",
+        editedProject.id,
+        "studentsProjects"
+      );
+      const studentProjectsSnapshot = await getDocs(studentProjectRef);
 
+      const batch = writeBatch(db);
+      studentProjectsSnapshot.forEach((docSnap) => {
+        const studentProjectData = docSnap.data();
 
-      const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
-      const querySnapshot = await getDocs(studentProjectRef);
-      let latestScore = null;
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.score !== null) {
-          latestScore = data.score; // Guardar la última calificación encontrada
-        }
+        // Actualizar solo los campos necesarios
+        batch.update(docSnap.ref, {
+          title: updatedProject.title,
+          fileUrl: updatedProject.fileUrl || null,
+          dueDate: updatedProject.dueDate || null,
+        });
       });
 
+      await batch.commit();
 
-      // Actualizar el estado local para reflejar los cambios
+      console.log("Project and student projects updated successfully!");
+
+      // Actualizar valores en el estado local
       setProjects((prevProjects) =>
         prevProjects.map((proj) =>
-          proj.id === editedProject.id ? { ...updatedProject, latestScore } : proj
+          proj.id === editedProject.id
+            ? { ...updatedProject }
+            : proj
         )
       );
 
       // Actualizar valores en el formulario/modal
       setDisplayName(displayName);
-      /* setProjectState(updatedProject.state); */
-      setScore(latestScore); // Asignar la última calificación al estado
-
-      // Cerrar el modal y limpiar valores
       setIsEditModalOpen(false);
       setFile(null);
       setScore(null);
-
-      console.log("Project and student projects saved successfully!");
     } catch (error) {
       console.error("Error saving project and student projects:", error);
     }
@@ -405,7 +396,10 @@ const CourseDetail = ({ params }) => {
 
         // Actualizar el campo studentFileUrl en el documento de estudiantes
         const studentProjectDocRef = doc(db, "projects", editedProject.id, "studentsProjects", userId);
-        await updateDoc(studentProjectDocRef, { studentFileUrl: null });
+        const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
+        const q = query(studentProjectRef, where("userId", "==", userId));
+        const querySnapshot = await getDocs(q);
+        await updateDoc(querySnapshot, { studentFileUrl: null });
 
         setEditedProject((prev) => ({ ...prev, studentFileUrl: null }));
         console.log("File deleted successfully!");
@@ -490,7 +484,7 @@ const CourseDetail = ({ params }) => {
       const courseData = courseDocSnap.data();
       const studentsList = courseData.students || [];
 
-      // Crear un documento en la subcolección para cada estudiante
+      // Referencia a la subcolección studentsProjects
       const studentProjectRef = collection(
         db,
         "projects",
@@ -501,9 +495,18 @@ const CourseDetail = ({ params }) => {
       const batch = writeBatch(db);
 
       for (const studentId of studentsList) {
-        // Verificar si el documento del estudiante ya existe en la subcolección
-        const existingDocRef = doc(studentProjectRef);
-        const existingDocSnap = await getDoc(existingDocRef);
+        // Verificar si ya existe un documento con este userId en la subcolección
+        const existingDocsQuery = query(
+          studentProjectRef,
+          where("userId", "==", studentId)
+        );
+        const existingDocsSnapshot = await getDocs(existingDocsQuery);
+
+        if (!existingDocsSnapshot.empty) {
+          // Si ya existe un documento para este usuario, omitir creación
+          console.log(`Documento ya existe para el usuario ${studentId}, se omite.`);
+          continue;
+        }
 
         // Obtener el displayName del usuario
         const userDocRef = doc(db, "users", studentId);
@@ -511,9 +514,7 @@ const CourseDetail = ({ params }) => {
         const userData = userDocSnap.exists() ? userDocSnap.data() : {};
         const displayName = userData.displayName || "Usuario sin nombre";
 
-        const courseDocRef = doc(db, "liveCourses", courseId);
-        const courseDocSnap = await getDoc(courseDocRef);
-        const courseData = courseDocSnap.exists() ? courseDocSnap.data() : {};
+        // Obtener datos del curso
         const courseName = courseData.title || "Curso sin nombre";
 
         const studentProject = {
@@ -529,20 +530,19 @@ const CourseDetail = ({ params }) => {
           courseName: courseName,
         };
 
-        if (existingDocSnap.exists()) {
-          // Actualizar el documento existente
-          batch.update(existingDocRef, studentProject);
-        } else {
-          // Crear un nuevo documento
-          batch.set(existingDocRef, studentProject);
-        }
+        // Crear un nuevo documento con un ID único
+        const newDocRef = doc(studentProjectRef); // Se genera un ID único automáticamente
+        batch.set(newDocRef, studentProject);
       }
 
       await batch.commit();
 
-      console.log("Student projects created/updated successfully!");
+      console.log("Student projects created successfully!");
     } catch (error) {
-      console.error("Error fetching students and creating/updating subcollection:", error);
+      console.error(
+        "Error fetching students and creating subcollection:",
+        error
+      );
     }
   };
 
@@ -1428,7 +1428,7 @@ const CourseDetail = ({ params }) => {
                     )}
                     {!isAdmin && (
                       <button onClick={handleSubmitProject}>
-                        Entregar Proyecto
+                        Guardar Proyecto
                       </button>
                     )}
                   </>
