@@ -939,10 +939,15 @@
     margin-top: 10px;
   }
 }
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Espaciado entre bloques */
+  padding: 1rem;
+}
 
-
-.projects {
-  flex: 0.3; /* Ocupa el 70% del espacio actual */
+.projects  {
+  /* Ocupa el 70% del espacio actual */
   background: linear-gradient(var(--color-dark), var(--color-black));
   padding: 1rem;
   border-radius: 10px;

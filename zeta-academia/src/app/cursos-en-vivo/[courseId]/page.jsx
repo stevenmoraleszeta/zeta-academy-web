@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ClassesRecorded from "../clases-grabadas/page"; 
 import {
   doc,
   getDoc,
@@ -191,39 +192,7 @@ const CourseDetail = ({ params }) => {
     setIsEditModalOpen(true);
   };
 
-//    useEffect(() => {
-//   if (isEditModalOpen && editedProject?.id) {
-//     // Cargar el proyecto desde Firestore para asegurarnos de que tiene los datos más recientes
-//     const fetchProjectData = async () => {
-//       try {
-//         const projectRef = doc(db, "projects", editedProject.id);
-//         const projectSnap = await getDoc(projectRef);
-        
-//         if (projectSnap.exists()) {
-//           const projectData = projectSnap.data();
-//           setEditedProject(projectData); // Establecer el proyecto con la información actualizada
 
-//           // Asignar el estado y la puntuación (si es que existen en la subcolección)
-//           const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
-//           const studentProjectSnap = await getDocs(studentProjectRef);
-
-//           studentProjectSnap.forEach((doc) => {
-//             const studentProject = doc.data();
-//             setScore(studentProject.score || null);
-//             setProjectState(studentProject.state || "Estado desconocido");
-//             if (studentProject.fileUrl) {
-//               setFileUrl(studentProject.fileUrl);
-//             }
-//           });
-//         }
-//       } catch (error) {
-//         console.error("Error fetching project data:", error);
-//       }
-//     };
-    
-//     fetchProjectData();
-//   }
-// }, [isEditModalOpen, editedProject?.id]);
 
 const handleScoreChange = async (newScore) => {
   setScore(newScore);
@@ -1064,33 +1033,36 @@ const handleSaveProject = async () => {
             null
           )}
         </div>
+       
+       
         {/* Proyectos */}
+        <div className={styles.mainContainer} >
         <div className={styles.projects}>
           <h3>Proyectos</h3>
           {projects.map((project, index) => (
             <div key={project.id} className={styles.projectItem}  onClick={() => handleEditProject(project)}>
-              <span>{project.title}</span>
+              <span>{project.title} - Nota:{project.score}</span>
               {isAdmin && (
                 <div className={styles.projectActions}>
                   <button
                     onClick={() => moveProject(index, -1)}
                     disabled={index === 0}
                     className={styles.projectAction} // Reutilizar estilo del botón de mover
-                  >
+                    >
                     <FaArrowUp />
                   </button>
                   <button
                     onClick={() => moveProject(index, 1)}
                     disabled={index === projects.length - 1}
                     className={styles.projectAction} // Reutilizar estilo del botón de mover
-                  >
+                    >
                     <FaArrowDown />
                   </button>
                   <button
                     onClick={() => deleteProject(project.id)}
                     className={styles.projectAction} // Reutilizar si existe, o usa styles.classAction
                     title="Eliminar Proyecto"
-                  >
+                    >
                     <FaTrash />
                   </button>
                 </div>
@@ -1102,8 +1074,20 @@ const handleSaveProject = async () => {
               Añadir Proyecto
             </button>
           )}
-        </div>
 
+        </div>
+     {/* //componente de las grabaciones de las clases */}
+     <ClassesRecorded courseId={courseId} />
+   </div>
+
+       
+   
+  
+       
+
+
+
+      
            {/* //modal de editar proyecto */}
 
            {isEditModalOpen && (
@@ -1130,29 +1114,11 @@ const handleSaveProject = async () => {
                 Subir Archivo:
                 <input type="file" onChange={handleFileChange} />
               </label>
-             {/* <label>
-              Puntuación:
-            <input
-               type="number"
-               value={score || ""}
-               onChange={(e) => handleScoreChange(Number(e.target.value))}
-             />
-             </label>
-             <label htmlFor="displayName">Nombre del Usuario</label>
-<input 
-  type="text" 
-  id="displayName" 
-  value={displayName} 
-  disabled // Deshabilitar el campo si solo quieres mostrarlo
-/>
-        
-<label htmlFor="projectState">Estado del Proyecto</label>
-<input
-  id="projectState"
-  type="text"
-  value={projectState} // Muestra el estado del proyecto
-  readOnly // Campo solo de lectura
-/> */}
+              <label>
+                Puntuacion:
+                <input type="text" onChange={(e) => handleInputChange("score", e.target.value)} />
+              </label>
+             
         <div className={styles.modalActions}>
            <button onClick={handleSaveProject}>Guardar Proyecto</button>
            <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
@@ -1162,7 +1128,7 @@ const handleSaveProject = async () => {
            
         )}
       </div> 
-
+   
 
       {isTypeModalOpen && (
         <div className={styles.modalOverlay}>
@@ -1182,7 +1148,7 @@ const handleSaveProject = async () => {
           </div>
         </div>
       )}
-
+ 
       {isGroupModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -1256,10 +1222,15 @@ const handleSaveProject = async () => {
               </button>
             </div>
           </div>
+            
         </div>
+        
       )}
+      
     </div>
+   
   );
+   
 };
 
 export default CourseDetail;

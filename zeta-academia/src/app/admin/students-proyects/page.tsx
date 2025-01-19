@@ -209,6 +209,7 @@ const StudentsProjects: React.FC = () => {
             { label: "Título", field: "title", type: "text" },
             { label: "Fecha Límite", field: "dueDate", type: "date" },
             { label: "Archivo", field: "fileUrl", type: "file" },
+            { label: "Puntuacion", field: "score", type: "text" },
             { label: "Orden", field: "order", type: "number" },
         ]}
         fileUploadHandler={handleFileUpload}
