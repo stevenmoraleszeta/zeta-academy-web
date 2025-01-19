@@ -23,7 +23,7 @@ interface CrudMenuProps {
     onSave?: (item: any, isEditMode: boolean) => Promise<void>;
     onDelete?: (item: any) => Promise<void>;
     determineState?: (item: any) => string;
-    isCheckStatus?: boolean;
+    isCheckStatus?: () => void;
     getStateColor?: (state: string) => string;
     data?: any[];
     downloadBtn?: boolean;
@@ -72,10 +72,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     const handleGoToFicha = (item: any) => {
         router.push(`/admin/students/${item.id}`);
     };
-
-    const handleCheckStatus = () => {
-        window.location.reload();
-    }
 
     const initializeSelectOptions = () => {
         const options: { [key: string]: any[] } = {};
@@ -309,7 +305,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                 />
                 <button onClick={handleAddClick}>Agregar</button>
                 {isCheckStatus && (
-                    <button onClick={handleCheckStatus}>Revisar estados</button>
+                    <button onClick={isCheckStatus}>Revisar estados</button>
                 )}
             </section>
             <section className={styles.itemsSection}>

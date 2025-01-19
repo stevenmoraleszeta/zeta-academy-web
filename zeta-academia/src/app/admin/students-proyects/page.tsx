@@ -185,6 +185,10 @@ const StudentsProjects: React.FC = () => {
         return "Desconocido";
     };
 
+    const handleCheckStatus = () => {
+        window.location.reload();
+    }
+
     const getStateColor = (state: string): string => {
         switch (state) {
             case "Revisado":
@@ -230,7 +234,7 @@ const StudentsProjects: React.FC = () => {
             determineState={determineState}
             getStateColor={getStateColor}
             data={projects}
-            isCheckStatus={true}
+            isCheckStatus={handleCheckStatus}
         />
     );
 };
