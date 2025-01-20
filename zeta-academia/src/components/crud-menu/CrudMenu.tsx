@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
 interface CrudMenuProps {
     collectionName: string;
-    displayFields: { label: string; field: string; type?: string; selectType?: string }[];
+    displayFields: { label: string; field: string; type?: string; selectType?: string; computeField?: (item: any) => string; }[];
     editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
     itemActions?: { label: string; handler: (item: any) => void }[];
     pageTitle: string;
@@ -23,7 +23,10 @@ interface CrudMenuProps {
     onSave?: (item: any, isEditMode: boolean) => Promise<void>;
     onDelete?: (item: any) => Promise<void>;
     determineState?: (item: any) => string;
+    isCheckStatus?: () => void;
     getStateColor?: (state: string) => string;
+    data?: any[];
+    downloadBtn?: boolean;
 }
 
 const CrudMenu: React.FC<CrudMenuProps> = ({
@@ -37,7 +40,10 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     onSave,
     onDelete,
     determineState,
-    getStateColor
+    getStateColor,
+    data: propData,
+    downloadBtn,
+    isCheckStatus,
 }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
     const [data, setData] = useState<any[]>([]);
@@ -54,11 +60,14 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     const router = useRouter();
 
     useEffect(() => {
-        setData(fetchedData);
-        const filtered = filterFunction ? fetchedData.filter(filterFunction) : fetchedData;
-        setFilteredData(filtered);
-        initializeSelectOptions();
-    }, [fetchedData, editFields, filterFunction]);
+        if (propData) {
+            setData(propData);
+            setFilteredData(propData);
+        } else if (fetchedData) {
+            setData(fetchedData);
+            setFilteredData(fetchedData);
+        }
+    }, [propData, fetchedData]);
 
     const handleGoToFicha = (item: any) => {
         router.push(`/admin/students/${item.id}`);
@@ -77,6 +86,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
+
+        if (term.trim() === '') {
+            // Restaurar el estado original de los datos cuando el término está vacío
+            setFilteredData(data);
+            return;
+        }
 
         const filtered = data.filter(item =>
             displayFields.some(({ field }) => {
@@ -289,6 +304,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                     onChange={handleSearchChange}
                 />
                 <button onClick={handleAddClick}>Agregar</button>
+                {isCheckStatus && (
+                    <button onClick={isCheckStatus}>Revisar estados</button>
+                )}
             </section>
             <section className={styles.itemsSection}>
                 {filteredData.length > 0 ? (
@@ -309,11 +327,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                             )}
                                         </div>
                                     ))}
-                                    {state && (
-                                        <div className={styles.state} style={{ color: stateColor }}>
-                                            {state}
-                                        </div>
-                                    )}
                                 </div>
                                 <div className={styles.iconButtons}>
                                     <button
@@ -354,6 +367,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                     <>
                                         <input
                                             type="file"
+                                            name="file"
                                             accept="image/*"
                                             onChange={handleImageUpload}
                                         />
@@ -388,6 +402,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                 )}
                             </div>
                         ))}
+                        {downloadBtn && selectedItem?.studentFileUrl && (
+                            <>
+                                <label htmlFor="">Proyecto de estudiante: </label>
+                                <a href={selectedItem?.studentFileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">Descargar archivo</a>
+                            </>
+                        )}
                         <div className={styles.modalButtons}>
                             <button
                                 onClick={handleSave}
