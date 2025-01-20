@@ -326,6 +326,25 @@ const CourseDetail = ({ params }) => {
       studentProjectsSnapshot.forEach((docSnap) => {
         const studentProjectData = docSnap.data();
 
+        // Determinar el estado del proyecto según los criterios
+        const dueDate = new Date(updatedProject.dueDate).getTime();
+        const currentDate = new Date().getTime();
+        let state;
+
+        if (studentProjectData.score) {
+          state = "Revisado";
+        } else if (studentProjectData.fileUrl && !studentProjectData.score) {
+          state = "Pendiente de revisión";
+        } else if (studentProjectData.fileUrl && currentDate > dueDate) {
+          state = "Entregado tarde";
+        } else if (!studentProjectData.fileUrl && currentDate <= dueDate) {
+          state = "Entregable";
+        } else if (!studentProjectData.fileUrl && currentDate > dueDate) {
+          state = "No entregado";
+        } else {
+          state = "Sin estado"; // Valor por defecto
+        }
+
         // Actualizar solo los campos necesarios
         batch.update(docSnap.ref, {
           title: updatedProject.title,
@@ -451,10 +470,31 @@ const CourseDetail = ({ params }) => {
       const studentDoc = querySnapshot.docs[0];
       const studentDocRef = doc(db, "projects", projectId, "studentsProjects", studentDoc.id);
 
+      // Determinar el estado del proyecto según los criterios
+      const dueDate = new Date(updatedProject.dueDate).getTime();
+      const currentDate = new Date().getTime();
+      const studentProjectData = studentDoc.data();
+      let state;
+
+      if (studentProjectData.score) {
+        state = "Revisado";
+      } else if (studentFileUrl && !studentProjectData.score) {
+        state = "Pendiente de revisión";
+      } else if (studentFileUrl && currentDate > dueDate) {
+        state = "Entregado tarde";
+      } else if (!studentFileUrl && currentDate <= dueDate) {
+        state = "Entregable";
+      } else if (!studentFileUrl && currentDate > dueDate) {
+        state = "No entregado";
+      } else {
+        state = "Sin estado"; // Valor por defecto
+      }
+
       // Actualizar el documento encontrado
       await updateDoc(studentDocRef, {
         studentFileUrl: studentFileUrl || null,
         deliveredDay: format(new Date(), "yyyy-MM-dd"),
+        state, // Actualizamos el estado calculado
       });
 
       // Actualiza el estado del proyecto en el frontend
