@@ -1,29 +1,62 @@
 "use client";
 
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CrudMenu from "@/components/crud-menu/CrudMenu";
-import { getDocs  , collection, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
+import { getDocs, collection, doc, updateDoc, deleteDoc, addDoc, where, query, writeBatch } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
+import { getAuth } from "firebase/auth";
 
 interface StudentProject {
-    id?: string; 
+    id?: string;
     userId: string;
-    projectId: string; 
-    fileUrl?: string; 
-    deliveredDay?: string | null; 
-    score?: number | null; 
-    dueDate?: string | null; 
-    state?: string; 
+    projectId: string;
+    fileUrl?: string;
+    deliveredDay?: string | null;
+    score?: number | null;
+    dueDate?: string | null;
+    state?: string;
     title?: string; // Agregado para manejar el título del proyecto
     courseId?: string; // Agregado para manejar el ID del curso
     order?: number; // Agregado para manejar el orden
+    studentFileUrl?: string;
+    courseName?: string;
 }
 
 const StudentsProjects: React.FC = () => {
+    const [projects, setProjects] = useState<StudentProject[]>([]);
     const collectionName = "projects";
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const projectsRef = collection(db, "projects");
+                const projectsSnapshot = await getDocs(projectsRef);
+                const fetchedProjects = [];
+
+                for (const projectDoc of projectsSnapshot.docs) {
+                    const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+                    const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+
+                    studentProjectsSnapshot.forEach(doc => {
+                        fetchedProjects.push({
+                            id: doc.id,
+                            projectId: projectDoc.id,
+                            ...doc.data(),
+                        });
+                    });
+                }
+
+                setProjects(fetchedProjects);
+            } catch (error) {
+                console.error("Error fetching student projects:", error);
+            }
+        };
+
+        fetchProjects();
+    }, []);
 
     const handleFileUpload = async (file: File): Promise<string> => {
         const uniqueName = `${uuidv4()}-${file.name}`;
@@ -42,34 +75,6 @@ const StudentsProjects: React.FC = () => {
             );
         });
     };
-
-    const fetchProjectWithSubCollection = async (): Promise<StudentProject[]> => {
-        try {
-            const mainCollectionRef = collection(db, collectionName);
-            const mainSnapshot = await getDocs(mainCollectionRef);
-    
-            const projects = await Promise.all(
-                mainSnapshot.docs.map(async (doc) => {
-                    const data = doc.data() as Omit<StudentProject, "id" | "studentsProjects">;
-                    const subCollectionRef = collection(db, `${collectionName}/${doc.id}/studentsProjects`);
-                    const subSnapshot = await getDocs(subCollectionRef);
-    
-                    const studentsProjects = subSnapshot.docs.map((subDoc) => ({
-                        id: subDoc.id,
-                        ...subDoc.data(),
-                    })) as StudentProject[];
-    
-                    return { id: doc.id, ...data, studentsProjects };
-                })
-            );
-    
-            return projects;
-        } catch (err) {
-            console.error("Error al cargar proyectos con subcolecciones:", err);
-            return [];
-        }
-    };
-
 
     const validateProject = (project: StudentProject): boolean => {
         if (!project.title) {
@@ -92,55 +97,57 @@ const StudentsProjects: React.FC = () => {
     };
 
     const saveStudentProject = async (item: StudentProject, isEditMode: boolean): Promise<void> => {
-        const { id, ...data } = item;
-    
+        const { id, projectId, courseName, ...data } = item;
+
         try {
-            // Crear o actualizar el proyecto principal en la colección 'projects'
-            let projectId = item.projectId;
-    
-            if (!isEditMode || !projectId) {
-                // Si no es modo edición o no hay `projectId`, crea un nuevo proyecto principal
-                const mainCollectionRef = collection(db, collectionName);
-                const projectDoc = await addDoc(mainCollectionRef, {
-                    title: data.title,
-                    dueDate: data.dueDate,
-                    courseId: data.courseId,
-                    order: data.order,
-                    state: determineState(data), // Estado inicial
-                    fileUrl: data.fileUrl || null,
-                });
-                projectId = projectDoc.id; // Asignar el nuevo ID generado
-            } else {
-                // Actualizar el proyecto principal existente
-                const mainDocRef = doc(db, collectionName, projectId);
-                await updateDoc(mainDocRef, {
-                    title: data.title,
-                    dueDate: data.dueDate,
-                    courseId: data.courseId,
-                    order: data.order,
-                    state: determineState(data),
-                    fileUrl: data.fileUrl || null,
-                });
+            // Buscar si el curso existe en "liveCourses"
+
+            const auth = getAuth();
+            const user = auth.currentUser;
+
+            if (!user) {
+                alert("Usuario no autenticado. Por favor, inicia sesión.");
+                return;
             }
-    
-            // Ahora trabajar con la subcolección 'studentsProjects'
-            const subCollectionPath = `${collectionName}/${projectId}/studentsProjects`;
-    
-            if (item.id) {
-                // Actualizar un documento existente en la subcolección
-                const subDocRef = doc(db, subCollectionPath, item.id);
+            const liveCoursesRef = collection(db, "liveCourses");
+            const liveCoursesSnapshot = await getDocs(liveCoursesRef);
+            const matchingCourse = liveCoursesSnapshot.docs.find(
+                (doc) => doc.data().title === courseName
+            );
+            console.log("matchingCourse: ", matchingCourse);
+
+            if (!matchingCourse) {
+                alert(`El curso "${courseName}" no existe. Por favor, verifica el nombre.`);
+                return;
+            }
+
+            if (!isEditMode) {
+                const courseData = matchingCourse.data();
+                const courseId = matchingCourse.id;
+                const mentor = courseData.mentor;
+
+                // Crear un nuevo proyecto en "projects"
+                const projectData = {
+                    courseId: courseId,
+                    dueDate: data.dueDate,
+                    fileUrl: data.fileUrl,
+                    mentor: mentor,
+                    title: courseName,
+                    userId: user.uid,
+                };
+
+                alert("El proyecto ha sido creados exitosamente.");
+                return; // Finaliza la función si se creó el proyecto
+            }
+
+            // Si es modo edición, actualiza los datos en la subcolección correspondiente
+            const subCollectionPath = `projects/${projectId}/studentsProjects`;
+
+            if (isEditMode && id) {
+                const subDocRef = doc(db, subCollectionPath, id);
                 await updateDoc(subDocRef, {
-                    deliveredDay: data.deliveredDay,
-                    score: data.score,
-                    fileUrl: data.fileUrl || null,
-                    state: determineState(data),
-                });
-            } else {
-                // Crear un nuevo documento en la subcolección
-                const subCollectionRef = collection(db, subCollectionPath);
-                await addDoc(subCollectionRef, {
-                    userId: data.userId || "default-user-id", // Proporciona un userId predeterminado si está ausente
-                    deliveredDay: data.deliveredDay || null,
+                    projectId: projectId,
+                    dueDate: data.dueDate || null,
                     score: data.score || null,
                     fileUrl: data.fileUrl || null,
                     state: determineState(data),
@@ -148,12 +155,9 @@ const StudentsProjects: React.FC = () => {
             }
         } catch (err) {
             console.error("Error guardando el proyecto principal o la subcolección:", err);
+            alert("Ocurrió un error al guardar el proyecto.");
         }
     };
-    
-    
-    
-    
 
     const deleteStudentProject = async (item: StudentProject): Promise<void> => {
         const { projectId, id } = item;
@@ -167,29 +171,74 @@ const StudentsProjects: React.FC = () => {
         }
     };
 
-    const determineState = (project: StudentProject): string => {
-        const today = new Date();
-        const dueDate = project?.dueDate ? new Date(project.dueDate) : null;
-        const deliveredDay = project?.deliveredDay ? new Date(project.deliveredDay) : null;
-    
-        if (project?.fileUrl && project?.score !== null && project?.score !== undefined) return "Revisado";
-        if (!project?.fileUrl && dueDate && dueDate > today) return "No Entregado";
-        if (project?.fileUrl && (project?.score === null || project?.score === undefined)) return "Pendiente de Revisión";
-        if (!project?.fileUrl && dueDate && dueDate <= today) return "Fuera de Tiempo";
-    
-        return "Desconocido";
+    const handleCheckStatus = async () => {
+        try {
+            const projectsRef = collection(db, "projects");
+            const projectsSnapshot = await getDocs(projectsRef);
+
+            if (projectsSnapshot.empty) {
+                console.log("No student projects found.");
+                return;
+            }
+
+            const batch = writeBatch(db);
+
+
+            for (const projectDoc of projectsSnapshot.docs) {
+                const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+                const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+
+                // Recorre los proyectos de estudiantes
+                for (const studentDocSnap of studentProjectsSnapshot.docs) {
+                    const studentData = studentDocSnap.data();
+                    const { studentFileUrl, deliveredDay, dueDate, score } = studentData;
+
+                    const state = determineState({
+                        studentFileUrl,
+                        deliveredDay,
+                        dueDate,
+                        score,
+                    });
+
+                    batch.update(studentDocSnap.ref, { state });
+                }
+            }
+            await batch.commit();
+            console.log("All student project states updated successfully!");
+            window.location.reload();
+        } catch (error) {
+            console.error("Error updating student project states:", error);
+        }
     };
+
+    const determineState = (project: any) => {
+        const deliveredDate = project.deliveredDay ? new Date(project.deliveredDay) : null;
+        const dueDate = project.dueDate ? new Date(project.dueDate) : null;
+        const today = new Date();
+
+        if (project.score !== null && project.score !== undefined) return "Revisado";
+        if (project.studentFileUrl && project.score === null) return "Pendientes de revisión";
+        if (project.studentFileUrl && deliveredDate && dueDate && deliveredDate > dueDate) return "Entregado tarde";
+        if (!project.studentFileUrl && dueDate && dueDate > today) return "Entregable";
+        if (!project.studentFileUrl && dueDate && dueDate <= today) return "No entregado";
+
+        return "Desconocido"; // Valor por defecto
+    };
+
+
 
     const getStateColor = (state: string): string => {
         switch (state) {
             case "Revisado":
                 return "green";
-            case "No Entregado":
+            case "No entregado":
                 return "yellow";
-            case "Pendiente de Revisión":
+            case "Pendientes de revisión":
                 return "red";
-            case "Fuera de Tiempo":
+            case "Entregado tarde":
                 return "black";
+            case "Entregable":
+                return "blue";
             default:
                 return "gray";
         }
@@ -197,27 +246,34 @@ const StudentsProjects: React.FC = () => {
 
     return (
         <CrudMenu
-        collectionName={collectionName}
-        pageTitle="Proyectos de Estudiantes"
-        displayFields={[
-            { label: "Título", field: "title", type: "text" },
-            { label: "Fecha Límite", field: "dueDate", type: "date" },
-            { label: "Orden", field: "order", type: "number" },
-            { label: "Estado", field: "state", type: "text" },
-        ]}
-        editFields={[
-            { label: "Título", field: "title", type: "text" },
-            { label: "Fecha Límite", field: "dueDate", type: "date" },
-            { label: "Archivo", field: "fileUrl", type: "file" },
-            { label: "Puntuacion", field: "score", type: "text" },
-            { label: "Orden", field: "order", type: "number" },
-        ]}
-        fileUploadHandler={handleFileUpload}
-        onSave={saveStudentProject}
-        onDelete={deleteStudentProject}
-        determineState={determineState}
-        getStateColor={getStateColor}
-    />
+            collectionName={collectionName}
+            pageTitle="Proyectos de Estudiantes"
+            displayFields={[
+                { label: "Título", field: "courseName", type: "text" },
+                { label: "Título", field: "title", type: "text" },
+                { label: "displayName", field: "displayName", type: "text" },
+                { label: "dueDate", field: "dueDate", type: "date" },
+                { label: "score", field: "score", type: "number" },
+                { label: "mentor", field: "mentor", type: "text" },
+                { label: "state", field: "state", type: "text" },
+            ]}
+            editFields={[
+                { label: "Título", field: "title", type: "text" },
+                { label: "Fecha Límite", field: "dueDate", type: "date" },
+                { label: "Puntuación", field: "score", type: "number" },
+                { label: "Fecha de Entregado", field: "deliveredDay", type: "date" },
+                { label: "Archivo del Proyecto", field: "fileUrl", type: "file" },
+                { label: "Curso", field: "courseName", type: "text" },
+            ]}
+            downloadBtn={true}
+            fileUploadHandler={handleFileUpload}
+            onSave={saveStudentProject}
+            onDelete={deleteStudentProject}
+            determineState={determineState}
+            getStateColor={getStateColor}
+            data={projects}
+            isCheckStatus={handleCheckStatus}
+        />
     );
 };
 
