@@ -180,7 +180,9 @@ const StudentsProjects: React.FC = () => {
                 console.log("No student projects found.");
                 return;
             }
+
             const batch = writeBatch(db);
+
 
             for (const projectDoc of projectsSnapshot.docs) {
                 const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
