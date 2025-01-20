@@ -1360,65 +1360,72 @@ const CourseDetail = ({ params }) => {
 
         {/* Proyectos */}
         {(isStudentInCourse || isAdmin) && (
-          <div className={styles.projects}>
-            <h3>Proyectos</h3>
-            {(isAdmin ? projects : studentProjects).filter((project) => project.courseId === courseId).map((project, index) => {
-              const studentProject = studentProjects.find(sp => sp.projectId === project.id);
-              return (
-                <>
-                  <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
-                    <span>{project.title}</span>
-                    {!isAdmin && (
-                      <span>{studentProject ? studentProject.score : 'No score'}</span>
-                    )}
-                    {isAdmin && (
-                      <div className={styles.projectActions}>
-                        <button
-                          onClick={() => moveProject(index, -1)}
-                          disabled={index === 0}
-                          className={styles.projectAction}
-                        >
-                          <FaArrowUp />
-                        </button>
-                        <button
-                          onClick={() => moveProject(index, 1)}
-                          disabled={index === projects.length - 1}
-                          className={styles.projectAction}
-                        >
-                          <FaArrowDown />
-                        </button>
-                        <button
-                          onClick={() => deleteProject(project.id)}
-                          className={styles.projectAction}
-                          title="Eliminar Proyecto"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              );
-            })}
-            <div>
-              {!isAdmin && (
-                <>
-                  <span>Promedio: </span>
-                  <span style={{ color: averageScore >= 80 ? '#005F73' : '#E85D04' }}>
-                    {averageScore.toFixed(2)}/100
-                  </span>
-                </>
+
+          <div className={styles.mainContainer} >
+            <div className={styles.projects}>
+              <h3>Proyectos</h3>
+              {(isAdmin ? projects : studentProjects).filter((project) => project.courseId === courseId).map((project, index) => {
+                const studentProject = studentProjects.find(sp => sp.projectId === project.id);
+                return (
+                  <>
+                    <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
+                      <span>{project.title}</span>
+                      {!isAdmin && (
+                        <span>{studentProject ? studentProject.score : 'No score'}</span>
+                      )}
+                      {isAdmin && (
+                        <div className={styles.projectActions}>
+                          <button
+                            onClick={() => moveProject(index, -1)}
+                            disabled={index === 0}
+                            className={styles.projectAction}
+                          >
+                            <FaArrowUp />
+                          </button>
+                          <button
+                            onClick={() => moveProject(index, 1)}
+                            disabled={index === projects.length - 1}
+                            className={styles.projectAction}
+                          >
+                            <FaArrowDown />
+                          </button>
+                          <button
+                            onClick={() => deleteProject(project.id)}
+                            className={styles.projectAction}
+                            title="Eliminar Proyecto"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })}
+              <div>
+                {!isAdmin && (
+                  <>
+                    <span>Promedio: </span>
+                    <span style={{ color: averageScore >= 80 ? '#005F73' : '#E85D04' }}>
+                      {averageScore.toFixed(2)}/100
+                    </span>
+                  </>
+                )}
+              </div>
+              {isAdmin && (
+                <button onClick={addProject} className={styles.addProjectButton}>
+                  Añadir Proyecto
+                </button>
               )}
             </div>
-            {isAdmin && (
-              <button onClick={addProject} className={styles.addProjectButton}>
-                Añadir Proyecto
-              </button>
-            )}
+            <ClassesRecorded courseId={courseId} />
           </div>
         )}
       </div>
+
+
       {/* //modal de editar proyecto */}
+
 
       {isEditModalOpen && (
         <div className={styles.modalOverlay}>
