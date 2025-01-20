@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ClassesRecorded from "../clases-grabadas/page"; 
+import ClassesRecorded from "../clases-grabadas/page";
 import {
   doc,
   getDoc,
@@ -1356,8 +1356,8 @@ const CourseDetail = ({ params }) => {
             null
           )}
         </div>
-       
-       
+
+
         {/* Proyectos */}
         {(isStudentInCourse || isAdmin) && (
           <div className={styles.projects}>
@@ -1417,77 +1417,77 @@ const CourseDetail = ({ params }) => {
             )}
           </div>
         )}
+      </div>
+      {/* //modal de editar proyecto */}
 
-        {/* //modal de editar proyecto */}
-
-        {isEditModalOpen && (
-          <div className={styles.modalOverlay}>
-            <div className={styles.modalContent}>
-              <h3>Editar Proyecto</h3>
+      {isEditModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Editar Proyecto</h3>
+            <label>
+              Nombre:
+              <input
+                type="text"
+                value={editedProject?.title || ""}
+                onChange={(e) => handleInputChange("title", e.target.value)}
+                disabled={!isAdmin} // Deshabilitar si no es admin
+              />
+            </label>
+            <label>
+              Fecha de Entrega:
+              <input
+                type="date"
+                value={editedProject?.dueDate || ""}
+                onChange={(e) => handleInputChange("dueDate", e.target.value)}
+                disabled={!isAdmin} // Deshabilitar si no es admin
+              />
+            </label>
+            {(isStudentInCourse || isAdmin) && (
               <label>
-                Nombre:
-                <input
-                  type="text"
-                  value={editedProject?.title || ""}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                  disabled={!isAdmin} // Deshabilitar si no es admin
-                />
-              </label>
-              <label>
-                Fecha de Entrega:
-                <input
-                  type="date"
-                  value={editedProject?.dueDate || ""}
-                  onChange={(e) => handleInputChange("dueDate", e.target.value)}
-                  disabled={!isAdmin} // Deshabilitar si no es admin
-                />
-              </label>
-              {(isStudentInCourse || isAdmin) && (
-                <label>
-                  {isAdmin ? "Subir Proyecto" : "Descargar Proyecto: "}
-                  {isAdmin ? (
-                    <>
-                      <input type="file" onChange={handleFileChange} />
-                      {editedProject.fileUrl && (
-                        <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
-                      )}
-                    </>
-                  ) : (
-                    editedProject.fileUrl && (
-                      <>
-                        <a href={editedProject.fileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">
-                          Descargar Proyecto
-                        </a>
-                        <label htmlFor="">Subir mi proyecto</label>
-                        <input type="file" onChange={handleFileChange} ></input>
-                        <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
-                      </>
-                    )
-                  )}
-                </label>
-              )}
-              <div className={styles.modalActions}>
-                {(isStudentInCourse || isAdmin) && (
+                {isAdmin ? "Subir Proyecto" : "Descargar Proyecto: "}
+                {isAdmin ? (
                   <>
-                    {isAdmin && (
-                      <button onClick={handleSaveProject}>
-                        Guardar Proyecto
-                      </button>
-                    )}
-                    {!isAdmin && (
-                      <button onClick={handleSubmitProject}>
-                        Guardar Proyecto
-                      </button>
+                    <input type="file" onChange={handleFileChange} />
+                    {editedProject.fileUrl && (
+                      <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
                     )}
                   </>
+                ) : (
+                  editedProject.fileUrl && (
+                    <>
+                      <a href={editedProject.fileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">
+                        Descargar Proyecto
+                      </a>
+                      <label htmlFor="">Subir mi proyecto</label>
+                      <input type="file" onChange={handleFileChange} ></input>
+                      <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
+                    </>
+                  )
                 )}
-                <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
-              </div>
+              </label>
+            )}
+            <div className={styles.modalActions}>
+              {(isStudentInCourse || isAdmin) && (
+                <>
+                  {isAdmin && (
+                    <button onClick={handleSaveProject}>
+                      Guardar Proyecto
+                    </button>
+                  )}
+                  {!isAdmin && (
+                    <button onClick={handleSubmitProject}>
+                      Guardar Proyecto
+                    </button>
+                  )}
+                </>
+              )}
+              <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-   
+
 
 
       {isTypeModalOpen && (
@@ -1508,7 +1508,7 @@ const CourseDetail = ({ params }) => {
           </div>
         </div>
       )}
- 
+
       {isGroupModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -1582,15 +1582,15 @@ const CourseDetail = ({ params }) => {
               </button>
             </div>
           </div>
-            
+
         </div>
-        
+
       )}
-      
+
     </div>
-   
+
   );
-   
+
 };
 
 export default CourseDetail;
