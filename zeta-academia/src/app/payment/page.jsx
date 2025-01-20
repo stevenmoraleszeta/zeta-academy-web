@@ -283,9 +283,11 @@ const PaymentPage = ({ searchParams }) => {
                 disabled={!isEditing}
               />
             </div>
-            <button onClick={handleEditToggle} className={styles.editButton}>
-              Modificar información
-            </button>
+            {!isEditing && (
+              <button onClick={handleEditToggle} className={styles.editButton}>
+                Modificar información
+              </button>
+            )}
             <p className={styles.paymentRecommendation}>
               Para su comodidad, recomendamos realizar el pago con tarjeta de crédito o débito. Esto le permitirá evitar el inicio de sesión con PayPal y completar su transacción de manera más rápida y sencilla.
             </p>
