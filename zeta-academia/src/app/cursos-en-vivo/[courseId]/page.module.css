@@ -366,14 +366,17 @@
   color: var(--text-color);
   text-align: left;
   font-weight: bold;
-  margin-bottom: 10px; /* Añade espacio inferior entre los labels */
-  display: block; /* Asegura que cada label ocupe su propia línea */
+  margin-bottom: 10px;
+  /* Añade espacio inferior entre los labels */
+  display: block;
+  /* Asegura que cada label ocupe su propia línea */
 }
 
 .modalContent input,
 .modalContent select,
 .modalContent textarea {
-  margin-bottom: 20px; /* Añade espacio inferior a los inputs relacionados */
+  margin-bottom: 20px;
+  /* Añade espacio inferior a los inputs relacionados */
 }
 
 .modalInput {
@@ -573,17 +576,26 @@
   color: var(--color-secondary);
 }
 
-.addModuleButton{
+.addModuleButton {
   margin-top: 10vh;
   width: 100%;
   background-color: transparent;
   border: dashed 5px var(--color-secondary);
 }
 
-.addModuleButton, .addProjectButton {
+.addModuleButton,
+.addProjectButton {
   width: 100%;
   background-color: transparent;
   border: dashed 5px var(--color-secondary);
+}
+
+/* Average displayed information */
+
+.averageLabel {
+  font-size: 1vw;
+  font-weight: bold;
+  color: var(--color-lighter);
 }
 
 /* Media queries */
@@ -911,7 +923,8 @@
 
 .projectItem {
   display: flex;
-  justify-content: space-between; /* Botones en el lado derecho */
+  justify-content: space-between;
+  /* Botones en el lado derecho */
   align-items: center;
   padding: 15px;
   margin-bottom: 10px;
@@ -929,7 +942,8 @@
 
 @media (max-width: 768px) {
   .projectItem {
-    flex-direction: column; /* Cambia a diseño vertical si no hay suficiente espacio */
+    flex-direction: column;
+    /* Cambia a diseño vertical si no hay suficiente espacio */
     align-items: flex-start;
   }
 
@@ -939,33 +953,39 @@
     margin-top: 10px;
   }
 }
+
 .mainContainer {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Espaciado entre bloques */
+  gap: 1rem;
+  /* Espaciado entre bloques */
   padding: 1rem;
 }
 
-.projects  {
+.projects {
   /* Ocupa el 70% del espacio actual */
   background: linear-gradient(var(--color-dark), var(--color-black));
   padding: 1rem;
   border-radius: 10px;
-  transition: all 0.3s ease; /* Transición suave para cambios de diseño */
+  transition: all 0.3s ease;
+  /* Transición suave para cambios de diseño */
 }
 
 .modules {
-  flex: 1; /* Ocupa el espacio restante */
+  flex: 1;
+  /* Ocupa el espacio restante */
 }
 
 /* Estilo para resoluciones pequeñas */
 @media (max-width: 768px) {
   .modulesProjectsContainer {
-    flex-direction: column; /* Cambia a diseño vertical */
+    flex-direction: column;
+    /* Cambia a diseño vertical */
   }
 
   .projects {
-    flex: 1; /* Ocupa todo el ancho disponible */
+    flex: 1;
+    /* Ocupa todo el ancho disponible */
   }
 }
 
@@ -976,7 +996,8 @@
 
 .projectActions {
   display: flex;
-  gap: 10px; /* Espacio entre botones */
+  gap: 10px;
+  /* Espacio entre botones */
 }
 
 .projectAction {
@@ -1002,21 +1023,26 @@
 
 
 .revisado {
-  background-color: #38a169; /* verde */
+  background-color: #38a169;
+  /* verde */
 }
 
 .entregado-tarde {
-  background-color: #ecc94b; /* amarillo */
+  background-color: #ecc94b;
+  /* amarillo */
 }
 
 .pendiente-revision {
-  background-color: #3182ce; /* azul */
+  background-color: #3182ce;
+  /* azul */
 }
 
 .entregable {
-  background-color: #e2e8f0; /* gris */
+  background-color: #e2e8f0;
+  /* gris */
 }
 
 .no-entregado {
-  background-color: #f56565; /* rojo */
+  background-color: #f56565;
+  /* rojo */
 }
