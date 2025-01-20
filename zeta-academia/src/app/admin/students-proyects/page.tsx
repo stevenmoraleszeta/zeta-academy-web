@@ -114,7 +114,6 @@ const StudentsProjects: React.FC = () => {
             const matchingCourse = liveCoursesSnapshot.docs.find(
                 (doc) => doc.data().title === courseName
             );
-            console.log("matchingCourse: ", matchingCourse);
 
             if (!matchingCourse) {
                 alert(`El curso "${courseName}" no existe. Por favor, verifica el nombre.`);

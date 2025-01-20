@@ -23,7 +23,8 @@
     "react-select": "^5.8.0",
     "react-syntax-highlighter": "^15.6.1",
     "typed.js": "^2.1.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "zeta-academia": "file:"
   },
   "devDependencies": {
     "@types/node": "^20",

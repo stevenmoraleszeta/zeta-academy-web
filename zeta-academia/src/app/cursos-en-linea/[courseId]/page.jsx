@@ -248,7 +248,7 @@ const CourseDetail = ({ params }) => {
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
             userCompletedClasses = userSnap.data().completedClasses || [];
-            console.log("Clases completadas del usuario:", userCompletedClasses);
+            
           }
         }
 
@@ -308,7 +308,6 @@ const CourseDetail = ({ params }) => {
           };
         });
 
-        console.log("Módulos actualizados:", updatedModules);
         setModules(updatedModules);
       } catch (error) {
         console.error("Error loading course data:", error);

@@ -83,7 +83,6 @@ const PaymentPage = ({ searchParams }) => {
   }, [courseId]);
 
   const handlePaymentSuccess = async (details) => {
-    console.log("Pago exitoso:", details);
     setPaymentStatus("success");
 
     try {
@@ -143,7 +142,6 @@ const PaymentPage = ({ searchParams }) => {
   const validateAndCreateOrder = async () => {
     const { fullName, description, amount } = customPaymentRef.current;
 
-    console.log("Valores de los inputs:", { fullName, description, amount });
 
     const newErrors = [];
     if (!courseId) {
@@ -168,7 +166,7 @@ const PaymentPage = ({ searchParams }) => {
         ? course.discountedPrice
         : Number(amount);
 
-      console.log("Datos de customPayment:", { fullName, description, finalAmount });
+      
 
       const response = await fetch("/api/create-order", {
         method: "POST",

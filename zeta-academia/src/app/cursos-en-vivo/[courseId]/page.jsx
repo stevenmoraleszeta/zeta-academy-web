@@ -31,7 +31,6 @@ const CourseDetail = ({ params }) => {
   const router = useRouter();
   const courseId = params.courseId;
 
-  console.log("CourseDetail rendered with courseId:", courseId); // Debug log
 
   const [course, setCourse] = useState({
     title: "Introducción a la Programación con Python",
@@ -457,7 +456,7 @@ const CourseDetail = ({ params }) => {
         updatedProject.studentFileUrl = studentFileUrl;
       }
 
-      console.log("Searching for the student's project:", { projectId, userId });
+     
 
       // Consulta para encontrar el documento correspondiente al userId
       const studentProjectRef = collection(db, "projects", projectId, "studentsProjects");
@@ -550,7 +549,7 @@ const CourseDetail = ({ params }) => {
 
         if (!existingDocsSnapshot.empty) {
           // Si ya existe un documento para este usuario, omitir creación
-          console.log(`Documento ya existe para el usuario ${studentId}, se omite.`);
+          console.log(`Documento ya existe para el usuario, se omite.`);
           continue;
         }
 
@@ -620,7 +619,6 @@ const CourseDetail = ({ params }) => {
     if (docSnap.exists()) {
       const fetchedData = docSnap.data();
       setStudents(fetchedData.students || []);
-      console.log("Estudiantes: ", fetchedData.students);
       setSelectedMentor(fetchedData.mentor || null);
     }
   };

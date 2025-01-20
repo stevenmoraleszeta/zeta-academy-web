@@ -33,7 +33,6 @@ const ClassDetail = () => {
   const { currentUser, isAdmin } = useAuth();
   const { courseId, moduleId, classId } = useParams();
 
-  console.log("Params:", { courseId, moduleId, classId });
   const [classTitle, setClassTitle] = useState("");
   const [resources, setResources] = useState([]);
   const [classesInModule, setClassesInModule] = useState([]);

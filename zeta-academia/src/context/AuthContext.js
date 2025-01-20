@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 // Crear el contexto de autenticación
 const AuthContext = createContext();
 
-// Hook personalizado para consumir el contexto de autenticación
 export function useAuth() {
     return useContext(AuthContext);
 }
@@ -51,7 +50,7 @@ export function AuthProvider({ children }) {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             setCurrentUser(result.user);
-            console.log("Usuario autenticado:", result.user);
+            console.log("Usuario autenticado:");
 
             setIsCheckingUser(true);
             await checkUserInFirestore(result.user);
