@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ClassesRecorded from "../clases-grabadas/page"; 
 import {
   doc,
   getDoc,
@@ -253,11 +254,13 @@ const CourseDetail = ({ params }) => {
     setIsEditModalOpen(true);
   };
 
+
   const handleSaveProject = async () => {
     try {
       // Obtener el usuario autenticado dinámicamente
       const auth = getAuth();
       const user = auth.currentUser;
+
 
       if (!user) {
         console.error("No user is authenticated.");
@@ -1353,6 +1356,8 @@ const CourseDetail = ({ params }) => {
             null
           )}
         </div>
+       
+       
         {/* Proyectos */}
         {(isStudentInCourse || isAdmin) && (
           <div className={styles.projects}>
@@ -1481,7 +1486,8 @@ const CourseDetail = ({ params }) => {
             </div>
           </div>
         )}
-      </div>
+
+   
 
 
       {isTypeModalOpen && (
@@ -1502,7 +1508,7 @@ const CourseDetail = ({ params }) => {
           </div>
         </div>
       )}
-
+ 
       {isGroupModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -1576,10 +1582,15 @@ const CourseDetail = ({ params }) => {
               </button>
             </div>
           </div>
+            
         </div>
+        
       )}
+      
     </div>
+   
   );
+   
 };
 
 export default CourseDetail;

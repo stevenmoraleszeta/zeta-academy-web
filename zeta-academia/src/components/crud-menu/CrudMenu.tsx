@@ -367,6 +367,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                     <>
                                         <input
                                             type="file"
+                                            name="file"
                                             accept="image/*"
                                             onChange={handleImageUpload}
                                         />
