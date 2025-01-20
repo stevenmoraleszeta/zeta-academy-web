@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import CrudMenu from "@/components/crud-menu/CrudMenu";
-import { getDocs, collection, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
+import { getDocs, collection, doc, updateDoc, deleteDoc, addDoc, where, query, writeBatch } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
@@ -171,23 +171,59 @@ const StudentsProjects: React.FC = () => {
         }
     };
 
-    const determineState = (project: StudentProject): string => {
-        const deliveredDate = project?.deliveredDay ? new Date(project.deliveredDay) : null;
-        const dueDate = project?.dueDate ? new Date(project.dueDate) : null;
-        const today = new Date();
+    const handleCheckStatus = async () => {
+        try {
+            const projectsRef = collection(db, "projects");
+            const projectsSnapshot = await getDocs(projectsRef);
 
-        if (project?.score !== null && project?.score !== undefined) return "Revisado";
-        if (project?.studentFileUrl && (project?.score === null || project?.score === undefined)) return "Pendientes de revisión";
-        if (project?.studentFileUrl && deliveredDate && dueDate && deliveredDate > dueDate) return "Entregado tarde";
-        if (!project?.studentFileUrl && dueDate && dueDate > today) return "Entregable";
-        if (!project?.studentFileUrl && dueDate && dueDate <= today) return "No entregado";
+            if (projectsSnapshot.empty) {
+                console.log("No student projects found.");
+                return;
+            }
+            const batch = writeBatch(db);
 
-        return "Desconocido";
+            for (const projectDoc of projectsSnapshot.docs) {
+                const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+                const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+
+                // Recorre los proyectos de estudiantes
+                for (const studentDocSnap of studentProjectsSnapshot.docs) {
+                    const studentData = studentDocSnap.data();
+                    const { studentFileUrl, deliveredDay, dueDate, score } = studentData;
+
+                    const state = determineState({
+                        studentFileUrl,
+                        deliveredDay,
+                        dueDate,
+                        score,
+                    });
+
+                    batch.update(studentDocSnap.ref, { state });
+                }
+            }
+            await batch.commit();
+            console.log("All student project states updated successfully!");
+            window.location.reload();
+        } catch (error) {
+            console.error("Error updating student project states:", error);
+        }
     };
 
-    const handleCheckStatus = () => {
-        window.location.reload();
-    }
+    const determineState = (project: any) => {
+        const deliveredDate = project.deliveredDay ? new Date(project.deliveredDay) : null;
+        const dueDate = project.dueDate ? new Date(project.dueDate) : null;
+        const today = new Date();
+
+        if (project.score !== null && project.score !== undefined) return "Revisado";
+        if (project.studentFileUrl && project.score === null) return "Pendientes de revisión";
+        if (project.studentFileUrl && deliveredDate && dueDate && deliveredDate > dueDate) return "Entregado tarde";
+        if (!project.studentFileUrl && dueDate && dueDate > today) return "Entregable";
+        if (!project.studentFileUrl && dueDate && dueDate <= today) return "No entregado";
+
+        return "Desconocido"; // Valor por defecto
+    };
+
+
 
     const getStateColor = (state: string): string => {
         switch (state) {
