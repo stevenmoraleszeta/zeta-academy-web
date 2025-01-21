@@ -12,6 +12,7 @@
     border-radius: 10px;
     cursor: url('../../assets/cursors/pngwing.com.png'), auto;
     position: relative;
+    text-decoration: none;
 }
 
 /* course image styles */

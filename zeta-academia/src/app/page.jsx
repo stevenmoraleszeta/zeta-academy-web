@@ -52,7 +52,7 @@ export default function Home() {
                         </div>
                         <div className={styles.componentContainer}>
                             <CursoCard icon="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FpythonIconPng.png?alt=media&token=6583f3bc-0ce1-42f8-adbe-75e4ede5e662" imgSrc='https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALLE03.webp?alt=media&token=858d23a3-df7a-4b29-ba21-38bb56b27011' descText="Conviértete en programador con Python desde cero. Avanza a tu ritmo y cuenta con el apoyo de tutores especializados." titleText="Introducción a la Programación con Python" width={500}
-                                height={500}></CursoCard>
+                                height={500}  link="/cursos-en-linea/YCYVzrKgRMI2XjFW05SP"/>
                         </div>
                     </div>
                 </section >
