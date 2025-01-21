@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^8.7.0",
+    "autoprefixer": "^10.4.20",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
     "debounce": "^2.2.0",
@@ -22,16 +23,13 @@
     "react-icons": "^5.3.0",
     "react-select": "^5.8.0",
     "react-syntax-highlighter": "^15.6.1",
+    "sharp": "^0.33.5",
     "typed.js": "^2.1.0",
     "uuid": "^10.0.0",
     "zeta-academia": "file:"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.10",
-    "typescript": "^5"
+    "eslint-config-next": "14.2.10"
   }
 }

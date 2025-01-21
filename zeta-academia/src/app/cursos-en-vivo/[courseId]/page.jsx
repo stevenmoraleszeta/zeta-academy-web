@@ -26,6 +26,8 @@ import debounce from "lodash/debounce";
 import { storage } from "@/firebase/firebase"; // Importar configuración de storage
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { format } from 'date-fns';
+import Image from "next/image";
+
 
 const CourseDetail = ({ params }) => {
   const router = useRouter();
@@ -672,7 +674,7 @@ const CourseDetail = ({ params }) => {
   const deleteModule = async (moduleId) => {
     if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
       await deleteDoc(doc(db, "liveCourses", courseId, "modules", moduleId));
-      setModules(modules.filter((module) => module.id !== moduleId));
+      setModules(modules.filter((classModule) => classModule.id !== moduleId));
     }
   };
 
@@ -683,14 +685,14 @@ const CourseDetail = ({ params }) => {
       newModules.splice(index + direction, 0, movedModule);
 
       // Update the order in the database
-      newModules.forEach(async (module, newIndex) => {
+      newModules.forEach(async (classModule, newIndex) => {
         try {
           const moduleRef = doc(
             db,
             "liveCourses",
             courseId,
             "modules",
-            module.id
+            classModule.id
           );
           await updateDoc(moduleRef, { order: newIndex });
         } catch (error) {
@@ -813,10 +815,10 @@ const CourseDetail = ({ params }) => {
     if (!selectedModuleId) return;
 
     const collection_name = type === "class" ? "classes" : "projects";
-    const module = modules.find((mod) => mod.id === selectedModuleId);
-    if (!module) return;
+    const classModule = modules.find((mod) => mod.id === selectedModuleId);
+    if (!classModule) return;
 
-    const items = [...(module.classes || []), ...(module.projects || [])];
+    const items = [...(classModule.classes || []), ...(classModule.projects || [])];
     const nextOrder = items.length;
 
     const newItem = {
@@ -852,14 +854,14 @@ const CourseDetail = ({ params }) => {
         doc(db, "liveCourses", courseId, "modules", moduleId, collection_name, itemId)
       );
       setModules(
-        modules.map((module) => {
-          if (module.id === moduleId) {
+        modules.map((classModule) => {
+          if (classModule.id === moduleId) {
             return {
-              ...module,
-              [collection_name]: module[collection_name].filter((item) => item.id !== itemId)
+              ...classModule,
+              [collection_name]: classModule[collection_name].filter((item) => item.id !== itemId)
             };
           }
-          return module;
+          return classModule;
         })
       );
     }
@@ -867,9 +869,9 @@ const CourseDetail = ({ params }) => {
 
   const moveItem = async (moduleId, itemIndex, direction, collection_name) => {
     setModules((prevModules) =>
-      prevModules.map((module) => {
-        if (module.id === moduleId) {
-          const items = [...module[collection_name]];
+      prevModules.map((classModule) => {
+        if (classModule.id === moduleId) {
+          const items = [...classModule[collection_name]];
           const [movedItem] = items.splice(itemIndex, 1);
           items.splice(itemIndex + direction, 0, movedItem);
 
@@ -891,9 +893,9 @@ const CourseDetail = ({ params }) => {
             }
           });
 
-          return { ...module, [collection_name]: items };
+          return { ...classModule, [collection_name]: items };
         }
-        return module;
+        return classModule;
       })
     );
   };
@@ -912,18 +914,18 @@ const CourseDetail = ({ params }) => {
       await updateDoc(classRef, { restricted: !currentStatus });
 
       setModules((prevModules) =>
-        prevModules.map((module) => {
-          if (module.id === moduleId) {
+        prevModules.map((classModule) => {
+          if (classModule.id === moduleId) {
             return {
-              ...module,
-              classes: module.classes.map((cls) =>
+              ...classModule,
+              classes: classModule.classes.map((cls) =>
                 cls.id === classId
                   ? { ...cls, restricted: !currentStatus }
                   : cls
               ),
             };
           }
-          return module;
+          return classModule;
         })
       );
     } catch (error) {
@@ -938,8 +940,8 @@ const CourseDetail = ({ params }) => {
 
   const handleModuleTitleChange = (moduleId, newTitle) => {
     setModules((prevModules) =>
-      prevModules.map((module) =>
-        module.id === moduleId ? { ...module, title: newTitle } : module
+      prevModules.map((classModule) =>
+        classModule.id === moduleId ? { ...classModule, title: newTitle } : classModule
       )
     );
     debouncedUpdateModuleTitle(moduleId, newTitle);
@@ -1168,11 +1170,14 @@ const CourseDetail = ({ params }) => {
       <div className={styles.features}>
         {(course.features || []).map((feature, index) => (
           <div key={index} className={styles.feature}>
-            <img
-              src={feature.iconUrl}
-              alt={`Icono de ${feature.title}`}
-              className={styles.featureIcon}
-            />
+            <div className={styles.featureIcon}>
+              <Image
+                src={feature.iconUrl}
+                alt={`Icono de ${feature.title}`}
+                fill
+                style={{ objectFit: "contain" }} // Ajusta según cómo quieras que se muestren los íconos
+              />
+            </div>
             <div>
               {isAdmin ? (
                 <>
@@ -1215,20 +1220,20 @@ const CourseDetail = ({ params }) => {
         {/* Módulos */}
         <div className={styles.modules}>
           {modules.length > 0 ? (
-            modules.map((module, moduleIndex) => (
-              <div key={module.id} className={styles.module}>
+            modules.map((classModule, moduleIndex) => (
+              <div key={classModule.id} className={styles.module}>
                 <div className={styles.moduleHeader}>
                   {isAdmin ? (
                     <input
                       type="text"
-                      value={module.title}
+                      value={classModule.title}
                       onChange={(e) =>
-                        handleModuleTitleChange(module.id, e.target.value)
+                        handleModuleTitleChange(classModule.id, e.target.value)
                       }
                       className={styles.moduleTitle}
                     />
                   ) : (
-                    <span className={styles.moduleTitle}>{module.title}</span>
+                    <span className={styles.moduleTitle}>{classModule.title}</span>
                   )}
                   {isAdmin ? (
                     <div className={styles.moduleActions}>
@@ -1247,13 +1252,13 @@ const CourseDetail = ({ params }) => {
                         <FaArrowDown />
                       </button>
                       <button
-                        onClick={() => addClass(module.id)}
+                        onClick={() => addClass(classModule.id)}
                         title="Añadir Clase"
                       >
                         <FaPlus />
                       </button>
                       <button
-                        onClick={() => deleteModule(module.id)}
+                        onClick={() => deleteModule(classModule.id)}
                         title="Eliminar Módulo"
                       >
                         <FaTrash />
@@ -1265,13 +1270,13 @@ const CourseDetail = ({ params }) => {
                 </div>
 
                 <div className={styles.classes}>
-                  {module.classes && module.classes.length > 0 ? (
-                    module.classes.map((cls, classIndex) => (
+                  {classModule.classes && classModule.classes.length > 0 ? (
+                    classModule.classes.map((cls, classIndex) => (
                       <div
-                        key={`${module.id}-${cls.id}`}
+                        key={`${classModule.id}-${cls.id}`}
                         className={`${styles.class} ${cls.completed ? styles.completedClass : ""
                           } ${cls.highlight ? styles.highlightClass : ""}`}
-                        onClick={() => handleClassClick(module.id, cls.id)}
+                        onClick={() => handleClassClick(classModule.id, cls.id)}
                       >
                         <div className={styles.classCircle}>
                           {cls.completed && <FaCheck />}
@@ -1282,7 +1287,7 @@ const CourseDetail = ({ params }) => {
                             <button
                               onClick={(event) => {
                                 event.stopPropagation();
-                                moveClass(module.id, classIndex, -1);
+                                moveClass(classModule.id, classIndex, -1);
                               }}
                               disabled={classIndex === 0}
                               className={styles.moveButton}
@@ -1292,9 +1297,9 @@ const CourseDetail = ({ params }) => {
                             <button
                               onClick={(event) => {
                                 event.stopPropagation();
-                                moveClass(module.id, classIndex, 1);
+                                moveClass(classModule.id, classIndex, 1);
                               }}
-                              disabled={classIndex === module.classes.length - 1}
+                              disabled={classIndex === classModule.classes.length - 1}
                               className={styles.moveButton}
                             >
                               <FaArrowDown />
@@ -1303,7 +1308,7 @@ const CourseDetail = ({ params }) => {
                               onClick={(event) => {
                                 event.stopPropagation();
                                 toggleClassRestriction(
-                                  module.id,
+                                  classModule.id,
                                   cls.id,
                                   cls.restricted
                                 );
@@ -1320,7 +1325,7 @@ const CourseDetail = ({ params }) => {
                             <button
                               onClick={(event) => {
                                 event.stopPropagation();
-                                deleteClass(module.id, cls.id);
+                                deleteClass(classModule.id, cls.id);
                               }}
                               className={styles.classAction}
                               title="Eliminar Clase"

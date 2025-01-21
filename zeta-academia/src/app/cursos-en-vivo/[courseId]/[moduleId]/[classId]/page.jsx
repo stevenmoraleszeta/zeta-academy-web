@@ -27,7 +27,7 @@ import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import { AlertButton, AlertComponent } from "@/components/alert/alert";
 import CodeBlock from "@/components/codeBlock/CodeBlock"
-import Image from "next/image";
+import NextImage from "next/image"; // Renombrar para evitar conflictos
 
 const ClassDetail = () => {
   const router = useRouter();
@@ -57,112 +57,114 @@ const ClassDetail = () => {
   const [originalImageHeight, setOriginalImageHeight] = useState(0);
   const [history, setHistory] = useState([""]);
   const [historyIndex, setHistoryIndex] = useState(0);
+  const [isAccessRestrictedAlertOpen, setIsAccessRestrictedAlertOpen] = useState(false);
+  const [newResourceHeight, setNewResourceHeight] = useState(""); // Estado para la altura de la imagen
+
+
+  const fetchClassData = async () => {
+    try {
+      const classRef = doc(
+        db,
+        "liveCourses",
+        courseId,
+        "modules",
+        moduleId,
+        "classes",
+        classId
+      );
+      const classSnapshot = await getDoc(classRef);
+
+      if (classSnapshot.exists()) {
+        const data = classSnapshot.data();
+        setClassTitle(data.title || "");
+        setResources(data.resources || []);
+        setIsRestricted(data.restricted || false);
+        document.title = `${data.title} - ZETA`;
+      } else {
+        console.error("Class not found");
+        router.push("/cursos-en-vivo");
+      }
+    } catch (error) {
+      console.error("Error fetching class data:", error);
+    }
+  };
+  const fetchClassesInModule = async () => {
+    try {
+      const classesRef = collection(
+        db,
+        "liveCourses",
+        courseId,
+        "modules",
+        moduleId,
+        "classes"
+      );
+      const classesSnapshot = await getDocs(classesRef);
+      const classes = classesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Ordena las clases por su propiedad "order"
+      classes.sort((a, b) => a.order - b.order);
+      setClassesInModule(classes);
+    } catch (error) {
+      console.error("Error fetching classes in module:", error);
+    }
+  };
+
+  const fetchCourseName = async () => {
+    try {
+      const courseRef = doc(db, "liveCourses", courseId);
+      const courseSnapshot = await getDoc(courseRef);
+      if (courseSnapshot.exists()) {
+        const courseData = courseSnapshot.data();
+        setCourseName(courseData?.title || "Nombre del Curso no disponible");
+      } else {
+        console.error("Course document not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching course name:", error);
+    }
+  };
+
+  const checkEnrollment = async () => {
+    if (!currentUser) return;
+
+    try {
+      const courseRef = doc(db, "liveCourses", courseId);
+      const courseSnap = await getDoc(courseRef);
+
+      if (courseSnap.exists()) {
+        const courseData = courseSnap.data();
+        setIsEnrolled(courseData.students?.includes(currentUser.uid) || false);
+      }
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
+    }
+  };
+
+  const fetchCompletedStatus = async () => {
+    if (!currentUser) return;
+
+    try {
+      const userRef = doc(db, "users", currentUser.uid);
+      const userSnapshot = await getDoc(userRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        const completedClasses = userData.completedClasses || [];
+        setCompletedClasses(completedClasses); // Actualiza el estado global
+        setIsCompleted(completedClasses.includes(classId));
+      } else {
+        console.error("User document does not exist.");
+      }
+    } catch (error) {
+      console.error("Error fetching completed status:", error);
+    }
+  };
+
 
   useEffect(() => {
-    const fetchClassData = async () => {
-      try {
-        const classRef = doc(
-          db,
-          "liveCourses",
-          courseId,
-          "modules",
-          moduleId,
-          "classes",
-          classId
-        );
-        const classSnapshot = await getDoc(classRef);
-
-        if (classSnapshot.exists()) {
-          const data = classSnapshot.data();
-          setClassTitle(data.title || "");
-          setResources(data.resources || []);
-          setIsRestricted(data.restricted || false);
-          document.title = `${data.title} - ZETA`;
-        } else {
-          console.error("Class not found");
-          router.push("/cursos-en-vivo");
-        }
-      } catch (error) {
-        console.error("Error fetching class data:", error);
-      }
-    };
-
-    const checkEnrollment = async () => {
-      if (!currentUser) return;
-
-      try {
-        const courseRef = doc(db, "liveCourses", courseId);
-        const courseSnap = await getDoc(courseRef);
-
-        if (courseSnap.exists()) {
-          const courseData = courseSnap.data();
-          setIsEnrolled(courseData.students?.includes(currentUser.uid) || false);
-        }
-      } catch (error) {
-        console.error("Error checking enrollment:", error);
-      }
-    };
-
-    const fetchCompletedStatus = async () => {
-      if (!currentUser) return;
-
-      try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnapshot = await getDoc(userRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const completedClasses = userData.completedClasses || [];
-          setCompletedClasses(completedClasses); // Actualiza el estado global
-          setIsCompleted(completedClasses.includes(classId));
-        } else {
-          console.error("User document does not exist.");
-        }
-      } catch (error) {
-        console.error("Error fetching completed status:", error);
-      }
-    };
-
-
-    const fetchClassesInModule = async () => {
-      try {
-        const classesRef = collection(
-          db,
-          "liveCourses",
-          courseId,
-          "modules",
-          moduleId,
-          "classes"
-        );
-        const classesSnapshot = await getDocs(classesRef);
-        const classes = classesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Ordena las clases por su propiedad "order"
-        classes.sort((a, b) => a.order - b.order);
-        setClassesInModule(classes);
-      } catch (error) {
-        console.error("Error fetching classes in module:", error);
-      }
-    };
-
-    const fetchCourseName = async () => {
-      try {
-        const courseRef = doc(db, "liveCourses", courseId);
-        const courseSnapshot = await getDoc(courseRef);
-        if (courseSnapshot.exists()) {
-          const courseData = courseSnapshot.data();
-          setCourseName(courseData?.title || "Nombre del Curso no disponible");
-        } else {
-          console.error("Course document not found.");
-        }
-      } catch (error) {
-        console.error("Error fetching course name:", error);
-      }
-    };
-
     // Fetch all required data
     if (classId && courseId && moduleId) {
       fetchClassData();
@@ -181,14 +183,16 @@ const ClassDetail = () => {
       const currentClassIndex = classesInModule.findIndex(
         (cls) => cls.id === classId
       );
-      if (currentClassIndex > 0) {
-        const previousClassId = classesInModule[currentClassIndex - 1].id;
-        setIsPreviousClassCompleted(completedClasses.includes(previousClassId));
-      } else {
-        setIsPreviousClassCompleted(true);
-      }
+      const isPreviousCompleted =
+        currentClassIndex > 0
+          ? completedClasses.includes(
+            classesInModule[currentClassIndex - 1].id
+          )
+          : true;
+      setIsPreviousClassCompleted(isPreviousCompleted);
     }
   }, [classesInModule, completedClasses, classId]);
+
 
   const handleCompleteClass = async () => {
     try {
@@ -273,23 +277,24 @@ const ClassDetail = () => {
     width = "",
     height = ""
   ) => {
+    // Verifica si el usuario está autenticado
     if (!currentUser) {
       console.error("El usuario no ha iniciado sesión.");
-      setIsAlertOpen(true); // Abre la alerta si el usuario no ha iniciado sesión
+      setIsAccessRestrictedAlertOpen(true); // Abre la alerta de restricciones
       return;
     }
-
-    if (!isEnrolled) {
+  
+    // Verifica si el usuario está matriculado (a menos que sea admin)
+    if (!isEnrolled && !isAdmin) {
       console.error("El usuario no está matriculado.");
-      setIsAlertOpen(true); // Abre la alerta si el usuario no está matriculado
+      setIsAccessRestrictedAlertOpen(true); // Abre la alerta de restricciones
       return;
     }
-
-
-    // Clear the change history when opening the modal
+  
+    // Abre el modal para edición de recursos
     setHistory([content || ""]);
     setHistoryIndex(0);
-
+  
     setNewResourceType(type);
     setNewResourceContent(content);
     setNewResourceTitle(title || "");
@@ -298,18 +303,22 @@ const ClassDetail = () => {
     setEditingIndex(index);
     setNewResourceWidth(width);
     setNewResourceHeight(height);
-
+  
     if (type === "imageUrl" && content) {
-      const img = new Image();
+      const img = new window.Image(); // Usar el constructor nativo
       img.src = content;
       img.onload = () => {
         setOriginalImageWidth(img.width);
         setOriginalImageHeight(img.height);
       };
+      img.onerror = () => {
+        console.error("Error al cargar la imagen:", content);
+      };
     }
-
+  
     setIsModalOpen(true);
   };
+
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -747,14 +756,14 @@ const ClassDetail = () => {
                     </div>
                   )}
                   {resource.type === "imageUrl" && (
-                    <>
-                      <img
-                        src={resource.content}
-                        alt={resource.title || "Image"}
-                        className={styles.imagePreview}
-                        style={{ width: resource.width || 'auto', height: resource.height || 'auto' }}
-                      />
-                    </>
+                    <img
+                      src={resource.content}
+                      alt={resource.title || "Image"}
+                      className={styles.imagePreview}
+                      style={{ width: resource.width || 'auto', height: resource.height || 'auto' }}
+                      width={200}
+                      height={150}
+                    />
                   )}
                   {resource.type === "link" && (
                     <a

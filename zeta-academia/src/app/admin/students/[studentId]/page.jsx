@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { doc, getDoc, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import styles from './page.module.css';
 import { useAuth } from '@/context/AuthContext';
@@ -11,43 +11,22 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 const StudentPage = () => {
     const params = useParams();
     const studentId = params ? params.studentId : null;
-    interface StudentData {
-        nombreCompleto: string;
-        edad: number;
-        email: string;
-        username: string;
-        ocupacion: string;
-        estiloAprendizaje: string;
-        Intereses: string;
-        nivelInicial: string;
-        objetivosIndividuales: string;
-        curso: string;
-    }
 
-    interface AssignmentData {
-        id: string;
-        nombre: string;
-        calificacion: string;
-        estado: string;
-        comentarios: string;
-        fecha: Date;
-    }
-
-    const [studentData, setStudentData] = useState<StudentData | null>(null);
+    const [studentData, setStudentData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { currentUser, isAdmin } = useAuth();
-    const [assignments, setAssignments] = useState<AssignmentData[]>([]);
+    const [assignments, setAssignments] = useState([]);
 
     useEffect(() => {
         if (studentId) {
             const fetchStudentData = async () => {
                 try {
                     if (studentId) {
-                        const docRef = doc(db, 'estudiantes', studentId as string);
+                        const docRef = doc(db, 'estudiantes', studentId);
                         const docSnap = await getDoc(docRef);
                         if (docSnap.exists()) {
-                            setStudentData(docSnap.data() as StudentData);
+                            setStudentData(docSnap.data());
                         } else {
                             setError('No such document!');
                         }
@@ -64,10 +43,10 @@ const StudentPage = () => {
                                 ...data,
                                 fecha: data.fecha.toDate() // Convierte el Timestamp de Firestore a Date
                             };
-                        }) as AssignmentData[];
+                        });
                         setAssignments(assignmentsList);
                     }
-                } catch (err: any) {
+                } catch (err) {
                     setError(err.message);
                 } finally {
                     setLoading(false);

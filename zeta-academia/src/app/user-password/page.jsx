@@ -14,13 +14,13 @@ function UserAndPassword() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     try {
       await loginWithEmailAndPassword(email, password);
       router.push("/"); // Cambia la ruta a la del componente deseado
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || "Error al iniciar sesión");
     }
   };

@@ -27,15 +27,13 @@ const ClassesRecorded = ({ courseId }) => {
   const auth = getAuth();
   const user = auth.currentUser;
 
-  if (!user) {
-    alert("Debes iniciar sesión para realizar esta acción.");
-    return null;
-  }
-
-  const coursesRef = doc(db, `liveCourses/${courseId}`);
+  // Si no hay usuario, muestra un mensaje
+  const isUserAuthenticated = !!user;
 
   // Obtener el rol del usuario
   useEffect(() => {
+    if (!user) return; // Asegúrate de que el Hook no se ejecute si no hay usuario
+
     const fetchUserRole = async () => {
       try {
         const userRef = doc(db, "users", user.uid); // Obtener el documento del usuario
@@ -53,9 +51,11 @@ const ClassesRecorded = ({ courseId }) => {
 
   // Leer las grabaciones al cargar el componente
   useEffect(() => {
+    if (!courseId) return; // Evita ejecutar si no hay courseId
+
     const fetchRecordings = async () => {
       try {
-        // Obtener las grabaciones desde la subcolección
+        const coursesRef = doc(db, `liveCourses/${courseId}`);
         const recordingsRef = collection(coursesRef, "recordings");
         const snapshot = await getDocs(recordingsRef);
         const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -65,9 +65,7 @@ const ClassesRecorded = ({ courseId }) => {
       }
     };
 
-    if (courseId) {
-      fetchRecordings();
-    }
+    fetchRecordings();
   }, [courseId]);
 
   // Agregar una nueva grabación
@@ -127,96 +125,96 @@ const ClassesRecorded = ({ courseId }) => {
   return (
     <div className={styles.recordingsBlock}>
 
-    <div className={styles.container}>
-      <h3>Grabaciones</h3>
+      <div className={styles.container}>
+        <h3>Grabaciones</h3>
 
-      {/* Lista de grabaciones */}
-      <div>
-        {recordings.map((rec) => (
-          <div key={rec.id} className={styles.recordingItem}>
-            {editingId === rec.id ? (
-              <div className={styles.editRecording}>
-                <input
-                  type="text"
-                  value={editingTitle}
-                  onChange={(e) => setEditingTitle(e.target.value)}
-                  placeholder="Editar título"
-                  className={styles.title}
+        {/* Lista de grabaciones */}
+        <div>
+          {recordings.map((rec) => (
+            <div key={rec.id} className={styles.recordingItem}>
+              {editingId === rec.id ? (
+                <div className={styles.editRecording}>
+                  <input
+                    type="text"
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    placeholder="Editar título"
+                    className={styles.title}
                   />
-                <input
-                  type="url"
-                  value={editingUrl}
-                  onChange={(e) => setEditingUrl(e.target.value)}
-                  placeholder="Editar URL"
-                  className={styles.title}
+                  <input
+                    type="url"
+                    value={editingUrl}
+                    onChange={(e) => setEditingUrl(e.target.value)}
+                    placeholder="Editar URL"
+                    className={styles.title}
                   />
-                <button onClick={updateRecording} className={styles.saveButton}>
-                  <FaPencilAlt /> Guardar
-                </button>
-                <button onClick={() => setEditingId(null)} className={styles.saveButton}>
-                <FaTimes />  Cancelar
-                </button>
-              </div>
-            ) : (
-              <>
-            
-               <div  className={styles.recordingTitle}>
+                  <button onClick={updateRecording} className={styles.saveButton}>
+                    <FaPencilAlt /> Guardar
+                  </button>
+                  <button onClick={() => setEditingId(null)} className={styles.saveButton}>
+                    <FaTimes />  Cancelar
+                  </button>
+                </div>
+              ) : (
+                <>
 
-                <span title={rec.title}>
-                  <a href={rec.url} target="_blank" rel="noopener noreferrer"  className={styles.link} >
-                 { rec.title.length > 30 ? rec.title.substring(0, 30) + "..." : rec.title } {" "} 
-                  </a>
-                </span>
-               
-                 
-                {userRole === "admin" && ( // Solo los ADMIN pueden editar
-                  <div className={styles.actions}>
-                    <button className={styles.actionButton}
-                      onClick={() => {
-                        setEditingId(rec.id);
-                        setEditingTitle(rec.title);
-                        setEditingUrl(rec.url);
-                      }}
-                      >
-                      <FaPencilAlt />
-                    </button>
-                    <button onClick={() => deleteRecording(rec.id)} className={styles.actionButton}>
-                      <FaTrash />
-                    </button>
-                     
-                  </div>
-                  )}
-                  </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+                  <div className={styles.recordingTitle}>
 
-      {/* Formulario para agregar nuevas grabaciones */}
-      {userRole === "admin" && ( // Solo los ADMIN pueden agregar grabaciones
-        <div className={styles.addRecording}>
-          <input
-            type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Título de la grabación"
-            className={styles.title}
-            />
-          <input
-            type="url"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="URL de la grabación"
-            className={styles.title}
-            />
-          <button onClick={addRecording} className={styles.addButton}>
-            <FaPlus /> Añadir Grabación
-          </button>
+                    <span title={rec.title}>
+                      <a href={rec.url} target="_blank" rel="noopener noreferrer" className={styles.link} >
+                        {rec.title.length > 30 ? rec.title.substring(0, 30) + "..." : rec.title} {" "}
+                      </a>
+                    </span>
+
+
+                    {userRole === "admin" && ( // Solo los ADMIN pueden editar
+                      <div className={styles.actions}>
+                        <button className={styles.actionButton}
+                          onClick={() => {
+                            setEditingId(rec.id);
+                            setEditingTitle(rec.title);
+                            setEditingUrl(rec.url);
+                          }}
+                        >
+                          <FaPencilAlt />
+                        </button>
+                        <button onClick={() => deleteRecording(rec.id)} className={styles.actionButton}>
+                          <FaTrash />
+                        </button>
+
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
         </div>
-      )}
-    </div>
+
+        {/* Formulario para agregar nuevas grabaciones */}
+        {userRole === "admin" && ( // Solo los ADMIN pueden agregar grabaciones
+          <div className={styles.addRecording}>
+            <input
+              type="text"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Título de la grabación"
+              className={styles.title}
+            />
+            <input
+              type="url"
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              placeholder="URL de la grabación"
+              className={styles.title}
+            />
+            <button onClick={addRecording} className={styles.addButton}>
+              <FaPlus /> Añadir Grabación
+            </button>
+          </div>
+        )}
       </div>
+    </div>
   );
 };
 

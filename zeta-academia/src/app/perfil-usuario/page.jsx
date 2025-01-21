@@ -66,7 +66,7 @@ function UserProfile() {
         }
     };
 
-    const handleChange = (e: any) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setUserInfo((prevInfo) => ({
             ...prevInfo,
@@ -74,13 +74,13 @@ function UserProfile() {
         }));
     };
 
-    const handleFileChange = (e: any) => {
+    const handleFileChange = (e) => {
         if (e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     };
 
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             let photoURL = userInfo.photoURL;

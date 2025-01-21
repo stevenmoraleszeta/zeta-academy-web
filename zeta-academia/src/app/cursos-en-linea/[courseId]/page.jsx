@@ -29,6 +29,8 @@ import styles from "./page.module.css";
 import { title } from "process";
 import { AlertComponent } from "@/components/alert/alert";
 import { AlertButton } from "@/components/alert/alert";
+import Image from "next/image";
+
 
 // Define default features
 const defaultFeatures = [
@@ -248,7 +250,7 @@ const CourseDetail = ({ params }) => {
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
             userCompletedClasses = userSnap.data().completedClasses || [];
-            
+
           }
         }
 
@@ -290,8 +292,8 @@ const CourseDetail = ({ params }) => {
         // Encuentra la primera clase incompleta globalmente.
         let firstHighlightFound = false;
 
-        const updatedModules = fetchedModules.map((module) => {
-          const updatedClasses = module.classes.map((cls) => {
+        const updatedModules = fetchedModules.map((classModule) => {
+          const updatedClasses = classModule.classes.map((cls) => {
             const isCompleted = userCompletedClasses.includes(cls.id);
 
             if (!isCompleted && !firstHighlightFound) {
@@ -303,7 +305,7 @@ const CourseDetail = ({ params }) => {
           });
 
           return {
-            ...module,
+            ...classModule,
             classes: updatedClasses,
           };
         });
@@ -358,8 +360,8 @@ const CourseDetail = ({ params }) => {
 
   const handleModuleTitleChange = (moduleId, newTitle) => {
     setModules((prevModules) =>
-      prevModules.map((module) =>
-        module.id === moduleId ? { ...module, title: newTitle } : module
+      prevModules.map((classModule) =>
+        classModule.id === moduleId ? { ...classModule, title: newTitle } : classModule
       )
     );
     debouncedUpdateModuleTitle(moduleId, newTitle);
@@ -457,13 +459,13 @@ const CourseDetail = ({ params }) => {
   const deleteModule = async (moduleId) => {
     if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
       await deleteDoc(doc(db, "onlineCourses", courseId, "modules", moduleId));
-      setModules(modules.filter((module) => module.id !== moduleId));
+      setModules(modules.filter((classModule) => classModule.id !== moduleId));
     }
   };
 
   const addClass = async (moduleId) => {
-    const module = modules.find((mod) => mod.id === moduleId);
-    const nextOrder = module ? module.classes.length : 0; // Get the next order based on existing classes
+    const classModule = modules.find((mod) => mod.id === moduleId);
+    const nextOrder = classModule ? classModule.classes.length : 0; // Get the next order based on existing classes
 
     const newClass = { title: "Nueva Clase", order: nextOrder }; // Set the default order attribute
     const classRef = await addDoc(
@@ -472,14 +474,14 @@ const CourseDetail = ({ params }) => {
     );
 
     setModules((prevModules) =>
-      prevModules.map((module) => {
-        if (module.id === moduleId) {
+      prevModules.map((classModule) => {
+        if (classModule.id === moduleId) {
           return {
-            ...module,
-            classes: [...module.classes, { id: classRef.id, ...newClass }],
+            ...classModule,
+            classes: [...classModule.classes, { id: classRef.id, ...newClass }],
           };
         }
-        return module;
+        return classModule;
       })
     );
   };
@@ -498,14 +500,14 @@ const CourseDetail = ({ params }) => {
         )
       );
       setModules(
-        modules.map((module) => {
-          if (module.id === moduleId) {
+        modules.map((classModule) => {
+          if (classModule.id === moduleId) {
             return {
-              ...module,
-              classes: module.classes.filter((c) => c.id !== classId),
+              ...classModule,
+              classes: classModule.classes.filter((c) => c.id !== classId),
             };
           }
-          return module;
+          return classModule;
         })
       );
     }
@@ -518,14 +520,14 @@ const CourseDetail = ({ params }) => {
       newModules.splice(index + direction, 0, movedModule);
 
       // Update the order in the database
-      newModules.forEach(async (module, newIndex) => {
+      newModules.forEach(async (classModule, newIndex) => {
         try {
           const moduleRef = doc(
             db,
             "onlineCourses",
             courseId,
             "modules",
-            module.id
+            classModule.id
           );
           await updateDoc(moduleRef, { order: newIndex });
         } catch (error) {
@@ -539,9 +541,9 @@ const CourseDetail = ({ params }) => {
 
   const moveClass = async (moduleId, classIndex, direction) => {
     setModules((prevModules) =>
-      prevModules.map((module) => {
-        if (module.id === moduleId) {
-          const newClasses = [...module.classes];
+      prevModules.map((classModule) => {
+        if (classModule.id === moduleId) {
+          const newClasses = [...classModule.classes];
           const [movedClass] = newClasses.splice(classIndex, 1);
           newClasses.splice(classIndex + direction, 0, movedClass);
 
@@ -563,9 +565,9 @@ const CourseDetail = ({ params }) => {
             }
           });
 
-          return { ...module, classes: newClasses };
+          return { ...classModule, classes: newClasses };
         }
-        return module;
+        return classModule;
       })
     );
   };
@@ -584,14 +586,14 @@ const CourseDetail = ({ params }) => {
     modules.sort((a, b) => a.order - b.order);
 
     // Load and sort classes for each module
-    for (let module of modules) {
+    for (let classModule of modules) {
       const classesSnapshot = await getDocs(
         collection(
           db,
           "onlineCourses",
           courseId,
           "modules",
-          module.id,
+          classModule.id,
           "classes"
         )
       );
@@ -603,7 +605,7 @@ const CourseDetail = ({ params }) => {
       // Sort classes by order
       classes.sort((a, b) => a.order - b.order);
 
-      module.classes = classes;
+      classModule.classes = classes;
     }
 
     setModules(modules);
@@ -628,18 +630,18 @@ const CourseDetail = ({ params }) => {
 
       // Update local state
       setModules((prevModules) =>
-        prevModules.map((module) => {
-          if (module.id === moduleId) {
+        prevModules.map((classModule) => {
+          if (classModule.id === moduleId) {
             return {
-              ...module,
-              classes: module.classes.map((cls) =>
+              ...classModule,
+              classes: classModule.classes.map((cls) =>
                 cls.id === classId
                   ? { ...cls, restricted: !currentStatus }
                   : cls
               ),
             };
           }
-          return module;
+          return classModule;
         })
       );
     } catch (error) {
@@ -796,11 +798,14 @@ const CourseDetail = ({ params }) => {
       <div className={styles.features}>
         {(course.features || defaultFeatures).map((feature, index) => (
           <div key={index} className={styles.feature}>
-            <img
-              src={feature.iconUrl}
-              alt={`Icono de ${feature.title}`}
-              className={styles.featureIcon}
-            />
+            <div className={styles.featureIcon}>
+              <Image
+                src={feature.iconUrl}
+                alt={`Icono de ${feature.title}`}
+                fill
+                style={{ objectFit: "contain" }} // Ajusta según cómo quieras que se muestren los íconos
+              />
+            </div>
             <div>
               {isAdmin ? (
                 <>
@@ -895,20 +900,20 @@ const CourseDetail = ({ params }) => {
 
       <div className={styles.modules}>
         {modules.length > 0 ? (
-          modules.map((module, moduleIndex) => (
-            <div key={module.id} className={styles.module}>
+          modules.map((classModule, moduleIndex) => (
+            <div key={classModule.id} className={styles.module}>
               <div className={styles.moduleHeader}>
                 {isAdmin ? (
                   <input
                     type="text"
-                    value={module.title}
+                    value={classModule.title}
                     onChange={(e) =>
-                      handleModuleTitleChange(module.id, e.target.value)
+                      handleModuleTitleChange(classModule.id, e.target.value)
                     }
                     className={styles.moduleTitle}
                   />
                 ) : (
-                  <span className={styles.moduleTitle}>{module.title}</span>
+                  <span className={styles.moduleTitle}>{classModule.title}</span>
                 )}
                 {isAdmin ? (
                   <div className={styles.moduleActions}>
@@ -927,13 +932,13 @@ const CourseDetail = ({ params }) => {
                       <FaArrowDown />
                     </button>
                     <button
-                      onClick={() => addClass(module.id)}
+                      onClick={() => addClass(classModule.id)}
                       title="Añadir Clase"
                     >
                       <FaPlus />
                     </button>
                     <button
-                      onClick={() => deleteModule(module.id)}
+                      onClick={() => deleteModule(classModule.id)}
                       title="Eliminar Módulo"
                     >
                       <FaTrash />
@@ -945,13 +950,13 @@ const CourseDetail = ({ params }) => {
               </div>
 
               <div className={styles.classes}>
-                {module.classes && module.classes.length > 0 ? (
-                  module.classes.map((cls, classIndex) => (
+                {classModule.classes && classModule.classes.length > 0 ? (
+                  classModule.classes.map((cls, classIndex) => (
                     <div
-                      key={`${module.id}-${cls.id}`}
+                      key={`${classModule.id}-${cls.id}`}
                       className={`${styles.class} ${cls.completed ? styles.completedClass : ""
                         } ${cls.highlight ? styles.highlightClass : ""}`}
-                      onClick={() => handleClassClick(module.id, cls.id)}
+                      onClick={() => handleClassClick(classModule.id, cls.id)}
                     >
                       <div className={styles.classCircle}>
                         {cls.completed && <FaCheck />}
@@ -962,7 +967,7 @@ const CourseDetail = ({ params }) => {
                           <button
                             onClick={(event) => {
                               event.stopPropagation();
-                              moveClass(module.id, classIndex, -1);
+                              moveClass(classModule.id, classIndex, -1);
                             }}
                             disabled={classIndex === 0}
                             className={styles.moveButton}
@@ -972,9 +977,9 @@ const CourseDetail = ({ params }) => {
                           <button
                             onClick={(event) => {
                               event.stopPropagation();
-                              moveClass(module.id, classIndex, 1);
+                              moveClass(classModule.id, classIndex, 1);
                             }}
-                            disabled={classIndex === module.classes.length - 1}
+                            disabled={classIndex === classModule.classes.length - 1}
                             className={styles.moveButton}
                           >
                             <FaArrowDown />
@@ -983,7 +988,7 @@ const CourseDetail = ({ params }) => {
                             onClick={(event) => {
                               event.stopPropagation();
                               toggleClassRestriction(
-                                module.id,
+                                classModule.id,
                                 cls.id,
                                 cls.restricted
                               );
@@ -1000,7 +1005,7 @@ const CourseDetail = ({ params }) => {
                           <button
                             onClick={(event) => {
                               event.stopPropagation();
-                              deleteClass(module.id, cls.id);
+                              deleteClass(classModule.id, cls.id);
                             }}
                             className={styles.classAction}
                             title="Eliminar Clase"

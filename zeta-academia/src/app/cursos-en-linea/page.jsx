@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import useFetchData from "@/app/hooks/useFetchData";
+import useFetchData from "@/app/hooks/useFetchData.js";
 import { useRouter } from "next/navigation";
 import {
   collection,
@@ -41,28 +41,6 @@ const OnlineCourses = () => {
     }
   }, [courses]);
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleFilter();
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, priceRange, selectedCategory]);
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  const handlePriceChange = (event) => {
-    setPriceRange(parseInt(event.target.value, 10));
-  };
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategory((prevCategory) =>
-      prevCategory === category ? "" : category
-    );
-  };
-
   const handleFilter = () => {
     if (!courses) return;
     const filtered = courses.filter((course) => {
@@ -77,6 +55,29 @@ const OnlineCourses = () => {
       );
     });
     setFilteredCourses(filtered);
+  };
+
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleFilter();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, priceRange, selectedCategory, handleFilter]);
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const handlePriceChange = (event) => {
+    setPriceRange(parseInt(event.target.value, 10));
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory((prevCategory) =>
+      prevCategory === category ? "" : category
+    );
   };
 
   const handleAddCourse = async () => {

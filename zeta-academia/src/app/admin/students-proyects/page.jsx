@@ -1,6 +1,5 @@
 "use client";
 
-
 import React, { useEffect, useState } from "react";
 import CrudMenu from "@/components/crud-menu/CrudMenu";
 import { getDocs, collection, doc, updateDoc, deleteDoc, addDoc, where, query, writeBatch } from "firebase/firestore";
@@ -9,24 +8,8 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { v4 as uuidv4 } from "uuid";
 import { getAuth } from "firebase/auth";
 
-interface StudentProject {
-    id?: string;
-    userId: string;
-    projectId: string;
-    fileUrl?: string;
-    deliveredDay?: string | null;
-    score?: number | null;
-    dueDate?: string | null;
-    state?: string;
-    title?: string; // Agregado para manejar el título del proyecto
-    courseId?: string; // Agregado para manejar el ID del curso
-    order?: number; // Agregado para manejar el orden
-    studentFileUrl?: string;
-    courseName?: string;
-}
-
-const StudentsProjects: React.FC = () => {
-    const [projects, setProjects] = useState<StudentProject[]>([]);
+const StudentsProjects = () => {
+    const [projects, setProjects] = useState([]);
     const collectionName = "projects";
 
     useEffect(() => {
@@ -58,7 +41,7 @@ const StudentsProjects: React.FC = () => {
         fetchProjects();
     }, []);
 
-    const handleFileUpload = async (file: File): Promise<string> => {
+    const handleFileUpload = async (file) => {
         const uniqueName = `${uuidv4()}-${file.name}`;
         const storageRef = ref(getStorage(), `studentProjects/${uniqueName}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
@@ -76,7 +59,7 @@ const StudentsProjects: React.FC = () => {
         });
     };
 
-    const validateProject = (project: StudentProject): boolean => {
+    const validateProject = (project) => {
         if (!project.title) {
             alert("El título es obligatorio.");
             return false;
@@ -96,12 +79,10 @@ const StudentsProjects: React.FC = () => {
         return true;
     };
 
-    const saveStudentProject = async (item: StudentProject, isEditMode: boolean): Promise<void> => {
+    const saveStudentProject = async (item, isEditMode) => {
         const { id, projectId, courseName, ...data } = item;
 
         try {
-            // Buscar si el curso existe en "liveCourses"
-
             const auth = getAuth();
             const user = auth.currentUser;
 
@@ -125,7 +106,6 @@ const StudentsProjects: React.FC = () => {
                 const courseId = matchingCourse.id;
                 const mentor = courseData.mentor;
 
-                // Crear un nuevo proyecto en "projects"
                 const projectData = {
                     courseId: courseId,
                     dueDate: data.dueDate,
@@ -136,10 +116,9 @@ const StudentsProjects: React.FC = () => {
                 };
 
                 alert("El proyecto ha sido creados exitosamente.");
-                return; // Finaliza la función si se creó el proyecto
+                return;
             }
 
-            // Si es modo edición, actualiza los datos en la subcolección correspondiente
             const subCollectionPath = `projects/${projectId}/studentsProjects`;
 
             if (isEditMode && id) {
@@ -158,7 +137,7 @@ const StudentsProjects: React.FC = () => {
         }
     };
 
-    const deleteStudentProject = async (item: StudentProject): Promise<void> => {
+    const deleteStudentProject = async (item) => {
         const { projectId, id } = item;
         const docPath = `${collectionName}/${projectId}/studentsProjects/${id}`;
 
@@ -182,12 +161,10 @@ const StudentsProjects: React.FC = () => {
 
             const batch = writeBatch(db);
 
-
             for (const projectDoc of projectsSnapshot.docs) {
                 const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
                 const studentProjectsSnapshot = await getDocs(studentProjectsRef);
 
-                // Recorre los proyectos de estudiantes
                 for (const studentDocSnap of studentProjectsSnapshot.docs) {
                     const studentData = studentDocSnap.data();
                     const { studentFileUrl, deliveredDay, dueDate, score } = studentData;
@@ -210,7 +187,7 @@ const StudentsProjects: React.FC = () => {
         }
     };
 
-    const determineState = (project: any) => {
+    const determineState = (project) => {
         const deliveredDate = project.deliveredDay ? new Date(project.deliveredDay) : null;
         const dueDate = project.dueDate ? new Date(project.dueDate) : null;
         const today = new Date();
@@ -221,12 +198,10 @@ const StudentsProjects: React.FC = () => {
         if (!project.studentFileUrl && dueDate && dueDate > today) return "Entregable";
         if (!project.studentFileUrl && dueDate && dueDate <= today) return "No entregado";
 
-        return "Desconocido"; // Valor por defecto
+        return "Desconocido";
     };
 
-
-
-    const getStateColor = (state: string): string => {
+    const getStateColor = (state) => {
         switch (state) {
             case "Revisado":
                 return "green";

@@ -1,17 +1,8 @@
 import styles from "./cursoCard.module.css";
 import Image from "next/image";
 
-interface cardProps {
-    imgSrc: string,
-    titleText: string,
-    descText: string,
-    width: number,
-    height: number,
-    icon: string,
-};
-
-export default function CursoCard(props: cardProps) {
-    const { imgSrc, titleText, descText, height, width, icon } = props
+export default function CursoCard(props) {
+    const { imgSrc, titleText, descText, height, width, icon } = props;
     return (
         <>
             <div className={styles.cardContainer}>
@@ -26,4 +17,4 @@ export default function CursoCard(props: cardProps) {
             </div>
         </>
     );
-};
+}

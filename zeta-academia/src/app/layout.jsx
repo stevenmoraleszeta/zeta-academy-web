@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "../components/navbar/Navbar";
 import FooterZ from "@/components/footer/Footer";
@@ -12,16 +11,12 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "ZETA",
   description: "ZETA Plataforma Educativa",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`app ${montserrat.className}`}>
@@ -29,7 +24,7 @@ export default function RootLayout({
           <ScrollToTop />
           <div className="page-container">
             <Navbar />
-            <FixedBtn></FixedBtn>
+            <FixedBtn />
             <main className="content">{children}</main>
             <FooterZ />
           </div>

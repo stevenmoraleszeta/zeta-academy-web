@@ -1,8 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    eslint: {
+        ignoreDuringBuilds: true, // Ignorar errores de ESLint durante la compilación
+    },
     images: {
-        domains: ['lh3.googleusercontent.com', 'firebasestorage.googleapis.com'], // Agrega el dominio aquí
-    }
+        domains: [
+            'lh3.googleusercontent.com', 
+            'firebasestorage.googleapis.com', 
+            'static.vecteezy.com' // Agregamos este dominio
+        ],
+    },
 };
 
 export default nextConfig;

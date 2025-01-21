@@ -13,13 +13,13 @@ import {
     AiOutlineProject, // Proyectos Estudiantes
 } from 'react-icons/ai'; // Importamos íconos relacionados con los textos
 
-const AdminMenu: React.FC = () => {
+const AdminMenu = () => {
     //titulo tab
     document.title = "Menu Admin - ZETA";
     const router = useRouter();
 
     // Función para redirigir a las rutas correspondientes
-    const handleNavigation = (path: string) => {
+    const handleNavigation = (path) => {
         router.push(path);
     };
 

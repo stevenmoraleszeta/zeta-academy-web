@@ -53,7 +53,7 @@ export default function CompleteInformation() {
     fetchUserData();
   }, [currentUser]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setUserInfo((prevInfo) => ({
       ...prevInfo,
@@ -61,7 +61,7 @@ export default function CompleteInformation() {
     }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const phoneRegex = /^\+\d{1,4}\s?\d{6,15}$/;
 

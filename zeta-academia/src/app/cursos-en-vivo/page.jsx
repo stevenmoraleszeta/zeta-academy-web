@@ -8,6 +8,7 @@ import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 const LiveCourses = () => {
   document.title="Cursos en Vivo - ZETA"
@@ -35,28 +36,6 @@ const LiveCourses = () => {
     }
   }, [courses]);
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleFilter();
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, priceRange, selectedCategory]);
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  const handlePriceChange = (event) => {
-    setPriceRange(parseInt(event.target.value, 10));
-  };
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategory((prevCategory) =>
-      prevCategory === category ? "" : category
-    );
-  };
-
   const handleFilter = () => {
     if (!courses) return;
     const filtered = courses.filter((course) => {
@@ -71,6 +50,28 @@ const LiveCourses = () => {
       );
     });
     setFilteredCourses(filtered);
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleFilter();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, priceRange, selectedCategory, handleFilter]);
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const handlePriceChange = (event) => {
+    setPriceRange(parseInt(event.target.value, 10));
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory((prevCategory) =>
+      prevCategory === category ? "" : category
+    );
   };
 
   const handleAddCourse = async () => {
@@ -89,12 +90,6 @@ const LiveCourses = () => {
     } catch (error) {
       console.error("Error adding course: ", error);
     }
-  };
-
-  const handleCourseArchived = (courseId) => {
-    setFilteredCourses((prevCourses) =>
-      prevCourses.filter((course) => course.id !== courseId)
-    );
   };
 
   return (

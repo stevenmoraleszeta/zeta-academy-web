@@ -2,11 +2,7 @@
 
 import styles from './contactUsBtn.module.css'
 
-interface ContactUsBtnProps {
-    link?: string,
-}
-
-export default function ContactUsBtn(props: ContactUsBtnProps) {
+export default function ContactUsBtn(props) {
     const { link } = props;
 
     const handleLink = () => {

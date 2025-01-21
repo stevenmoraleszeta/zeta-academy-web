@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./create.module.css";
 
-function createUser() {
+function CreateUser() {
   const { registerWithEmailAndPassword } = useAuth(); // Método para registrar usuario
   const router = useRouter();
 
@@ -15,18 +15,18 @@ function createUser() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [profilePicture, setProfilePicture] = useState<File | null>();
+  const [profilePicture, setProfilePicture] = useState(null);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e) => {
     if (e.target.files) {
       setProfilePicture(e.target.files[0]);
     }
   };
 
   // Manejador del submit
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
@@ -40,7 +40,7 @@ function createUser() {
     try {
       await registerWithEmailAndPassword(email, password, name, profilePicture); // Registrar en Firebase con foto
       router.push("/completeInfoPage");
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || "Error al registrarse");
     } finally {
       setIsSubmitting(false);
@@ -124,4 +124,4 @@ function createUser() {
   );
 }
 
-export default createUser;
+export default CreateUser;

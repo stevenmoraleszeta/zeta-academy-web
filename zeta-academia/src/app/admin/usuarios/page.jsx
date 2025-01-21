@@ -5,7 +5,7 @@ import styles from './page.module.css';
 import CrudMenu from '@/components/crud-menu/CrudMenu';
 import RequireAuth from '@/components/RequireAuth';
 
-const AdminUsers: React.FC = () => {
+const AdminUsers = () => {
     document.title = "Administración de Usuarios - ZETA";
     // Fields to display in the list view
     const displayFields = [

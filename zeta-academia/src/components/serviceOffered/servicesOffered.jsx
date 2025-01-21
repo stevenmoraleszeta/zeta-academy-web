@@ -1,17 +1,10 @@
 "use client"
 
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import styles from "./services.module.css";
 import Image from "next/image";
 
-interface ServiceProps {
-    displayText: string,
-    nonDisplayedText: string,
-    imageURL: string,
-    children: ReactNode,
-}
-
-export default function Service(props: ServiceProps) {
+export default function Service(props) {
     const { displayText, nonDisplayedText, children, imageURL } = props;
     const [isHovered, setIsHovered] = useState(false);
 
@@ -31,5 +24,5 @@ export default function Service(props: ServiceProps) {
                 </div>
             </div>
         </>
-    )
-};
+    );
+}

@@ -11,12 +11,12 @@ const CourseModules = ({ modules, setModules }) => {
 
     return (
         <div className={styles.modulesContainer}>
-            {modules.map((module, index) => (
+            {modules.map((classModule, index) => (
                 <Module
                     key={index}
                     moduleIndex={index}
-                    title={module.title}
-                    classes={module.classes}
+                    title={classModule.title}
+                    classes={classModule.classes}
                     setModules={setModules}
                 />
             ))}

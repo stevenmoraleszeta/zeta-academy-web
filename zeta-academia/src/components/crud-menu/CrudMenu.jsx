@@ -10,26 +10,10 @@ import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
 import { FaTrash, FaClone, FaEdit } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
 
 //TODO Los actions icons, como el fa-trash, fa-clone, etc. Deben de ser componentes.
-interface CrudMenuProps {
-    collectionName: string;
-    displayFields: { label: string; field: string; type?: string; selectType?: string; computeField?: (item: any) => string; }[];
-    editFields: { label: string; field: string; type?: string; selectType?: string; options?: { value: string; label: string }[] }[];
-    itemActions?: { label: string; handler: (item: any) => void }[];
-    pageTitle: string;
-    filterFunction?: (item: any) => boolean;
-    fileUploadHandler?: (file: File) => Promise<string>;
-    onSave?: (item: any, isEditMode: boolean) => Promise<void>;
-    onDelete?: (item: any) => Promise<void>;
-    determineState?: (item: any) => string;
-    isCheckStatus?: () => void;
-    getStateColor?: (state: string) => string;
-    data?: any[];
-    downloadBtn?: boolean;
-}
-
-const CrudMenu: React.FC<CrudMenuProps> = ({
+const CrudMenu = ({
     collectionName,
     displayFields,
     editFields,
@@ -46,17 +30,17 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     isCheckStatus,
 }) => {
     const { data: fetchedData, loading, error } = useFetchData(collectionName);
-    const [data, setData] = useState<any[]>([]);
-    const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [selectedItem, setSelectedItem] = useState<any | null>(null);
-    const [selectOptions, setSelectOptions] = useState<{ [key: string]: any[] }>({});
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [isEditMode, setIsEditMode] = useState<boolean>(false);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
-    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectOptions, setSelectOptions] = useState({});
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-    const [itemToDelete, setItemToDelete] = useState<any | null>(null);
+    const [itemToDelete, setItemToDelete] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -69,12 +53,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
         }
     }, [propData, fetchedData]);
 
-    const handleGoToFicha = (item: any) => {
+    const handleGoToFicha = (item) => {
         router.push(`/admin/students/${item.id}`);
     };
 
     const initializeSelectOptions = () => {
-        const options: { [key: string]: any[] } = {};
+        const options = {};
         editFields.forEach(field => {
             if (field.type === 'select' && field.options) {
                 options[field.field] = field.options;
@@ -83,12 +67,11 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
         setSelectOptions(options);
     };
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSearchChange = (e) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
 
         if (term.trim() === '') {
-            // Restaurar el estado original de los datos cuando el término está vacío
             setFilteredData(data);
             return;
         }
@@ -103,7 +86,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
         setFilteredData(filtered);
     };
 
-    const handleItemClick = (item: any) => {
+    const handleItemClick = (item) => {
         setSelectedItem(item);
         setImagePreview(item.imageUrl || null);
         setIsEditMode(true);
@@ -124,12 +107,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
         setIsModalOpen(false);
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement;
+    const handleInputChange = (e) => {
+        const { name, value, type, checked } = e.target;
         setSelectedItem({ ...selectedItem, [name]: type === 'checkbox' ? checked : value });
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -158,7 +141,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                 },
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        setSelectedItem((prevItem: any) => ({
+                        setSelectedItem((prevItem) => ({
                             ...prevItem,
                             imageUrl: downloadURL,
                         }));
@@ -173,13 +156,13 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const handleFileUpload = async (e, field) => {
         if (!e.target.files || !fileUploadHandler) return;
         const file = e.target.files[0];
         setIsUploadingImage(true);
         try {
             const url = await fileUploadHandler(file);
-            setSelectedItem((prev: Record<string, any>) => ({ ...prev, [field]: url }));
+            setSelectedItem((prev) => ({ ...prev, [field]: url }));
         } catch (err) {
             console.error('File upload failed', err);
         } finally {
@@ -208,11 +191,9 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                         prevData.map((item) => (item.id === selectedItem.id ? selectedItem : item))
                     );
                 } else {
-                    // Crear el documento en la colección de usuarios
                     const docRef = await addDoc(collection(db, collectionName), selectedItem);
                     const newItem = { ...selectedItem, id: docRef.id };
 
-                    // Crear el documento en la colección de estudiantes
                     const estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
                         userId: docRef.id,
                         createdAt: new Date(),
@@ -228,7 +209,6 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                         objetivosIndividuales: "",
                     });
 
-                    // Actualizar el documento del usuario con el ID del estudiante
                     await updateDoc(docRef, {
                         estudianteId: estudianteDocRef.id,
                     });
@@ -242,7 +222,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
         }
     };
 
-    const handleDeleteItem = async (item: any) => {
+    const handleDeleteItem = async (item) => {
         const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este elemento?");
         if (!confirmDelete) return;
 
@@ -280,7 +260,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
         }
     };
 
-    const handleFileDownload = (fileUrl: string, fileName: string) => {
+    const handleFileDownload = (fileUrl, fileName) => {
         const link = document.createElement('a');
         link.href = fileUrl;
         link.target = '_blank';
@@ -319,7 +299,8 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                     {displayFields.map(({ label, field, type }) => (
                                         <div key={field} className={styles.fieldRow}>
                                             {type === 'image' ? (
-                                                <img src={item[field]} alt={label} className={styles.itemImage} />
+                                                <Image src={item[field]} alt={label} className={styles.itemImage} width={200}
+                                                height={150}/>
                                             ) : typeof item[field] === 'object' ? (
                                                 <span>{item[field]?.label || item[field]?.value || JSON.stringify(item[field])}</span>
                                             ) : (
@@ -372,10 +353,12 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
                                             onChange={handleImageUpload}
                                         />
                                         {imagePreview && (
-                                            <img
+                                            <Image
                                                 src={imagePreview}
                                                 alt="Previsualización"
                                                 className={styles.imagePreview}
+                                                width={200}
+  height={150}
                                             />
                                         )}
                                     </>
@@ -432,12 +415,7 @@ const CrudMenu: React.FC<CrudMenuProps> = ({
     );
 };
 
-const ConfirmationModal: React.FC<{
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    message: string;
-}> = ({ isOpen, onClose, onConfirm, message }) => {
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, message }) => {
     if (!isOpen) return null;
 
     return (

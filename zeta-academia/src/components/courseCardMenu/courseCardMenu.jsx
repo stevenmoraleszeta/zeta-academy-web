@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { doc, updateDoc, addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
+
 
 const CourseCardMenu = ({ course, courseType }) => {
   const router = useRouter();
@@ -112,13 +114,15 @@ const CourseCardMenu = ({ course, courseType }) => {
       className={styles.courseCard}
       onClick={() => handleViewCourse(course.id)}
     >
-      <img
+      <Image
         src={
           course.imageUrl ||
           "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"
         }
         alt={course.title}
         className={styles.courseImage}
+        width={200}
+  height={150}
       />
       <div className={styles.courseInfo}>
         <h2>{course.title}</h2>
