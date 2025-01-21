@@ -12,8 +12,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "ZETA",
-  description: "ZETA Academia",
+  title: "ZETA Academia",
+  description: "ZETA Plataforma Educativa",
 };
 
 export default function RootLayout({ children }) {

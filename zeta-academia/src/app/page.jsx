@@ -14,7 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
-    document.title="ZETA";
+    document.title="ZETA Academia";
     useEffect(() => {
         const targetElement = document.getElementById('dynamicMsg');
 
