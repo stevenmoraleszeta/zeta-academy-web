@@ -1,13 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     eslint: {
-        ignoreDuringBuilds: true, // Ignorar errores de ESLint durante la compilación
+        ignoreDuringBuilds: true,
     },
     images: {
-        domains: [
-            'lh3.googleusercontent.com', 
-            'firebasestorage.googleapis.com', 
-            'static.vecteezy.com' // Agregamos este dominio
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'firebasestorage.googleapis.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'static.vecteezy.com',
+                pathname: '/**',
+            },
         ],
     },
 };
