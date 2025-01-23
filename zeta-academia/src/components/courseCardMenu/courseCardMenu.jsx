@@ -45,7 +45,7 @@ const CourseCardMenu = ({ course, courseType }) => {
     )
       ? "liveCourses"
       : "onlineCourses";
-  
+
     try {
       // Duplicar el curso principal
       const newCourse = {
@@ -55,22 +55,22 @@ const CourseCardMenu = ({ course, courseType }) => {
       };
       delete newCourse.id; // Eliminar id para evitar conflictos
       const docRef = await addDoc(collection(db, collectionChoice), newCourse);
-  
+
       // Obtener y duplicar módulos del curso original
       const modulesSnapshot = await getDocs(
         collection(db, `${collectionName}/${course.id}/modules`)
       );
-  
+
       const modulePromises = modulesSnapshot.docs.map(async (moduleDoc) => {
         const moduleData = moduleDoc.data();
         delete moduleData.id;
-  
+
         // Crear nuevo módulo en el curso duplicado
         const newModuleRef = await addDoc(
           collection(db, `${collectionChoice}/${docRef.id}/modules`),
           moduleData
         );
-  
+
         // Obtener y duplicar clases para este módulo
         const classesSnapshot = await getDocs(
           collection(
@@ -78,24 +78,24 @@ const CourseCardMenu = ({ course, courseType }) => {
             `${collectionName}/${course.id}/modules/${moduleDoc.id}/classes`
           )
         );
-  
+
         const classPromises = classesSnapshot.docs.map((classDoc) => {
           const classData = classDoc.data();
           delete classData.id;
-  
+
           return addDoc(
             collection(db, `${collectionChoice}/${docRef.id}/modules/${newModuleRef.id}/classes`),
             classData
           );
         });
-  
+
         // Esperar a que se dupliquen todas las clases
         await Promise.all(classPromises);
       });
-  
+
       // Esperar a que se dupliquen todos los módulos
       await Promise.all(modulePromises);
-  
+
       router.push(
         `/${collectionChoice === "liveCourses" ? "cursos-en-vivo" : "cursos-en-linea"}/${docRef.id}`
       );
@@ -104,7 +104,7 @@ const CourseCardMenu = ({ course, courseType }) => {
       console.error("Error duplicating course: ", error);
     }
   };
-  
+
 
   // No renderiza el curso si está archivado
   if (isArchived) return null;
@@ -121,8 +121,8 @@ const CourseCardMenu = ({ course, courseType }) => {
         }
         alt={course.title}
         className={styles.courseImage}
-        width={200}
-  height={150}
+        width={1000}
+        height={1000}
       />
       <div className={styles.courseInfo}>
         <h2>{course.title}</h2>
