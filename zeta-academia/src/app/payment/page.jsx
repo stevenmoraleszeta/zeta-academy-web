@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { useRouter, useSearchParams} from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
@@ -12,7 +12,7 @@ const PaymentPage = () => {
   const { currentUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const courseId = searchParams.get("courseId"); 
+  const courseId = searchParams.get("courseId");
   const [course, setCourse] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -75,6 +75,7 @@ const PaymentPage = () => {
         if (courseSnap.exists()) {
           setCourse(courseSnap.data());
         } else {
+          router.push('/payment')
           console.error("El curso no existe.");
         }
       } catch (error) {
@@ -169,7 +170,7 @@ const PaymentPage = () => {
         ? course.discountedPrice
         : Number(amount);
 
-      
+
 
       const response = await fetch("/api/create-order", {
         method: "POST",
