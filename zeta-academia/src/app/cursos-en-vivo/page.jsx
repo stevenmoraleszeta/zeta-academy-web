@@ -11,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 const LiveCourses = () => {
-  document.title="Cursos en Vivo - ZETA"
+  document.title = "Cursos en Vivo - ZETA"
   const router = useRouter();
   const { data: courses, loading, error } = useFetchData("liveCourses");
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,17 +107,15 @@ const LiveCourses = () => {
       <div className={styles.filters}>
         <div className={styles.filterOptions}>
           <button
-            className={`${styles.filterButton} ${
-              selectedCategory === "Programación" ? styles.activeFilter : ""
-            }`}
+            className={`${styles.filterButton} ${selectedCategory === "Programación" ? styles.activeFilter : ""
+              }`}
             onClick={() => handleCategoryChange("Programación")}
           >
             Programación
           </button>
           <button
-            className={`${styles.filterButton} ${
-              selectedCategory === "Ofimática" ? styles.activeFilter : ""
-            }`}
+            className={`${styles.filterButton} ${selectedCategory === "Ofimática" ? styles.activeFilter : ""
+              }`}
             onClick={() => handleCategoryChange("Ofimática")}
           >
             Ofimática
@@ -150,7 +148,7 @@ const LiveCourses = () => {
       {error && <p>{error}</p>}
 
       <div className={styles.courseGrid}>
-        {filteredCourses?.length > 0 ? (
+        {filteredCourses?.length > 0 && (
           filteredCourses.map((course) => (
             <CourseCardMenu
               key={course.id}
@@ -158,8 +156,6 @@ const LiveCourses = () => {
               courseType={"live"}
             />
           ))
-        ) : (
-          <p>No encuentro algo como lo que buscas, porfavor contáctanos.</p>
         )}
       </div>
 
