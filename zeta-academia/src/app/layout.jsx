@@ -5,6 +5,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Montserrat } from "next/font/google";
 import ScrollToTop from "@/components/scrollToTop/ScrollToTop";
 import FixedBtn from "@/components/fixedBtn/fixedBtn";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 
 const montserrat = Montserrat({
   weight: ["400", "700"],
@@ -22,12 +24,14 @@ export default function RootLayout({ children }) {
       <body className={`app ${montserrat.className}`}>
         <AuthProvider>
           <ScrollToTop />
+          <SpeedInsights />
           <div className="page-container">
             <Navbar />
             <FixedBtn />
             <main className="content">{children}</main>
             <FooterZ />
           </div>
+          <Analytics />
         </AuthProvider>
       </body>
     </html>
