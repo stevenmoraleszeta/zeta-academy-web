@@ -2,16 +2,17 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams} from "next/navigation";
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./page.module.css";
 
-const PaymentPage = ({ searchParams }) => {
+const PaymentPage = () => {
   const { currentUser } = useAuth();
   const router = useRouter();
-  const courseId = searchParams.courseId || ""; // Obtenemos el courseId
+  const searchParams = useSearchParams();
+  const courseId = searchParams.get("courseId"); 
   const [course, setCourse] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
