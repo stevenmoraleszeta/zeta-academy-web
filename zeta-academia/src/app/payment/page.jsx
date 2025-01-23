@@ -34,6 +34,8 @@ const PaymentPage = ({ searchParams }) => {
   // Verificar si el usuario está inscrito
   useEffect(() => {
     const checkEnrollment = async () => {
+      console.log("User: ", currentUser)
+      console.log("CourseID: ", courseId)
       if (!currentUser || !courseId) return;
 
       try {
