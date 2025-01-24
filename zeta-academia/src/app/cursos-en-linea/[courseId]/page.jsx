@@ -576,7 +576,7 @@ const CourseDetail = ({ params }) => {
   /* Features crud functions */
 
   const handleAddFeature = async () => {
-    const newFeature = { title: "Nueva Característica", description: "Nueva descripción", iconUrl: 'adad' };
+    const newFeature = { title: "test", description: "test", iconUrl: 'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6' };
     try {
       const courseRef = doc(db, "onlineCourses", courseId);
       await updateDoc(courseRef, {
@@ -591,16 +591,23 @@ const CourseDetail = ({ params }) => {
 
   const handleDeleteFeature = async (index) => {
     try {
-      const courseRef = doc(db, "onlineCourses", courseId);
       const updatedFeatures = [...course.features];
+
       updatedFeatures.splice(index, 1);
+
+      const courseRef = doc(db, "onlineCourses", courseId);
       await updateDoc(courseRef, { features: updatedFeatures });
+
+      setCourse((prev) => ({
+        ...prev,
+        features: updatedFeatures,
+      }));
 
       console.log("Característica eliminada exitosamente");
     } catch (error) {
       console.error("Error al eliminar la característica:", error);
     }
-  }
+  };
 
   // Function to load modules and classes, sorted by order
   const loadModules = async () => {
@@ -826,7 +833,7 @@ const CourseDetail = ({ params }) => {
       </div>
 
       <div className={styles.features}>
-        {(isAdmin && (
+        {isAdmin && (
           <>
             <div className={styles.actionBtnsContainer}>
               <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
@@ -835,7 +842,7 @@ const CourseDetail = ({ params }) => {
             </div>
             <div></div>
           </>
-        ))}
+        )}
         {(course.features || defaultFeatures).map((feature, index) => (
           <div key={index} className={styles.feature}>
             <div className={styles.featureIcon}>
@@ -882,7 +889,10 @@ const CourseDetail = ({ params }) => {
             </div>
             {isAdmin && (
               <div>
-                <button onClick={handleDeleteFeature} className={styles.featuresActionsBtn}>
+                <button
+                  className={styles.featuresActionsBtn}
+                  onClick={() => handleDeleteFeature(index)}
+                >
                   <FaTrash />
                 </button>
               </div>
