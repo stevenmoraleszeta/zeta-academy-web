@@ -10,6 +10,7 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import {
@@ -572,6 +573,22 @@ const CourseDetail = ({ params }) => {
     );
   };
 
+  /* Features crud functions */
+
+  const handleAddFeature = async () => {
+    const newFeature = { title: "Nueva Característica", description: "Nueva descripción", iconUrl: 'adad' };
+    try {
+      const courseRef = doc(db, "onlineCourses", courseId);
+      await updateDoc(courseRef, {
+        features: arrayUnion(newFeature),
+      });
+
+      console.log("Característica añadida exitosamente");
+    } catch (error) {
+      console.error("Error al agregar la característica:", error);
+    }
+  };
+
   // Function to load modules and classes, sorted by order
   const loadModules = async () => {
     const modulesSnapshot = await getDocs(
@@ -797,7 +814,7 @@ const CourseDetail = ({ params }) => {
 
       <div className={styles.features}>
         <div className={styles.actionBtnsContainer}>
-          <button className={styles.featuresActionsBtn}>
+          <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
             <FaPlus />
           </button>
           <button className={styles.featuresActionsBtn}>
