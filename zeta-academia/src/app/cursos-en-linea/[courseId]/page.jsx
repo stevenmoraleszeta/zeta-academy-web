@@ -813,15 +813,19 @@ const CourseDetail = ({ params }) => {
       </div>
 
       <div className={styles.features}>
-        <div className={styles.actionBtnsContainer}>
-          <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
-            <FaPlus />
-          </button>
-          <button className={styles.featuresActionsBtn}>
-            <FaTrash />
-          </button>
-        </div>
-        <div></div>
+        {(isAdmin && (
+          <>
+            <div className={styles.actionBtnsContainer}>
+              <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
+                <FaPlus />
+              </button>
+              <button className={styles.featuresActionsBtn}>
+                <FaTrash />
+              </button>
+            </div>
+            <div></div>
+          </>
+        ))}
         {(course.features || defaultFeatures).map((feature, index) => (
           <div key={index} className={styles.feature}>
             <div className={styles.featureIcon}>
