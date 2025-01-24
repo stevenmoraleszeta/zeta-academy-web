@@ -589,6 +589,19 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+  const handleDeleteFeature = async (index) => {
+    try {
+      const courseRef = doc(db, "onlineCourses", courseId);
+      const updatedFeatures = [...course.features];
+      updatedFeatures.splice(index, 1);
+      await updateDoc(courseRef, { features: updatedFeatures });
+
+      console.log("Característica eliminada exitosamente");
+    } catch (error) {
+      console.error("Error al eliminar la característica:", error);
+    }
+  }
+
   // Function to load modules and classes, sorted by order
   const loadModules = async () => {
     const modulesSnapshot = await getDocs(
@@ -819,9 +832,6 @@ const CourseDetail = ({ params }) => {
               <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
                 <FaPlus />
               </button>
-              <button className={styles.featuresActionsBtn}>
-                <FaTrash />
-              </button>
             </div>
             <div></div>
           </>
@@ -870,6 +880,13 @@ const CourseDetail = ({ params }) => {
                 </>
               )}
             </div>
+            {isAdmin && (
+              <div>
+                <button onClick={handleDeleteFeature} className={styles.featuresActionsBtn}>
+                  <FaTrash />
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
