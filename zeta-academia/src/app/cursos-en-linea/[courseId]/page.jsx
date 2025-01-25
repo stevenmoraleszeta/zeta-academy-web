@@ -610,6 +610,26 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+  const moveFeature = async (index, direction) => {
+    setCourse((prevCourse) => {
+      const newFeatures = [...prevCourse.features];
+      const [movedFeature] = newFeatures.splice(index, 1);
+      newFeatures.splice(index + direction, 0, movedFeature);
+
+      // Update the order in the database
+      newFeatures.forEach(async (feature, newIndex) => {
+        try {
+          const courseRef = doc(db, "onlineCourses", courseId);
+          await updateDoc(courseRef, { features: newFeatures });
+        } catch (error) {
+          console.error("Error updating feature order:", error);
+        }
+      });
+
+      return { ...prevCourse, features: newFeatures };
+    });
+  };
+
   // Function to load modules and classes, sorted by order
   const loadModules = async () => {
     const modulesSnapshot = await getDocs(
@@ -887,17 +907,37 @@ const CourseDetail = ({ params }) => {
                   </div>
                 </>
               )}
+              {isAdmin && (
+                <>
+                  <div className={styles.featuresActionsContainer}>
+                    <div className={styles.featureActions}>
+                      <button
+                        onClick={() => moveFeature(index, -1)}
+                        disabled={index === 0}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowUp />
+                      </button>
+                      <button
+                        onClick={() => moveFeature(index, 1)}
+                        disabled={index === course.features.length - 1}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowDown />
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        className={styles.featuresActionsBtn}
+                        onClick={() => handleDeleteFeature(index)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-            {isAdmin && (
-              <div>
-                <button
-                  className={styles.featuresActionsBtn}
-                  onClick={() => handleDeleteFeature(index)}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            )}
           </div>
         ))}
       </div>

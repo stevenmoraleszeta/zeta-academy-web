@@ -335,11 +335,19 @@
 
 /* Actions btns */
 
+
+.featuresActionsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 20px;
+}
+
 .actionBtnsContainer {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  height: fit-content;
   width: 100%;
 
 
@@ -352,6 +360,11 @@
 
   display: flex;
   align-items: center;
+}
+
+.featureActions {
+  display: flex;
+  gap: 10px;
 }
 
 
