@@ -1070,7 +1070,7 @@ const handleSaveProject = async () => {
             </div>
           ))}
           {isAdmin && (
-            <button onClick={addProject} className={styles.addProjectButton}>
+            <button onClick={addProject} className={styles.addProjectButton}> 
               Añadir Proyecto
             </button>
           )}
