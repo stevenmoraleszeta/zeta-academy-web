@@ -114,6 +114,8 @@ const CourseDetail = ({ params }) => {
   const { currentUser, isAdmin } = useAuth();
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [editingIconIndex, setEditingIconIndex] = useState(null);
+  const [newIconUrl, setNewIconUrl] = useState("");
 
   // Fetch course details
   useEffect(() => {
@@ -630,6 +632,29 @@ const CourseDetail = ({ params }) => {
     });
   };
 
+  const handleIconClick = (index) => {
+    setEditingIconIndex(index);
+    setNewIconUrl(course.features[index].iconUrl);
+  };
+
+  const handleIconFeatureChange = (e) => {
+    setNewIconUrl(e.target.value);
+  };
+
+  const saveIconUrl = async (index) => {
+    const updatedFeatures = [...course.features];
+    updatedFeatures[index].iconUrl = newIconUrl;
+
+    try {
+      const courseRef = doc(db, "onlineCourses", courseId);
+      await updateDoc(courseRef, { features: updatedFeatures });
+      setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+      setEditingIconIndex(null);
+    } catch (error) {
+      console.error("Error updating icon URL:", error);
+    }
+  };
+
   // Function to load modules and classes, sorted by order
   const loadModules = async () => {
     const modulesSnapshot = await getDocs(
@@ -866,7 +891,7 @@ const CourseDetail = ({ params }) => {
         )}
         {(course.features || defaultFeatures).map((feature, index) => (
           <div key={index} className={styles.feature}>
-            <div className={styles.featureIcon}>
+            <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
               <Image
                 src={feature.iconUrl}
                 alt={`Icono de ${feature.title}`}
@@ -874,6 +899,19 @@ const CourseDetail = ({ params }) => {
                 style={{ objectFit: "contain" }} // Ajusta según cómo quieras que se muestren los íconos
               />
             </div>
+            {editingIconIndex === index && (
+              <div className={styles.iconUrlInputContainer}>
+                <input
+                  type="text"
+                  value={newIconUrl}
+                  onChange={handleIconFeatureChange}
+                  className={styles.iconUrlInput}
+                />
+                <button onClick={() => saveIconUrl(index)} className={styles.saveButton}>
+                  Guardar
+                </button>
+              </div>
+            )}
             <div>
               {isAdmin ? (
                 <>
