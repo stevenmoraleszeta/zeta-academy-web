@@ -9,7 +9,6 @@ const AdminUsers = () => {
     document.title = "Administración de Usuarios - ZETA";
     // Fields to display in the list view
     const displayFields = [
-        { label: 'Imagen', field: 'photoURL', type: 'image' },
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
         { label: 'Rol', field: 'role' },

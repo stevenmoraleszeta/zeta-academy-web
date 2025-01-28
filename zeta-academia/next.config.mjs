@@ -20,6 +20,11 @@ const nextConfig = {
                 hostname: 'static.vecteezy.com',
                 pathname: '/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+                pathname: '/**',
+            },
         ],
     },
 };
