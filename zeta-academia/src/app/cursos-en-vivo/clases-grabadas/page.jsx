@@ -68,6 +68,8 @@ const ClassesRecorded = ({ courseId }) => {
     fetchRecordings();
   }, [courseId]);
 
+  const coursesRef = doc(db, `liveCourses/${courseId}`); // Definir coursesRef aquí
+
   // Agregar una nueva grabación
   const addRecording = async () => {
     if (newTitle && newUrl) {
@@ -156,17 +158,11 @@ const ClassesRecorded = ({ courseId }) => {
                   </button>
                 </div>
               ) : (
-                <>
-
+                <a href={rec.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
                   <div className={styles.recordingTitle}>
-
                     <span title={rec.title}>
-                      <a href={rec.url} target="_blank" rel="noopener noreferrer" className={styles.link} >
-                        {rec.title.length > 30 ? rec.title.substring(0, 30) + "..." : rec.title} {" "}
-                      </a>
+                      {rec.title.length > 30 ? rec.title.substring(0, 30) + "..." : rec.title} {" "}
                     </span>
-
-
                     {userRole === "admin" && ( // Solo los ADMIN pueden editar
                       <div className={styles.actions}>
                         <button className={styles.actionButton}
@@ -181,11 +177,10 @@ const ClassesRecorded = ({ courseId }) => {
                         <button onClick={() => deleteRecording(rec.id)} className={styles.actionButton}>
                           <FaTrash />
                         </button>
-
                       </div>
                     )}
                   </div>
-                </>
+                </a>
               )}
             </div>
           ))}
