@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useRouter } from "next/navigation";
 import {
   doc,
@@ -10,6 +11,7 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import {
@@ -112,6 +114,8 @@ const CourseDetail = ({ params }) => {
   const { currentUser, isAdmin } = useAuth();
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [editingIconIndex, setEditingIconIndex] = useState(null);
+  const [newIconUrl, setNewIconUrl] = useState("");
 
   // Fetch course details
   useEffect(() => {
@@ -572,6 +576,85 @@ const CourseDetail = ({ params }) => {
     );
   };
 
+  /* Features crud functions */
+
+  const handleAddFeature = async () => {
+    const newFeature = { title: "test", description: "test", iconUrl: 'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6' };
+    try {
+      const courseRef = doc(db, "onlineCourses", courseId);
+      await updateDoc(courseRef, {
+        features: arrayUnion(newFeature),
+      });
+
+      console.log("Característica añadida exitosamente");
+    } catch (error) {
+      console.error("Error al agregar la característica:", error);
+    }
+  };
+
+  const handleDeleteFeature = async (index) => {
+    try {
+      const updatedFeatures = [...course.features];
+
+      updatedFeatures.splice(index, 1);
+
+      const courseRef = doc(db, "onlineCourses", courseId);
+      await updateDoc(courseRef, { features: updatedFeatures });
+
+      setCourse((prev) => ({
+        ...prev,
+        features: updatedFeatures,
+      }));
+
+      console.log("Característica eliminada exitosamente");
+    } catch (error) {
+      console.error("Error al eliminar la característica:", error);
+    }
+  };
+
+  const moveFeature = async (index, direction) => {
+    setCourse((prevCourse) => {
+      const newFeatures = [...prevCourse.features];
+      const [movedFeature] = newFeatures.splice(index, 1);
+      newFeatures.splice(index + direction, 0, movedFeature);
+
+      // Update the order in the database
+      newFeatures.forEach(async (feature, newIndex) => {
+        try {
+          const courseRef = doc(db, "onlineCourses", courseId);
+          await updateDoc(courseRef, { features: newFeatures });
+        } catch (error) {
+          console.error("Error updating feature order:", error);
+        }
+      });
+
+      return { ...prevCourse, features: newFeatures };
+    });
+  };
+
+  const handleIconClick = (index) => {
+    setEditingIconIndex(index);
+    setNewIconUrl(course.features[index].iconUrl);
+  };
+
+  const handleIconFeatureChange = (e) => {
+    setNewIconUrl(e.target.value);
+  };
+
+  const saveIconUrl = async (index) => {
+    const updatedFeatures = [...course.features];
+    updatedFeatures[index].iconUrl = newIconUrl;
+
+    try {
+      const courseRef = doc(db, "onlineCourses", courseId);
+      await updateDoc(courseRef, { features: updatedFeatures });
+      setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+      setEditingIconIndex(null);
+    } catch (error) {
+      console.error("Error updating icon URL:", error);
+    }
+  };
+
   // Function to load modules and classes, sorted by order
   const loadModules = async () => {
     const modulesSnapshot = await getDocs(
@@ -796,9 +879,19 @@ const CourseDetail = ({ params }) => {
       </div>
 
       <div className={styles.features}>
+        {isAdmin && (
+          <>
+            <div className={styles.actionBtnsContainer}>
+              <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
+                <FaPlus />
+              </button>
+            </div>
+            <div></div>
+          </>
+        )}
         {(course.features || defaultFeatures).map((feature, index) => (
           <div key={index} className={styles.feature}>
-            <div className={styles.featureIcon}>
+            <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
               <Image
                 src={feature.iconUrl}
                 alt={`Icono de ${feature.title}`}
@@ -806,6 +899,19 @@ const CourseDetail = ({ params }) => {
                 style={{ objectFit: "contain" }} // Ajusta según cómo quieras que se muestren los íconos
               />
             </div>
+            {editingIconIndex === index && (
+              <div className={styles.iconUrlInputContainer}>
+                <input
+                  type="text"
+                  value={newIconUrl}
+                  onChange={handleIconFeatureChange}
+                  className={styles.iconUrlInput}
+                />
+                <button onClick={() => saveIconUrl(index)} className={styles.saveButton}>
+                  Guardar
+                </button>
+              </div>
+            )}
             <div>
               {isAdmin ? (
                 <>
@@ -836,6 +942,36 @@ const CourseDetail = ({ params }) => {
                   </div>
                   <div className={styles.featureDescriptionInput}>
                     {feature.description || "Descripción no disponible"}
+                  </div>
+                </>
+              )}
+              {isAdmin && (
+                <>
+                  <div className={styles.featuresActionsContainer}>
+                    <div className={styles.featureActions}>
+                      <button
+                        onClick={() => moveFeature(index, -1)}
+                        disabled={index === 0}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowUp />
+                      </button>
+                      <button
+                        onClick={() => moveFeature(index, 1)}
+                        disabled={index === course.features.length - 1}
+                        className={styles.moveButton}
+                      >
+                        <FaArrowDown />
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        className={styles.featuresActionsBtn}
+                        onClick={() => handleDeleteFeature(index)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </div>
                 </>
               )}

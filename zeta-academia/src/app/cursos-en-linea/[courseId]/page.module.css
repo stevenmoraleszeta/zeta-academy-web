@@ -299,9 +299,9 @@
   object-fit: cover;
   align-self: flex-start;
   border-radius: 8px;
-  width: 50px; 
+  width: 50px;
   height: 50px;
-  position: relative; 
+  position: relative;
 }
 
 /* Title and Description Inputs */
@@ -331,6 +331,40 @@
   line-height: 1.2;
   /* Reduce el interlineado para menor altura */
   color: var(--text-color);
+}
+
+/* Actions btns */
+
+
+.featuresActionsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 20px;
+}
+
+.actionBtnsContainer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+
+
+  gap: 20px;
+}
+
+.featuresActionsBtn {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+}
+
+.featureActions {
+  display: flex;
+  gap: 10px;
 }
 
 

@@ -151,7 +151,7 @@ const OnlineCourses = () => {
       {error && <p>{error}</p>}
 
       <div className={styles.courseGrid}>
-        {filteredCourses?.length > 0 ? (
+        {filteredCourses?.length > 0 && (
           filteredCourses.map((course) => (
             <CourseCardMenu
               key={course.id}
@@ -159,8 +159,6 @@ const OnlineCourses = () => {
               courseType={"online"}
             />
           ))
-        ) : (
-          <p>No encuentro algo como lo que buscas, porfavor contáctanos.</p>
         )}
       </div>
 
