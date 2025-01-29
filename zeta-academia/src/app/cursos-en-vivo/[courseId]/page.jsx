@@ -123,6 +123,7 @@ const CourseDetail = ({ params }) => {
   const [displayName, setDisplayName] = useState("");
   const [editingIconIndex, setEditingIconIndex] = useState(null);
   const [newIconUrl, setNewIconUrl] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -1558,6 +1559,40 @@ const CourseDetail = ({ params }) => {
           </div>
         )}
       </div>
+
+      {/* Edit imgs url */}
+
+      {isModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Edit URLs</h3>
+            <label>
+              Image URL:
+              <input
+                type="text"
+                value={currentUrl}
+                onChange={handleUrlChange}
+                placeholder="Enter new image URL"
+                className={styles.modalInput}
+              />
+            </label>
+            <label>
+              Course Icon URL:
+              <input
+                type="text"
+                value={currentIconUrl}
+                onChange={handleIconUrlChange}
+                placeholder="Enter new icon URL"
+                className={styles.modalInput}
+              />
+            </label>
+            <div className={styles.modalActions}>
+              <button onClick={saveUrls}>Save</button>
+              <button onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* //modal de editar proyecto */}
