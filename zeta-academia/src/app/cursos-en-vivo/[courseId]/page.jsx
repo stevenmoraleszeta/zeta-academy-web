@@ -1059,6 +1059,11 @@ const CourseDetail = ({ params }) => {
         features: arrayUnion(newFeature),
       });
 
+      setCourse((prev) => ({
+        ...prev,
+        features: [...(prev.features || []), newFeature],
+      }));
+
       console.log("Característica añadida exitosamente");
     } catch (error) {
       console.error("Error al agregar la característica:", error);
