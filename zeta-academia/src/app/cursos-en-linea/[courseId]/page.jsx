@@ -899,7 +899,7 @@ const CourseDetail = ({ params }) => {
                 style={{ objectFit: "contain" }} // Ajusta según cómo quieras que se muestren los íconos
               />
             </div>
-            {editingIconIndex === index && (
+            {editingIconIndex === index && isAdmin && (
               <div className={styles.iconUrlInputContainer}>
                 <input
                   type="text"
