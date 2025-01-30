@@ -174,7 +174,8 @@
 }
 
 .paymentBox:hover {
-    transform: none; /* Evita el movimiento por hover */
+    transform: none;
+    /* Evita el movimiento por hover */
 }
 
 .paymentInput {
@@ -195,10 +196,12 @@
 
 .paymentLabel {
     display: block;
-    margin-bottom: 8px; /* Espacio entre el label y el input */
+    margin-bottom: 8px;
+    /* Espacio entre el label y el input */
     font-size: 16px;
     font-weight: 500;
-    color: var(--color-lighter); /* Usa tu color definido */
+    color: var(--color-lighter);
+    /* Usa tu color definido */
 }
 
 .paymentRecommendation {
@@ -212,10 +215,23 @@
     list-style-type: none;
     padding: 0;
     margin-bottom: 20px;
-    color: red; /* Set the text color to red for visibility */
+    color: red;
+    /* Set the text color to red for visibility */
     font-size: 16px;
 }
 
 .errorItem {
     margin-bottom: 5px;
+}
+
+
+/* Payment receipt */
+
+.paymentReceipt {
+    background: linear-gradient(var(--color-dark), var(--color-primary));
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
 }

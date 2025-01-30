@@ -27,6 +27,7 @@ const PaymentPage = () => {
   const customPaymentRef = useRef(customPayment);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
+  const [paymentReceipt, setPaymentReceipt] = useState(null);
 
   useEffect(() => {
     customPaymentRef.current = customPayment;
@@ -91,6 +92,7 @@ const PaymentPage = () => {
 
     try {
       // Guardar información del pago en la colección 'payments'
+      const receiptNumber = `REC-${Date.now()}`;
       const paymentData = {
         fullName: customPaymentRef.current.fullName,
         description: customPaymentRef.current.description,
@@ -98,10 +100,14 @@ const PaymentPage = () => {
         courseId: courseId || null,
         userId: currentUser ? currentUser.uid : null,
         date: new Date().toISOString(),
+        courseName: course.title,
+        receiptNumber,
       };
 
       const paymentRef = doc(db, "payments", details.id);
       await updateDoc(paymentRef, paymentData);
+
+      setPaymentReceipt(paymentData);
 
       if (currentUser && courseId) {
         const userRef = doc(db, "users", currentUser.uid);
@@ -406,6 +412,16 @@ const PaymentPage = () => {
           </div>
         </div>
       )}
+      {paymentReceipt && (
+        <div className={styles.paymentReceipt}>
+          <h2>¡Pago realizado exitosamente!</h2>
+          <p>Nombre del curso: {paymentReceipt.courseName}</p>
+          <p>Nombre del usuario: {paymentReceipt.fullName}</p>
+          <p>Número de comprobante: {paymentReceipt.receiptNumber}</p>
+          <p>¡Toma una captura de pantalla!</p>
+        </div>
+      )}
+
     </div>
   );
 };
