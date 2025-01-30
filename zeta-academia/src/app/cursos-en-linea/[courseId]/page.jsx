@@ -883,107 +883,109 @@ const CourseDetail = ({ params }) => {
         </div>
       </div>
 
-      <div className={styles.features}>
-        {isAdmin && (
-          <>
-            <div className={styles.actionBtnsContainer}>
-              <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
-                <FaPlus />
-              </button>
-            </div>
-            <div></div>
-          </>
-        )}
-        {(course.features || defaultFeatures).map((feature, index) => (
-          <div key={index} className={styles.feature}>
-            <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
-              <Image
-                src={feature.iconUrl}
-                alt={`Icono de ${feature.title}`}
-                fill
-                style={{ objectFit: "contain" }} // Ajusta según cómo quieras que se muestren los íconos
-              />
-            </div>
-            {editingIconIndex === index && isAdmin && (
-              <div className={styles.iconUrlInputContainer}>
-                <input
-                  type="text"
-                  value={newIconUrl}
-                  onChange={handleIconFeatureChange}
-                  className={styles.iconUrlInput}
-                />
-                <button onClick={() => saveIconUrl(index)} className={styles.saveButton}>
-                  Guardar
+      {!isEnrolled && (
+        <div className={styles.features}>
+          {isAdmin && (
+            <>
+              <div className={styles.actionBtnsContainer}>
+                <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
+                  <FaPlus />
                 </button>
               </div>
-            )}
-            <div>
-              {isAdmin ? (
-                <>
+              <div></div>
+            </>
+          )}
+          {(course.features || defaultFeatures).map((feature, index) => (
+            <div key={index} className={styles.feature}>
+              <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
+                <Image
+                  src={feature.iconUrl}
+                  alt={`Icono de ${feature.title}`}
+                  fill
+                  style={{ objectFit: "contain" }} // Ajusta según cómo quieras que se muestren los íconos
+                />
+              </div>
+              {editingIconIndex === index && isAdmin && (
+                <div className={styles.iconUrlInputContainer}>
                   <input
                     type="text"
-                    value={feature.title}
-                    onChange={(e) => {
-                      const updatedFeatures = [...course.features];
-                      updatedFeatures[index].title = e.target.value;
-                      handleFieldChange("features", updatedFeatures);
-                    }}
-                    className={styles.featureTitleInput}
+                    value={newIconUrl}
+                    onChange={handleIconFeatureChange}
+                    className={styles.iconUrlInput}
                   />
-                  <textarea
-                    value={feature.description}
-                    onChange={(e) => {
-                      const updatedFeatures = [...course.features];
-                      updatedFeatures[index].description = e.target.value;
-                      handleFieldChange("features", updatedFeatures);
-                    }}
-                    className={styles.featureDescriptionInput}
-                  />
-                </>
-              ) : (
-                <>
-                  <div className={styles.featureTitleInput}>
-                    {feature.title || "Título no disponible"}
-                  </div>
-                  <div className={styles.featureDescriptionInput}>
-                    {feature.description || "Descripción no disponible"}
-                  </div>
-                </>
+                  <button onClick={() => saveIconUrl(index)} className={styles.saveButton}>
+                    Guardar
+                  </button>
+                </div>
               )}
-              {isAdmin && (
-                <>
-                  <div className={styles.featuresActionsContainer}>
-                    <div className={styles.featureActions}>
-                      <button
-                        onClick={() => moveFeature(index, -1)}
-                        disabled={index === 0}
-                        className={styles.moveButton}
-                      >
-                        <FaArrowUp />
-                      </button>
-                      <button
-                        onClick={() => moveFeature(index, 1)}
-                        disabled={index === course.features.length - 1}
-                        className={styles.moveButton}
-                      >
-                        <FaArrowDown />
-                      </button>
+              <div>
+                {isAdmin ? (
+                  <>
+                    <input
+                      type="text"
+                      value={feature.title}
+                      onChange={(e) => {
+                        const updatedFeatures = [...course.features];
+                        updatedFeatures[index].title = e.target.value;
+                        handleFieldChange("features", updatedFeatures);
+                      }}
+                      className={styles.featureTitleInput}
+                    />
+                    <textarea
+                      value={feature.description}
+                      onChange={(e) => {
+                        const updatedFeatures = [...course.features];
+                        updatedFeatures[index].description = e.target.value;
+                        handleFieldChange("features", updatedFeatures);
+                      }}
+                      className={styles.featureDescriptionInput}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div className={styles.featureTitleInput}>
+                      {feature.title || "Título no disponible"}
                     </div>
-                    <div>
-                      <button
-                        className={styles.featuresActionsBtn}
-                        onClick={() => handleDeleteFeature(index)}
-                      >
-                        <FaTrash />
-                      </button>
+                    <div className={styles.featureDescriptionInput}>
+                      {feature.description || "Descripción no disponible"}
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+                {isAdmin && (
+                  <>
+                    <div className={styles.featuresActionsContainer}>
+                      <div className={styles.featureActions}>
+                        <button
+                          onClick={() => moveFeature(index, -1)}
+                          disabled={index === 0}
+                          className={styles.moveButton}
+                        >
+                          <FaArrowUp />
+                        </button>
+                        <button
+                          onClick={() => moveFeature(index, 1)}
+                          disabled={index === course.features.length - 1}
+                          className={styles.moveButton}
+                        >
+                          <FaArrowDown />
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          className={styles.featuresActionsBtn}
+                          onClick={() => handleDeleteFeature(index)}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {isModalOpen && (
         <div className={styles.modalOverlay}>
