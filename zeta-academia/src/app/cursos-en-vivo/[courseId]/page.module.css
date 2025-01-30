@@ -988,6 +988,17 @@
     width: 100%;
     margin-top: 10px;
   }
+
+  .features {
+    height: 100vh;
+    margin-top: 2vh;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+  }
+
 }
 
 .mainContainer {
