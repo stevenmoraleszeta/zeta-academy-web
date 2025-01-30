@@ -24,9 +24,7 @@ const LiveCourses = () => {
 
   useEffect(() => {
     if (courses && courses.length > 0) {
-      const activeCourses = isAdmin
-        ? courses
-        : courses.filter((course) => !course.archived);
+      const activeCourses = courses.filter((course) => !course.archived);
       const prices = activeCourses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 10) * 10;
       const maxCoursePrice = Math.ceil(Math.max(...prices) / 10) * 10;
@@ -36,7 +34,7 @@ const LiveCourses = () => {
       setPriceRange(maxCoursePrice);
       setFilteredCourses(activeCourses);
     }
-  }, [courses, isAdmin]);
+  }, [courses]);
 
   const handleFilter = () => {
     if (!courses) return;
@@ -47,9 +45,8 @@ const LiveCourses = () => {
       const withinPriceRange = course?.discountedPrice <= priceRange;
       const matchesCategory =
         !selectedCategory || course?.category === selectedCategory;
-      const isActive = isAdmin || course.archived;
       return (
-        matchesQuery && withinPriceRange && matchesCategory && isActive
+        matchesQuery && withinPriceRange && matchesCategory && !course.archived
       );
     });
     setFilteredCourses(filtered);
