@@ -28,7 +28,6 @@ const LiveCourses = () => {
     const currentUser = auth.currentUser;
 
     if (!currentUser) {
-      console.log("No user logged in");
       return;
     }
 
@@ -39,9 +38,6 @@ const LiveCourses = () => {
 
         return isAdmin || isStudentAssigned || !course.archived;
       });
-
-      console.log("Cursos a mostrar:", activeCourses);
-
       const prices = activeCourses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 10) * 10;
       const maxCoursePrice = Math.ceil(Math.max(...prices) / 10) * 10;
