@@ -953,6 +953,7 @@
 
 .modulesProjectsContainer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 2rem;
 }
@@ -990,7 +991,7 @@
   }
 
   .features {
-    height: 100vh;
+    height: 200vh;
     margin-top: 2vh;
 
     display: flex;
