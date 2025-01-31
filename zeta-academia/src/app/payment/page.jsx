@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./page.module.css";
@@ -105,7 +105,7 @@ const PaymentPage = () => {
       };
 
       const paymentRef = doc(db, "payments", details.id);
-      await updateDoc(paymentRef, paymentData);
+      await setDoc(paymentRef, paymentData);
 
       setPaymentReceipt(paymentData);
 
