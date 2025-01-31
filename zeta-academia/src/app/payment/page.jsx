@@ -396,9 +396,13 @@ const PaymentPage = () => {
               ) : (
                 <p>Cargando detalles del curso...</p>
               ))}
-            {paymentStatus === "success" && (
-              <div className={styles.paymentSuccess}>
+            {paymentStatus === "success" && paymentReceipt && (
+              <div className={styles.paymentReceipt}>
                 <h2>¡Pago realizado exitosamente!</h2>
+                <p>Nombre del curso: {paymentReceipt.courseName}</p>
+                <p>Nombre del usuario: {paymentReceipt.fullName}</p>
+                <p>Número de comprobante: {paymentReceipt.receiptNumber}</p>
+                <p>¡Toma una captura de pantalla!</p>
               </div>
             )}
             {paymentStatus === "error" && (
@@ -412,16 +416,6 @@ const PaymentPage = () => {
           </div>
         </div>
       )}
-      {paymentReceipt && (
-        <div className={styles.paymentReceipt}>
-          <h2>¡Pago realizado exitosamente!</h2>
-          <p>Nombre del curso: {paymentReceipt.courseName}</p>
-          <p>Nombre del usuario: {paymentReceipt.fullName}</p>
-          <p>Número de comprobante: {paymentReceipt.receiptNumber}</p>
-          <p>¡Toma una captura de pantalla!</p>
-        </div>
-      )}
-
     </div>
   );
 };
