@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import useFetchData from "@/app/hooks/useFetchData";
 import { useRouter } from "next/navigation";
 import { collection, addDoc, getDocs, doc } from "firebase/firestore";
@@ -9,6 +9,7 @@ import styles from "./page.module.css";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import { getAuth } from "firebase/auth";
 
 const LiveCourses = () => {
   document.title = "Cursos en Vivo - ZETA"
@@ -23,8 +24,20 @@ const LiveCourses = () => {
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      return;
+    }
+
+    console.log("Current user:", currentUser);
     if (courses && courses.length > 0) {
-      const activeCourses = courses.filter((course) => !course.archived);
+      let activeCourses = courses.filter((course) => {
+        const isStudentAssigned = course.students?.includes(currentUser?.uid);
+
+        return isAdmin || isStudentAssigned || !course.archived;
+      });
       const prices = activeCourses.map((course) => course.discountedPrice);
       const minCoursePrice = Math.floor(Math.min(...prices) / 10) * 10;
       const maxCoursePrice = Math.ceil(Math.max(...prices) / 10) * 10;
@@ -32,11 +45,14 @@ const LiveCourses = () => {
       setMinPrice(minCoursePrice);
       setMaxPrice(maxCoursePrice);
       setPriceRange(maxCoursePrice);
-      setFilteredCourses(activeCourses);
-    }
-  }, [courses]);
 
-  const handleFilter = () => {
+      setFilteredCourses([...activeCourses]);
+    }
+  }, [courses, isAdmin]);
+
+  const handleFilter = useCallback(() => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
     if (!courses) return;
     const filtered = courses.filter((course) => {
       const matchesQuery = course?.title
@@ -45,12 +61,18 @@ const LiveCourses = () => {
       const withinPriceRange = course?.discountedPrice <= priceRange;
       const matchesCategory =
         !selectedCategory || course?.category === selectedCategory;
-      return (
-        matchesQuery && withinPriceRange && matchesCategory && !course.archived
-      );
+
+      const isStudentAssigned = course.students?.includes(currentUser?.uid);
+
+      return isAdmin
+        ? matchesQuery && withinPriceRange && matchesCategory
+        : matchesQuery &&
+        withinPriceRange &&
+        matchesCategory &&
+        (isStudentAssigned || !course.archived);
     });
     setFilteredCourses(filtered);
-  };
+  }, [searchQuery, priceRange, selectedCategory, courses, isAdmin]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

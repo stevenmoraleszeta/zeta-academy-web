@@ -107,7 +107,7 @@ const CourseCardMenu = ({ course, courseType }) => {
 
 
   // No renderiza el curso si está archivado
-  if (isArchived) return null;
+  /* if (isArchived) return null; */
 
   return (
     <div

@@ -714,7 +714,7 @@
   /* features */
 
   .features {
-    height: 50vh;
+    height: 100vh;
     margin-top: 2vh;
     grid-template-columns: 0.6fr 1fr;
     gap: 8px;
