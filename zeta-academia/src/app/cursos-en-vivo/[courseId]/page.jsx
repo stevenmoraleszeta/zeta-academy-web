@@ -986,6 +986,32 @@ const CourseDetail = ({ params }) => {
     await updateDoc(docRef, {
       students: arrayUnion(studentId), // Agregar estudiante al array
     });
+
+    const projectsRef = collection(db, "projects");
+    const projectsSnapshot = await getDocs(projectsRef);
+    const courseProjects = projectsSnapshot.docs.filter(doc => doc.data().courseId === courseId);
+
+    const batch = writeBatch(db);
+    for (const projectDoc of courseProjects) {
+      const projectData = projectDoc.data();
+      const studentProject = {
+        title: projectData.title,
+        fileUrl: projectData.fileUrl || null,
+        userId: studentId,
+        dueDate: projectData.dueDate || null,
+        score: null,
+        state: "No entregado",
+        mentor: projectData.mentor || null,
+        courseId: courseId,
+        courseName: projectData.courseName || "",
+      };
+
+      const studentProjectRef = doc(collection(db, "projects", projectDoc.id, "studentsProjects"));
+      batch.set(studentProjectRef, studentProject);
+    }
+
+    await batch.commit();
+    fetchStudents();
   };
 
   const removeStudent = async (studentId) => {
@@ -993,6 +1019,24 @@ const CourseDetail = ({ params }) => {
     await updateDoc(docRef, {
       students: arrayRemove(studentId), // Quitar estudiante del array
     });
+
+    // Obtener los proyectos del curso
+    const projectsRef = collection(db, "projects");
+    const projectsSnapshot = await getDocs(projectsRef);
+    const courseProjects = projectsSnapshot.docs.filter(doc => doc.data().courseId === courseId);
+
+    const batch = writeBatch(db);
+    for (const projectDoc of courseProjects) {
+      const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+      const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+      studentProjectsSnapshot.forEach((docSnap) => {
+        if (docSnap.data().userId === studentId) {
+          batch.delete(docSnap.ref);
+        }
+      });
+    }
+
+    await batch.commit();
   };
 
   const handleAddStudent = async (studentId) => {
