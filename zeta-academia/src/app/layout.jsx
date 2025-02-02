@@ -22,7 +22,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="./favicon" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/faviconWeb.png" />
       </head>
       <body className={`app ${montserrat.className}`}>
         <AuthProvider>
