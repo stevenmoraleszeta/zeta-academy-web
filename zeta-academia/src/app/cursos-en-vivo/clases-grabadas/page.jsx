@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { db } from "@/firebase/firebase";
-import { FaTrash, FaPlus, FaPencilAlt, FaTimes } from "react-icons/fa";
+import { FaTrash, FaPlus, FaPencilAlt, FaTimes, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import styles from "./page.module.css";
 
 const ClassesRecorded = ({ courseId }) => {
@@ -124,6 +124,13 @@ const ClassesRecorded = ({ courseId }) => {
     }
   };
 
+  const moveRecording = (index, direction) => {
+    const newRecordings = [...recordings];
+    const [movedRecording] = newRecordings.splice(index, 1);
+    newRecordings.splice(index + direction, 0, movedRecording);
+    setRecordings(newRecordings);
+  };
+
   return (
     <div className={styles.recordingsBlock}>
 
@@ -132,7 +139,7 @@ const ClassesRecorded = ({ courseId }) => {
 
         {/* Lista de grabaciones */}
         <div>
-          {recordings.map((rec) => (
+          {recordings.map((rec, index) => (
             <div key={rec.id} className={styles.recordingItem}>
               {editingId === rec.id ? (
                 <div className={styles.editRecording}>
@@ -176,6 +183,18 @@ const ClassesRecorded = ({ courseId }) => {
                         </button>
                         <button onClick={() => deleteRecording(rec.id)} className={styles.actionButton}>
                           <FaTrash />
+                        </button>
+                        <button
+                          onClick={() => moveRecording(index, -1)}
+                          disabled={index === 0}
+                        >
+                          <FaArrowUp />
+                        </button>
+                        <button
+                          onClick={() => moveRecording(index, 1)}
+                          disabled={index === recordings.length - 1}
+                        >
+                          <FaArrowDown />
                         </button>
                       </div>
                     )}
