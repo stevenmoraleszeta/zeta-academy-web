@@ -28,6 +28,7 @@ const PaymentPage = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
   const [paymentReceipt, setPaymentReceipt] = useState(null);
+  const [noCourse, setNoCourse] = useState(false);
 
   useEffect(() => {
     customPaymentRef.current = customPayment;
@@ -76,6 +77,7 @@ const PaymentPage = () => {
         if (courseSnap.exists()) {
           setCourse(courseSnap.data());
         } else {
+          setNoCourse(true)
           router.push('/payment')
           console.error("El curso no existe.");
         }
@@ -399,7 +401,7 @@ const PaymentPage = () => {
             {paymentStatus === "success" && paymentReceipt && (
               <div className={styles.paymentReceipt}>
                 <h2>¡Pago realizado exitosamente!</h2>
-                <p>Nombre del curso: {paymentReceipt.courseName}</p>
+                {noCourse ? <p>Razón de pago: {paymentReceipt.description}</p> : <p>Razón de pago: {paymentReceipt.courseName}</p>}
                 <p>Nombre del usuario: {paymentReceipt.fullName}</p>
                 <p>Número de comprobante: {paymentReceipt.receiptNumber}</p>
                 <p>¡Toma una captura de pantalla!</p>
