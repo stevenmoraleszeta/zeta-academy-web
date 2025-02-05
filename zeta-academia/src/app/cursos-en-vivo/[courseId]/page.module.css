@@ -1094,3 +1094,38 @@
   background-color: #f56565;
   /* rojo */
 }
+
+.studentTableBody { 
+  display: block;
+  overflow-y: auto;
+  /* Espaciado entre filas */
+}
+
+.tableContainer {
+  max-height: 300px; /* Altura máxima con scroll */
+  overflow-y: auto;
+  display: block; /* Necesario para hacer scroll en tbody */
+  border: 1px solid #ccc; /* Opcional: borde para mejor visualización */
+}
+
+.studentTableBody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.projectTitle {
+  font-size: 1rem;
+  font-weight: bold;
+  white-space: nowrap; /* Evita que el título se corte en una línea */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%; /* Evita que ocupe todo el espacio */
+}
+
+.projectScore {
+  font-size: 0.9rem;
+  color: gray;
+  min-width: 80px; /* Asegura un tamaño mínimo */
+  text-align: right;
+}

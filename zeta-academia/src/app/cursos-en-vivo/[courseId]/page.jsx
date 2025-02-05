@@ -1513,9 +1513,9 @@ const CourseDetail = ({ params }) => {
                 return (
                   <>
                     <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
-                      <span>{project.title}</span>
-                      {!isAdmin && (
-                        <span>{studentProject ? studentProject.score : 'No score'}</span>
+                      <span className={styles.projectTitle}>{project.title}</span>
+                      {isAdmin && (
+                        <span className={styles.projectScore} >{studentProject ? studentProject.score : 'No score'}</span>
                       )}
                       {isAdmin && (
                         <div className={styles.projectActions}>
@@ -1745,7 +1745,10 @@ const CourseDetail = ({ params }) => {
                   <th>Acciones</th>
                 </tr>
               </thead>
-              <tbody>
+
+              <div className={styles.tableContainer}>
+                
+              <tbody  className={styles.studentTableBody}>
                 {students.map(studentId => {
                   const student = allUsers.find(user => user.id === studentId);
                   return (
@@ -1760,6 +1763,8 @@ const CourseDetail = ({ params }) => {
                   );
                 })}
               </tbody>
+              </div>
+
             </table>
             <div className={styles.buttonContainer}>
               <button onClick={() => setIsGroupModalOpen(false)} className={styles.secondaryButton}>
