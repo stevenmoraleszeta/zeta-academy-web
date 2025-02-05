@@ -66,7 +66,7 @@ export default function CompleteInformation() {
     const phoneRegex = /^\+\d{1,4}\s?\d{6,15}$/;
 
     if (!phoneRegex.test(userInfo.number)) {
-      alert("Por favor ingresa un número telefónico válido con el código de país.");
+      alert("Por favor ingresa un número telefónico válido con el código de país. Escríbelo el número sin espacios.");
       return;
     }
 
