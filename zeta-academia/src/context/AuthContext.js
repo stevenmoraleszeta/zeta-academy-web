@@ -68,6 +68,7 @@ export function AuthProvider({ children }) {
 
         } catch (error) {
             console.error("Error al iniciar sesión con email y contraseña:", error.message);
+            throw error;
         }
     };
 

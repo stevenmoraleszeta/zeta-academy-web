@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./user.module.css";
+import { AlertComponent, AlertButton } from "@/components/alert/alert";
 
 function UserAndPassword() {
   const { loginWithEmailAndPassword } = useAuth();
@@ -13,16 +14,38 @@ function UserAndPassword() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isAlertOpen, setIsAlertOpen] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsAlertOpen(false);
     try {
       await loginWithEmailAndPassword(email, password);
-      router.push("/"); // Cambia la ruta a la del componente deseado
     } catch (err) {
-      setError(err.message || "Error al iniciar sesión");
+      let errorMessage = checkError(err.code, err.message);
+      setError(errorMessage);
+      setIsAlertOpen(true);
     }
+  };
+
+  const checkError = (errorType, defaultMessage) => {
+    let errorMessage;
+    switch (errorType) {
+      case "auth/invalid-credential":
+        errorMessage = "Las credenciales proporcionadas no son válidas. Por favor, verifica tu correo electrónico y contraseña.";
+        break;
+      case "auth/user-not-found":
+        errorMessage = "No se encontró una cuenta con este correo electrónico.";
+        break;
+      case "auth/wrong-password":
+        errorMessage = "La contraseña es incorrecta. Por favor, intenta de nuevo.";
+        break;
+      default:
+        errorMessage = defaultMessage || "Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.";
+        break;
+    }
+    return errorMessage;
   };
 
   return (
@@ -92,6 +115,14 @@ function UserAndPassword() {
           </div>
         </div>
       </>
+      {isAlertOpen && (
+        <AlertComponent
+          title="Error"
+          description={error}
+        >
+          <AlertButton text="Aceptar" funct={() => setIsAlertOpen(false)} />
+        </AlertComponent>
+      )}
     </section>
   );
 }
