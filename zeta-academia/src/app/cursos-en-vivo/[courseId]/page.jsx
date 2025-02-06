@@ -190,6 +190,15 @@ const CourseDetail = ({ params }) => {
       const modulesRef = collection(db, "liveCourses", courseId, "modules");
       const modulesSnapshot = await getDocs(modulesRef);
 
+      let userCompletedClasses = [];
+      if (currentUser) {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          userCompletedClasses = userSnap.data().completedClasses || [];
+        }
+      }
+
       const fetchedModules = await Promise.all(
         modulesSnapshot.docs.map(async (moduleDoc) => {
           const moduleData = moduleDoc.data();
@@ -198,10 +207,15 @@ const CourseDetail = ({ params }) => {
           const classesRef = collection(db, "liveCourses", courseId, "modules", moduleDoc.id, "classes");
           const classesSnapshot = await getDocs(classesRef);
 
-          const classes = classesSnapshot.docs.map((classDoc) => ({
-            id: classDoc.id,
-            ...classDoc.data(),
-          }));
+          const classes = classesSnapshot.docs.map((classDoc) => {
+            const classData = classDoc.data();
+            const isCompleted = userCompletedClasses.includes(classDoc.id);
+            return {
+              id: classDoc.id,
+              ...classData,
+              completed: isCompleted,
+            };
+          });
 
           return {
             id: moduleDoc.id,
@@ -211,7 +225,24 @@ const CourseDetail = ({ params }) => {
         })
       );
 
-      setModules(fetchedModules.sort((a, b) => (a.order || 0) - (b.order || 0)));
+      let firstHighlightFound = false;
+
+      const updatedModules = fetchedModules.map((classModule) => {
+        const updatedClasses = classModule.classes.map((cls) => {
+          const isCompleted = userCompletedClasses.includes(cls.id);
+
+          if (!isCompleted && !firstHighlightFound) {
+            firstHighlightFound = true;
+            return { ...cls, completed: false, highlight: true };
+          }
+
+          return { ...cls, completed: isCompleted, highlight: false };
+        });
+
+        return { ...classModule, classes: updatedClasses };
+      });
+
+      setModules(updatedModules.sort((a, b) => (a.order || 0) - (b.order || 0)));
     } catch (error) {
       console.error("Error fetching modules and classes:", error);
     }

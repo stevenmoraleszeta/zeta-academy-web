@@ -4,7 +4,7 @@
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
-import { onAuthStateChanged ,  signInWithEmailAndPassword, signOut,createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, getDoc, setDoc, addDoc, collection, query, where, getDocs } from "firebase/firestore"; // Importar funciones de Firestore
 import { db } from "../firebase/firebase";
 import { useRouter } from "next/navigation";
@@ -59,75 +59,75 @@ export function AuthProvider({ children }) {
             console.error("Error al iniciar sesión con Google:", error);
         }
     };
- 
-        // **Función para iniciar sesión con email y contraseña**
-        const loginWithEmailAndPassword = async (email, password) => {
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                setCurrentUser(userCredential.user);
-               
-            } catch (error) {
-                console.error("Error al iniciar sesión con email y contraseña:", error.message);
-            }
-        };
-    
 
+    // **Función para iniciar sesión con email y contraseña**
+    const loginWithEmailAndPassword = async (email, password) => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            setCurrentUser(userCredential.user);
 
-
-
-// Función para crear usuario con email, contraseña y nombre completo
-const registerWithEmailAndPassword = async (email, password, name, profilePicture) => {
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        let photoURL = "";
-
-        if (profilePicture) {
-            // Subir la imagen a Firebase Storage
-            const storageRef = ref(storage, v4());
-            await uploadBytes(storageRef, profilePicture);
-            photoURL = await getDownloadURL(storageRef); // Obtener la URL de la imagen subida
+        } catch (error) {
+            console.error("Error al iniciar sesión con email y contraseña:", error.message);
         }
-
-        // Actualizar el nombre y la foto en el perfil del usuario
-        await updateProfile(user, { displayName: name, photoURL });
-
-        // Guardar en Firestore
-        const userDocRef = doc(db, "users", user.uid);
-        await setDoc(userDocRef, {
-            displayName: name,
-            email: user.email,
-            photoURL, // URL de la foto de perfil
-            role: "student", // Rol por defecto
-            pais: "",
-            number: "",
-            edad: "",
-        });
-
-        setCurrentUser(user);
-        setIsAdmin(false);
-        setMissingInfo(true); // Se considera que faltan los datos adicionales
-        console.log("Usuario registrado exitosamente con foto de perfil");
-    } catch (error) {
-        console.error("Error al registrar usuario:", error.message);
-        throw new Error("Error al registrar usuario");
-    }
-};
+    };
 
 
-        // **Función para cerrar sesión**
-        const logout = async () => {
-            try {
-                await signOut(auth);
-                setCurrentUser(null);
-                console.log("Sesión cerrada");
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error.message);
+
+
+
+    // Función para crear usuario con email, contraseña y nombre completo
+    const registerWithEmailAndPassword = async (email, password, name, profilePicture) => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            let photoURL = "";
+
+            if (profilePicture) {
+                // Subir la imagen a Firebase Storage
+                const storageRef = ref(storage, v4());
+                await uploadBytes(storageRef, profilePicture);
+                photoURL = await getDownloadURL(storageRef); // Obtener la URL de la imagen subida
             }
-        };
 
-       
+            // Actualizar el nombre y la foto en el perfil del usuario
+            await updateProfile(user, { displayName: name, photoURL });
+
+            // Guardar en Firestore
+            const userDocRef = doc(db, "users", user.uid);
+            await setDoc(userDocRef, {
+                displayName: name,
+                email: user.email,
+                photoURL, // URL de la foto de perfil
+                role: "student", // Rol por defecto
+                pais: "",
+                number: "",
+                edad: "",
+            });
+
+            setCurrentUser(user);
+            setIsAdmin(false);
+            setMissingInfo(true); // Se considera que faltan los datos adicionales
+            console.log("Usuario registrado exitosamente con foto de perfil");
+        } catch (error) {
+            console.error("Error al registrar usuario:", error.message);
+            throw new Error("Error al registrar usuario");
+        }
+    };
+
+
+    // **Función para cerrar sesión**
+    const logout = async () => {
+        try {
+            await signOut(auth);
+            setCurrentUser(null);
+            console.log("Sesión cerrada");
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error.message);
+        }
+    };
+
+
 
 
     const checkUserInFirestore = async (user) => {
