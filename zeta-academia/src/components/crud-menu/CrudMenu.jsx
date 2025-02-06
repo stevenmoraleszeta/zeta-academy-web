@@ -300,7 +300,7 @@ const CrudMenu = ({
                                         <div key={field} className={styles.fieldRow}>
                                             {type === 'image' ? (
                                                 <Image src={item[field]} alt={label} className={styles.itemImage} width={200}
-                                                height={150}/>
+                                                    height={150} />
                                             ) : typeof item[field] === 'object' ? (
                                                 <span>{item[field]?.label || item[field]?.value || JSON.stringify(item[field])}</span>
                                             ) : (
@@ -358,7 +358,7 @@ const CrudMenu = ({
                                                 alt="Previsualización"
                                                 className={styles.imagePreview}
                                                 width={200}
-  height={150}
+                                                height={150}
                                             />
                                         )}
                                     </>
