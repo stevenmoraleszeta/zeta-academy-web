@@ -124,6 +124,7 @@ const CourseDetail = ({ params }) => {
   const [editingIconIndex, setEditingIconIndex] = useState(null);
   const [newIconUrl, setNewIconUrl] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [courseName, setCourseName] = useState("");
 
 
   useEffect(() => {
@@ -175,6 +176,7 @@ const CourseDetail = ({ params }) => {
           features: fetchedData.features && fetchedData.features.length > 0 ? fetchedData.features : course.features,
         });
         setProjects(fetchedData.projects || []); // Carga los proyectos directamente
+        setCourseName(fetchedData.name || "");
       } else {
         console.error("Course not found");
         router.push("/cursos-en-vivo");
@@ -284,18 +286,37 @@ const CourseDetail = ({ params }) => {
     }
   };
 
-  const handleEditProject = (project) => {
+  const handleEditProject = async (project) => {
     setEditedProject(project);
     setIsEditModalOpen(true);
-  };
 
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const userId = user.uid;
+
+    if (!isAdmin) {
+      // Verificar si el estudiante tiene un archivo subido en studentsProjects
+      const studentProjectRef = collection(db, "projects", project.id, "studentsProjects");
+      const q = query(studentProjectRef, where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const studentDoc = querySnapshot.docs[0].data();
+        setEditedProject((prev) => ({
+          ...prev,
+          studentFileUrl: studentDoc.studentFileUrl || null,
+        }));
+      }
+    }
+  };
 
   const handleSaveProject = async () => {
     try {
       // Obtener el usuario autenticado dinámicamente
       const auth = getAuth();
       const user = auth.currentUser;
-
 
       if (!user) {
         console.error("No user is authenticated.");
@@ -406,150 +427,94 @@ const CourseDetail = ({ params }) => {
 
       // Actualizar valores en el formulario/modal
       setDisplayName(displayName);
-      setIsEditModalOpen(false);
+      setIsEditModalOpen(false); // Cerrar el modal aquí
       setFile(null);
       setScore(null);
     } catch (error) {
       console.error("Error saving project and student projects:", error);
+    } finally {
+      setIsEditModalOpen(false); // ✅ Cerrar modal SIEMPRE
+      setFile(null);
     }
   };
 
   const handleDeleteFile = async () => {
+    const confirmed = confirm("¿Estás seguro de que deseas eliminar este archivo?");
+    if (!confirmed) return; // Si no se confirma, salir de la función
+
     try {
       const auth = getAuth();
       const user = auth.currentUser;
+      if (!user) return;
 
-      if (!user) {
-        console.error("No user is authenticated.");
-        return;
-      }
+      const userId = user.uid;
+      const projectId = editedProject.id;
 
-      const userId = user.uid; // ID del usuario autenticado
-
-      if (editedProject.fileUrl && isAdmin) {
+      if (isAdmin && editedProject.fileUrl) {
+        // Eliminar archivo del administrador
         const fileRef = ref(storage, editedProject.fileUrl);
         await deleteObject(fileRef);
-
-        // Actualizar el campo fileUrl en el documento principal del proyecto
-        const projectDocRef = doc(db, "projects", editedProject.id);
-        await updateDoc(projectDocRef, { fileUrl: null });
-
-        // Obtener todos los documentos en la subcolección studentsProjects
-        const studentProjectsRef = collection(db, "projects", editedProject.id, "studentsProjects");
-        const studentProjectsSnapshot = await getDocs(studentProjectsRef);
-
-        // Actualizar el campo fileUrl en cada documento de la subcolección
-        const batch = writeBatch(db);
-        studentProjectsSnapshot.forEach((doc) => {
-          batch.update(doc.ref, { fileUrl: null });
-        });
-        await batch.commit();
-
+        const projectRef = doc(db, "projects", projectId);
+        await updateDoc(projectRef, { fileUrl: null });
         setEditedProject((prev) => ({ ...prev, fileUrl: null }));
-        console.log("File deleted successfully!");
-      } else if (editedProject.studentFileUrl && !isAdmin) {
-        const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
+      } else if (!isAdmin && editedProject.studentFileUrl) {
+        // Eliminar archivo del estudiante
+        const studentProjectRef = collection(db, "projects", projectId, "studentsProjects");
         const q = query(studentProjectRef, where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          const batch = writeBatch(db);
-          querySnapshot.forEach((docSnap) => {
-            batch.update(docSnap.ref, { studentFileUrl: null });
-          });
-          await batch.commit();
-
+          const studentDocRef = doc(db, "projects", projectId, "studentsProjects", querySnapshot.docs[0].id);
+          await updateDoc(studentDocRef, { studentFileUrl: null });
           setEditedProject((prev) => ({ ...prev, studentFileUrl: null }));
-          console.log("Student file removed successfully!");
-        } else {
-          console.error("No matching student project found for this user.");
         }
       }
     } catch (error) {
-      console.error("Error deleting file:", error);
+      console.error("Error al eliminar el archivo:", error);
     }
   };
+
 
   const handleSubmitProject = async () => {
     try {
       const auth = getAuth();
       const user = auth.currentUser;
+      if (!user || !file) return;
 
-      if (!user) {
-        console.error("No user is authenticated.");
-        return;
-      }
+      const userId = user.uid;
+      const displayName = user.displayName ? user.displayName.replace(/\s+/g, "_") : "Estudiante";
+      const projectName = editedProject.title.replace(/\s+/g, "_");
+      const courseTitle = courseName.replace(/\s+/g, "_");
 
-      const userId = user.uid; // Este es el identificador del estudiante.
-      const projectId = editedProject.id; // Asegúrate de que este valor sea válido.
-      const updatedProject = { ...editedProject };
+      // ✅ Se elimina la subcarpeta de userId en studentProjects
+      const fileExtension = file.name.split('.').pop();
+      const formattedFileName = `${displayName}-${projectName}-${courseTitle}.${fileExtension}`;
+      const fileRef = ref(storage, `studentProjects/${formattedFileName}`);
 
-      let studentFileUrl = null;
-      if (file) {
-        const fileRef = ref(storage, `studentProjects/${file.name}`);
-        await uploadBytes(fileRef, file);
-        studentFileUrl = await getDownloadURL(fileRef);
-        updatedProject.studentFileUrl = studentFileUrl;
-      }
+      await uploadBytes(fileRef, file);
+      const fileUrl = await getDownloadURL(fileRef);
 
-
-
-      // Consulta para encontrar el documento correspondiente al userId
-      const studentProjectRef = collection(db, "projects", projectId, "studentsProjects");
+      // ✅ Guardar URL en Firestore
+      const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
       const q = query(studentProjectRef, where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
-        console.error("No student project found for this user.");
-        return;
+      if (!querySnapshot.empty) {
+        const studentDocRef = doc(db, "projects", editedProject.id, "studentsProjects", querySnapshot.docs[0].id);
+        await updateDoc(studentDocRef, { studentFileUrl: fileUrl });
+        setEditedProject((prev) => ({ ...prev, studentFileUrl: fileUrl }));
       }
-
-      // Obtener el ID del documento encontrado
-      const studentDoc = querySnapshot.docs[0];
-      const studentDocRef = doc(db, "projects", projectId, "studentsProjects", studentDoc.id);
-
-      // Determinar el estado del proyecto según los criterios
-      const dueDate = new Date(updatedProject.dueDate).getTime();
-      const currentDate = new Date().getTime();
-      const studentProjectData = studentDoc.data();
-      let state;
-
-      if (studentProjectData.score) {
-        state = "Revisado";
-      } else if (studentFileUrl && !studentProjectData.score) {
-        state = "Pendiente de revisión";
-      } else if (studentFileUrl && currentDate > dueDate) {
-        state = "Entregado tarde";
-      } else if (!studentFileUrl && currentDate <= dueDate) {
-        state = "Entregable";
-      } else if (!studentFileUrl && currentDate > dueDate) {
-        state = "No entregado";
-      } else {
-        state = "Sin estado"; // Valor por defecto
-      }
-
-      // Actualizar el documento encontrado
-      await updateDoc(studentDocRef, {
-        studentFileUrl: studentFileUrl || null,
-        deliveredDay: format(new Date(), "yyyy-MM-dd"),
-        state, // Actualizamos el estado calculado
-      });
-
-      // Actualiza el estado del proyecto en el frontend
-      setProjects((prevProjects) =>
-        prevProjects.map((proj) =>
-          proj.id === projectId ? { ...updatedProject } : proj
-        )
-      );
 
       setIsEditModalOpen(false);
       setFile(null);
-
-      console.log("Student project submitted successfully!");
     } catch (error) {
-      console.error("Error submitting student project:", error);
+      console.error("Error al subir el archivo:", error);
+    } finally {
+      setIsEditModalOpen(false); // ✅ Cerrar modal SIEMPRE
+      setFile(null);
     }
   };
+
 
   const fetchStudentsAndCreateSubcollection = async (updatedProject, mentorName) => {
     try {
@@ -1690,7 +1655,7 @@ const CourseDetail = ({ params }) => {
                 type="text"
                 value={editedProject?.title || ""}
                 onChange={(e) => handleInputChange("title", e.target.value)}
-                disabled={!isAdmin} // Deshabilitar si no es admin
+                disabled={!isAdmin}
               />
             </label>
             <label>
@@ -1699,53 +1664,71 @@ const CourseDetail = ({ params }) => {
                 type="date"
                 value={editedProject?.dueDate || ""}
                 onChange={(e) => handleInputChange("dueDate", e.target.value)}
-                disabled={!isAdmin} // Deshabilitar si no es admin
+                disabled={!isAdmin}
               />
             </label>
-            {(isStudentInCourse || isAdmin) && (
+
+            {/* ✅ Descarga de Indicaciones para TODOS */}
+            {editedProject.fileUrl && (
+              <div className={styles.downloadSection}>
+                <a
+                  href={editedProject.fileUrl}
+                  download={`${editedProject.title || "indicaciones_proyecto"}_${courseName || "curso"}`}
+                  className={styles.downloadButton}
+                >
+                  📥 Descargar Indicaciones
+                </a>
+              </div>
+            )}
+
+            {/* ✅ Mensaje de éxito */}
+            {editedProject.studentFileUrl && (
+              <div className={styles.successMessage}>
+                Proyecto cargado exitosamente.
+              </div>
+            )}
+
+            {/* ✅ Administración de archivos según el rol */}
+            {isAdmin ? (
               <label>
-                {isAdmin ? "Subir Proyecto" : "Descargar Proyecto: "}
-                {isAdmin ? (
+                <p>Subir Proyecto:</p>
+                <input type="file" onChange={handleFileChange} />
+                {editedProject.fileUrl && (
                   <>
-                    <input type="file" onChange={handleFileChange} />
-                    {editedProject.fileUrl && (
-                      <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
-                    )}
+                    <a href={editedProject.fileUrl} download="proyecto_admin" target="_blank" className={styles.downloadButton}>
+                      📥 Descargar Indicaciones
+                    </a>
+                    <button onClick={handleDeleteFile}><FaTrash />Eliminar indicaciones</button>
+                  </>
+                )}
+              </label>
+            ) : (
+              <label>
+                {editedProject.studentFileUrl ? (
+                  <>
+                    <a href={editedProject.studentFileUrl} download="proyecto_estudiante" target="_blank" className={styles.downloadButton}>
+                      📥 Descargar mi Proyecto
+                    </a>
+                    <button onClick={handleDeleteFile}><FaTrash />Eliminar mi proyecto</button>
                   </>
                 ) : (
-                  editedProject.fileUrl && (
-                    <>
-                      <a href={editedProject.fileUrl} download='proyecto' target="_blank" rel="noopener noreferrer">
-                        Descargar Proyecto
-                      </a>
-                      <label htmlFor="">Subir mi proyecto</label>
-                      <input type="file" onChange={handleFileChange} ></input>
-                      <button onClick={handleDeleteFile}><FaTrash></FaTrash></button>
-                    </>
-                  )
+                  <>
+                    <p>Subir mi proyecto:</p>
+                    <input type="file" onChange={handleFileChange} />
+                  </>
                 )}
               </label>
             )}
+
             <div className={styles.modalActions}>
-              {(isStudentInCourse || isAdmin) && (
-                <>
-                  {isAdmin && (
-                    <button onClick={handleSaveProject}>
-                      Guardar Proyecto
-                    </button>
-                  )}
-                  {!isAdmin && (
-                    <button onClick={handleSubmitProject}>
-                      Guardar Proyecto
-                    </button>
-                  )}
-                </>
-              )}
+              {isAdmin && <button onClick={handleSaveProject}>Guardar Proyecto</button>}
+              {!isAdmin && <button onClick={handleSubmitProject}>Guardar Proyecto</button>}
               <button onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
+
 
 
 

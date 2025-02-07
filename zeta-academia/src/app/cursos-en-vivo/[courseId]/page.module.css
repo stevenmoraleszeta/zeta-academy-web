@@ -1118,3 +1118,47 @@
   background-color: #f56565;
   /* rojo */
 }
+
+/* Estilo para los botones de descarga */
+.downloadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Alinear a la izquierda */
+  gap: 10px; /* Espacio entre los elementos */
+  margin-top: 15px; /* Espacio superior */
+}
+
+/* Botón de descarga */
+.downloadButton {
+  background: var(--color-primary);
+  color: var(--text-color);
+  padding: 10px 15px; /* Espaciado interno */
+  border: none;
+  border-radius: 5px; /* Bordes redondeados */
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease; /* Transición suave */
+  text-decoration: none; /* Eliminar subrayado */
+}
+
+/* Asegúrate de que los enlaces dentro de los botones también tengan el mismo estilo */
+.downloadButton a {
+  text-decoration: none; /* Eliminar subrayado */
+  color: inherit; /* Heredar el color del botón */
+}
+
+.downloadButton:hover {
+  background: var(--color-primary-hover); /* Color al pasar el mouse */
+}
+
+/* Mensaje de proyecto cargado exitosamente */
+.successMessage {
+  background-color: #38a169; /* Verde */
+  color: #ffffff; /* Texto blanco */
+  padding: 10px;
+  border-radius: 5px; /* Bordes redondeados */
+  font-weight: bold;
+  width: 95%; /* Ancho completo */
+  text-align: center; /* Centrar texto */
+  margin-top: 15px; /* Espacio superior */
+}

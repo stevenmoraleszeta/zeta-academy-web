@@ -139,13 +139,16 @@ const StudentsProjects = () => {
 
     const deleteStudentProject = async (item) => {
         const { projectId, id } = item;
-        const docPath = `${collectionName}/${projectId}/studentsProjects/${id}`;
+        const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este proyecto?");
 
-        try {
-            const docRef = doc(db, docPath);
-            await deleteDoc(docRef);
-        } catch (err) {
-            console.error("Error deleting student project:", err);
+        if (confirmDelete) {
+            const docPath = `${collectionName}/${projectId}/studentsProjects/${id}`;
+            try {
+                const docRef = doc(db, docPath);
+                await deleteDoc(docRef);
+            } catch (err) {
+                console.error("Error deleting student project:", err);
+            }
         }
     };
 
