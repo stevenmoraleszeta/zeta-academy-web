@@ -1675,6 +1675,7 @@ const CourseDetail = ({ params }) => {
                   href={editedProject.fileUrl}
                   download={`${editedProject.title || "indicaciones_proyecto"}_${courseName || "curso"}`}
                   className={styles.downloadButton}
+                  target="_blank"
                 >
                   📥 Descargar Indicaciones
                 </a>
