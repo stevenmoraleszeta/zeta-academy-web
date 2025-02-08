@@ -22,6 +22,7 @@ function UserAndPassword() {
     setIsAlertOpen(false);
     try {
       await loginWithEmailAndPassword(email, password);
+      router.push("/");
     } catch (err) {
       let errorMessage = checkError(err.code, err.message);
       setError(errorMessage);
