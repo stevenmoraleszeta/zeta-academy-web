@@ -1560,21 +1560,30 @@ const CourseDetail = ({ params }) => {
                       {isAdmin && (
                         <div className={styles.projectActions}>
                           <button
-                            onClick={() => moveProject(index, -1)}
+                            onClick={(event) => {
+                              event.stopPropagation(); // Evitar que el evento se propague
+                              moveProject(index, -1);
+                            }}
                             disabled={index === 0}
                             className={styles.projectAction}
                           >
                             <FaArrowUp />
                           </button>
                           <button
-                            onClick={() => moveProject(index, 1)}
+                            onClick={(event) => {
+                              event.stopPropagation(); // Evitar que el evento se propague
+                              moveProject(index, 1);
+                            }}
                             disabled={index === projects.length - 1}
                             className={styles.projectAction}
                           >
                             <FaArrowDown />
                           </button>
                           <button
-                            onClick={() => deleteProject(project.id)}
+                            onClick={(event) => {
+                              event.stopPropagation(); // Evitar que el evento se propague
+                              deleteProject(project.id);
+                            }}
                             className={styles.projectAction}
                             title="Eliminar Proyecto"
                           >

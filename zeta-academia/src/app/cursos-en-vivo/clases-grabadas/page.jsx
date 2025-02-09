@@ -173,7 +173,9 @@ const ClassesRecorded = ({ courseId }) => {
                     {userRole === "admin" && ( // Solo los ADMIN pueden editar
                       <div className={styles.actions}>
                         <button className={styles.actionButton}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault(); // Evitar la acción por defecto del enlace
+                            e.stopPropagation(); // Evitar la propagación del evento
                             setEditingId(rec.id);
                             setEditingTitle(rec.title);
                             setEditingUrl(rec.url);
@@ -181,17 +183,29 @@ const ClassesRecorded = ({ courseId }) => {
                         >
                           <FaPencilAlt />
                         </button>
-                        <button onClick={() => deleteRecording(rec.id)} className={styles.actionButton}>
+                        <button onClick={(e) => {
+                          e.preventDefault(); // Evitar la acción por defecto del enlace
+                          e.stopPropagation(); // Evitar la propagación del evento
+                          deleteRecording(rec.id);
+                        }} className={styles.actionButton}>
                           <FaTrash />
                         </button>
                         <button
-                          onClick={() => moveRecording(index, -1)}
+                          onClick={(e) => {
+                            e.preventDefault(); // Evitar la acción por defecto del enlace
+                            e.stopPropagation(); // Evitar la propagación del evento
+                            moveRecording(index, -1);
+                          }}
                           disabled={index === 0}
                         >
                           <FaArrowUp />
                         </button>
                         <button
-                          onClick={() => moveRecording(index, 1)}
+                          onClick={(e) => {
+                            e.preventDefault(); // Evitar la acción por defecto del enlace
+                            e.stopPropagation(); // Evitar la propagación del evento
+                            moveRecording(index, 1);
+                          }}
                           disabled={index === recordings.length - 1}
                         >
                           <FaArrowDown />
