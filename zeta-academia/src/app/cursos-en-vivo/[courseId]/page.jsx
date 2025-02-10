@@ -805,11 +805,13 @@ const CourseDetail = ({ params }) => {
     newProjects.splice(index + direction, 0, movedProject);
 
     // Actualizar orden en Firestore
-    newProjects.forEach(async (project, newIndex) => {
+    const batch = writeBatch(db);
+    newProjects.forEach((project, newIndex) => {
       const projectRef = doc(db, "projects", project.id);
-      await updateDoc(projectRef, { order: newIndex });
+      batch.update(projectRef, { order: newIndex });
     });
 
+    await batch.commit();
     setProjects(newProjects);
   };
 
