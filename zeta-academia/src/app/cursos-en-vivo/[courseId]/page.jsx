@@ -703,6 +703,37 @@ const CourseDetail = ({ params }) => {
     });
   };
 
+  const moveClass = async (moduleId, classIndex, direction) => {
+    setModules((prevModules) =>
+      prevModules.map((classModule) => {
+        if (classModule.id === moduleId) {
+          const newClasses = [...classModule.classes];
+          const [movedClass] = newClasses.splice(classIndex, 1);
+          newClasses.splice(classIndex + direction, 0, movedClass);
+          newClasses.forEach(async (cls, newIndex) => {
+            try {
+              const classRef = doc(
+                db,
+                "liveCourses",
+                courseId,
+                "modules",
+                moduleId,
+                "classes",
+                cls.id
+              );
+              await updateDoc(classRef, { order: newIndex });
+            } catch (error) {
+              console.error("Error updating class order:", error);
+            }
+          });
+
+          return { ...classModule, classes: newClasses };
+        }
+        return classModule;
+      })
+    );
+  };
+
   const handleContactClick = () => {
     const phoneNumber = "+50661304830";
     const message = `Hola, estoy interesado/a en el curso en vivo ${course.title}.`;

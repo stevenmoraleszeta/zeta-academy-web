@@ -283,18 +283,18 @@ const ClassDetail = () => {
       setIsAccessRestrictedAlertOpen(true); // Abre la alerta de restricciones
       return;
     }
-  
+
     // Verifica si el usuario está matriculado (a menos que sea admin)
     if (!isEnrolled && !isAdmin) {
       console.error("El usuario no está matriculado.");
       setIsAccessRestrictedAlertOpen(true); // Abre la alerta de restricciones
       return;
     }
-  
+
     // Abre el modal para edición de recursos
     setHistory([content || ""]);
     setHistoryIndex(0);
-  
+
     setNewResourceType(type);
     setNewResourceContent(content);
     setNewResourceTitle(title || "");
@@ -303,7 +303,7 @@ const ClassDetail = () => {
     setEditingIndex(index);
     setNewResourceWidth(width);
     setNewResourceHeight(height);
-  
+
     if (type === "imageUrl" && content) {
       const img = new window.Image(); // Usar el constructor nativo
       img.src = content;
@@ -315,7 +315,7 @@ const ClassDetail = () => {
         console.error("Error al cargar la imagen:", content);
       };
     }
-  
+
     setIsModalOpen(true);
   };
 
