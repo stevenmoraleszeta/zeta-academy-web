@@ -24,6 +24,14 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/faviconWeb.png" />
+
+        <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c" />
+
+        <meta name="twitter:image" content="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c" />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <meta property="og:url" content="https://zetaacademia.com" />
+        <meta property="og:type" content="website" />
       </head>
       <body className={`app ${montserrat.className}`}>
         <AuthProvider>
