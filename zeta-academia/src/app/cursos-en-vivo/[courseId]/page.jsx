@@ -1020,23 +1020,40 @@ const CourseDetail = ({ params }) => {
     const projectsSnapshot = await getDocs(projectsRef);
     const courseProjects = projectsSnapshot.docs.filter(doc => doc.data().courseId === courseId);
 
+    const courseDocRef = doc(db, "liveCourses", courseId);
+    const courseDocSnap = await getDoc(courseDocRef);
+    const courseData = courseDocSnap.data();
+    const courseName = courseData.title || "Curso sin nombre";
+
+    const userDocRef = doc(db, "users", studentId);
+    const userDocSnap = await getDoc(userDocRef);
+    const userData = userDocSnap.exists() ? userDocSnap.data() : {};
+    const displayName = userData.displayName || "Usuario sin nombre";
+
     const batch = writeBatch(db);
     for (const projectDoc of courseProjects) {
       const projectData = projectDoc.data();
-      const studentProject = {
-        title: projectData.title,
-        fileUrl: projectData.fileUrl || null,
-        userId: studentId,
-        dueDate: projectData.dueDate || null,
-        score: null,
-        state: "No entregado",
-        mentor: projectData.mentor || null,
-        courseId: courseId,
-        courseName: projectData.courseName || "",
-      };
+      const studentProjectRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+      const existingStudentProjectQuery = query(studentProjectRef, where("userId", "==", studentId));
+      const existingStudentProjectSnapshot = await getDocs(existingStudentProjectQuery);
 
-      const studentProjectRef = doc(collection(db, "projects", projectDoc.id, "studentsProjects"));
-      batch.set(studentProjectRef, studentProject);
+      if (existingStudentProjectSnapshot.empty) {
+        const studentProject = {
+          title: projectData.title,
+          fileUrl: projectData.fileUrl || null,
+          userId: studentId,
+          displayName: displayName,
+          dueDate: projectData.dueDate || null,
+          score: null,
+          state: "No entregado",
+          mentor: projectData.mentor || null,
+          courseId: courseId,
+          courseName: courseName,
+        };
+
+        const newStudentProjectRef = doc(studentProjectRef);
+        batch.set(newStudentProjectRef, studentProject);
+      }
     }
 
     await batch.commit();
