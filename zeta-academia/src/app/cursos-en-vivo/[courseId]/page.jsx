@@ -575,6 +575,7 @@ const CourseDetail = ({ params }) => {
           courseId: courseId,
           courseName: courseName,
         };
+        console.log('Se ha creado un nuevo documento:', displayName);
 
         // Crear un nuevo documento con un ID único
         const newDocRef = doc(studentProjectRef); // Se genera un ID único automáticamente
