@@ -801,21 +801,35 @@ const CourseDetail = ({ params }) => {
 
 
   const moveProject = async (index, direction) => {
-    const newProjects = [...projects];
+    const courseProjects = projects.filter(project => project.courseId === courseId);
+
+    if (index + direction < 0 || index + direction >= courseProjects.length) {
+      return;
+    }
+
+    const newProjects = [...courseProjects];
     const [movedProject] = newProjects.splice(index, 1);
     newProjects.splice(index + direction, 0, movedProject);
 
-    // Actualizar orden en Firestore
     const batch = writeBatch(db);
     newProjects.forEach((project, newIndex) => {
       const projectRef = doc(db, "projects", project.id);
       batch.update(projectRef, { order: newIndex });
     });
 
-    await batch.commit();
-    setProjects(newProjects);
+    try {
+      await batch.commit();
+      setProjects(prevProjects => {
+        const updatedProjects = prevProjects.map(project => {
+          const updatedProject = newProjects.find(p => p.id === project.id);
+          return updatedProject ? updatedProject : project;
+        });
+        return updatedProjects;
+      });
+    } catch (error) {
+      console.error("Error updating project order:", error);
+    }
   };
-
 
   const saveUrls = () => {
     handleFieldChange("imageUrl", currentUrl);
@@ -1602,48 +1616,46 @@ const CourseDetail = ({ params }) => {
               {(isAdmin ? projects : studentProjects).filter((project) => project.courseId === courseId).map((project, index) => {
                 const studentProject = studentProjects.find(sp => sp.projectId === project.id);
                 return (
-                  <>
-                    <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
-                      <span>{project.title}</span>
-                      {!isAdmin && (
-                        <span>{studentProject ? studentProject.score : 'No score'}</span>
-                      )}
-                      {isAdmin && (
-                        <div className={styles.projectActions}>
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation(); // Evitar que el evento se propague
-                              moveProject(index, -1);
-                            }}
-                            disabled={index === 0}
-                            className={styles.projectAction}
-                          >
-                            <FaArrowUp />
-                          </button>
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation(); // Evitar que el evento se propague
-                              moveProject(index, 1);
-                            }}
-                            disabled={index === projects.length - 1}
-                            className={styles.projectAction}
-                          >
-                            <FaArrowDown />
-                          </button>
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation(); // Evitar que el evento se propague
-                              deleteProject(project.id);
-                            }}
-                            className={styles.projectAction}
-                            title="Eliminar Proyecto"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </>
+                  <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
+                    <span>{project.title}</span>
+                    {!isAdmin && (
+                      <span>{studentProject ? studentProject.score : 'No score'}</span>
+                    )}
+                    {isAdmin && (
+                      <div className={styles.projectActions}>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation(); // Evitar que el evento se propague
+                            moveProject(index, -1);
+                          }}
+                          disabled={index === 0}
+                          className={styles.projectAction}
+                        >
+                          <FaArrowUp />
+                        </button>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation(); // Evitar que el evento se propague
+                            moveProject(index, 1);
+                          }}
+                          disabled={index === projects.length - 1}
+                          className={styles.projectAction}
+                        >
+                          <FaArrowDown />
+                        </button>
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation(); // Evitar que el evento se propague
+                            deleteProject(project.id);
+                          }}
+                          className={styles.projectAction}
+                          title="Eliminar Proyecto"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
               <div>
