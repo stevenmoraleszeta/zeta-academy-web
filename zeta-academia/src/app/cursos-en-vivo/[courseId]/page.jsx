@@ -800,35 +800,27 @@ const CourseDetail = ({ params }) => {
   };
 
 
-  const moveProject = async (index, direction) => {
-    const courseProjects = projects.filter(project => project.courseId === courseId);
+  const moveProject = async (projectId, direction) => {
+    setProjects((prevProjects) => {
+      const projectIndex = prevProjects.findIndex((project) => project.id === projectId);
+      if (projectIndex === -1) return prevProjects;
 
-    if (index + direction < 0 || index + direction >= courseProjects.length) {
-      return;
-    }
+      const newProjects = [...prevProjects];
+      const [movedProject] = newProjects.splice(projectIndex, 1);
+      newProjects.splice(projectIndex + direction, 0, movedProject);
 
-    const newProjects = [...courseProjects];
-    const [movedProject] = newProjects.splice(index, 1);
-    newProjects.splice(index + direction, 0, movedProject);
-
-    const batch = writeBatch(db);
-    newProjects.forEach((project, newIndex) => {
-      const projectRef = doc(db, "projects", project.id);
-      batch.update(projectRef, { order: newIndex });
-    });
-
-    try {
-      await batch.commit();
-      setProjects(prevProjects => {
-        const updatedProjects = prevProjects.map(project => {
-          const updatedProject = newProjects.find(p => p.id === project.id);
-          return updatedProject ? updatedProject : project;
-        });
-        return updatedProjects;
+      // Update the order in the database
+      newProjects.forEach(async (project, newIndex) => {
+        try {
+          const projectRef = doc(db, "projects", project.id);
+          await updateDoc(projectRef, { order: newIndex });
+        } catch (error) {
+          console.error("Error updating project order:", error);
+        }
       });
-    } catch (error) {
-      console.error("Error updating project order:", error);
-    }
+
+      return newProjects;
+    });
   };
 
   const saveUrls = () => {
@@ -1613,7 +1605,7 @@ const CourseDetail = ({ params }) => {
           <div className={styles.mainContainer} >
             <div className={styles.projects}>
               <h3>Proyectos</h3>
-              {(isAdmin ? projects : studentProjects).filter((project) => project.courseId === courseId).map((project, index) => {
+              {(isAdmin ? projects : studentProjects).filter((project) => project.courseId === courseId).sort((a, b) => a.order - b.order).map((project, index) => {
                 const studentProject = studentProjects.find(sp => sp.projectId === project.id);
                 return (
                   <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
@@ -1626,7 +1618,7 @@ const CourseDetail = ({ params }) => {
                         <button
                           onClick={(event) => {
                             event.stopPropagation(); // Evitar que el evento se propague
-                            moveProject(index, -1);
+                            moveProject(project.id, -1);
                           }}
                           disabled={index === 0}
                           className={styles.projectAction}
@@ -1636,7 +1628,7 @@ const CourseDetail = ({ params }) => {
                         <button
                           onClick={(event) => {
                             event.stopPropagation(); // Evitar que el evento se propague
-                            moveProject(index, 1);
+                            moveProject(project.id, 1);
                           }}
                           disabled={index === projects.length - 1}
                           className={styles.projectAction}
