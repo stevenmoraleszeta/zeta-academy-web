@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styles from './CrudMenu.module.css';
 import useFetchData from "@/app/hooks/useFetchData";
-import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs, writeBatch } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
@@ -222,6 +222,24 @@ const CrudMenu = ({
         }
     };
 
+    const deleteProjectsByCourseId = async (courseId) => {
+        try {
+            const projectsRef = collection(db, "projects");
+            const q = query(projectsRef, where("courseId", "==", courseId));
+            const querySnapshot = await getDocs(q);
+
+            const batch = writeBatch(db);
+            querySnapshot.forEach((doc) => {
+                batch.delete(doc.ref);
+            });
+
+            await batch.commit();
+            console.log("Proyectos eliminados con éxito");
+        } catch (error) {
+            console.error("Error al eliminar los proyectos:", error);
+        }
+    };
+
     const handleDeleteItem = async (item) => {
         const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este elemento?");
         if (!confirmDelete) return;
@@ -232,6 +250,11 @@ const CrudMenu = ({
             } else {
                 const itemRef = doc(db, collectionName, item.id);
                 await deleteDoc(itemRef);
+
+                if (collectionName === "liveCourses") {
+                    await deleteProjectsByCourseId(item.id);
+                }
+
                 setData((prevData) => prevData.filter((i) => i.id !== item.id));
                 setFilteredData((prevData) => prevData.filter((i) => i.id !== item.id));
             }

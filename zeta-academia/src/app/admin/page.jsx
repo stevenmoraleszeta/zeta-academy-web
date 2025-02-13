@@ -48,6 +48,13 @@ const AdminMenu = () => {
                         <AiOutlineProject className={styles.buttonIcon} />
                         <span>Proyectos Estudiantes</span>
                     </button>
+                    <button
+                        className={styles.adminButton}
+                        onClick={() => handleNavigation('/admin/manageLiveCourses')}
+                    >
+                        <AiOutlineLaptop className={styles.buttonIcon} />
+                        <span>Cursos en vivo</span>
+                    </button>
                 </div>
             </div>
         </RequireAuth>
