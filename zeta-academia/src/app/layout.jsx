@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
 
         <meta property="og:title" content="ZETA Academia" />
         <meta property="og:description" content="ZETA Plataforma Educativa" />
-        <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogo.png?alt=media&token=d8e33971-ceb0-4d9e-a617-2f026fe4467c" />
+        <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FZ%201200.png?alt=media&token=1dfe7287-6ea0-4ca2-aa3b-25dc9af60b98" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:url" content="https://zetaacademia.com" />
