@@ -272,6 +272,7 @@ const CourseDetail = ({ params }) => {
         id: doc.id,
         ...doc.data(),
       }));
+      fetchedProjects.sort((a, b) => a.order - b.order);
       setProjects(fetchedProjects);
     } else {
       const auth = getAuth();
@@ -295,6 +296,7 @@ const CourseDetail = ({ params }) => {
           });
         }
 
+        fetchedStudentProjects.sort((a, b) => a.order - b.order); // Ordena los proyectos por `order`
         setStudentProjects(fetchedStudentProjects);
       }
     }
@@ -814,11 +816,11 @@ const CourseDetail = ({ params }) => {
   };
 
 
-  const moveProject = async (projectId, direction) => {
+  const moveProject = async (projectId, projectIndex, direction) => {
+    console.log(projectId, " Index: ", projectIndex, " Direccion: ", direction);
     setProjects((prevProjects) => {
-      const projectIndex = prevProjects.findIndex((project) => project.id === projectId);
-      if (projectIndex === -1) return prevProjects;
-
+      if (projectIndex === -1 || projectIndex + direction < 0 || projectIndex + direction >= prevProjects.length) return prevProjects;
+      console.log("Moving project", projectId, "to", projectIndex, "+", direction, "Order: ");
       const newProjects = [...prevProjects];
       const [movedProject] = newProjects.splice(projectIndex, 1);
       newProjects.splice(projectIndex + direction, 0, movedProject);
@@ -1619,51 +1621,53 @@ const CourseDetail = ({ params }) => {
           <div className={styles.mainContainer} >
             <div className={styles.projects}>
               <h3>Proyectos</h3>
-              {(isAdmin ? projects : studentProjects).filter((project) => project.courseId === courseId).sort((a, b) => a.order - b.order).map((project, index) => {
-                const studentProject = studentProjects.find(sp => sp.projectId === project.id);
-                return (
-                  <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
-                    <span>{project.title}</span>
-                    {!isAdmin && (
-                      <span>{studentProject ? studentProject.score : 'No score'}</span>
-                    )}
-                    {isAdmin && (
-                      <div className={styles.projectActions}>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation(); // Evitar que el evento se propague
-                            moveProject(project.id, -1);
-                          }}
-                          disabled={index === 0}
-                          className={styles.projectAction}
-                        >
-                          <FaArrowUp />
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation(); // Evitar que el evento se propague
-                            moveProject(project.id, 1);
-                          }}
-                          disabled={index === projects.length - 1}
-                          className={styles.projectAction}
-                        >
-                          <FaArrowDown />
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation(); // Evitar que el evento se propague
-                            deleteProject(project.id);
-                          }}
-                          className={styles.projectAction}
-                          title="Eliminar Proyecto"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {(isAdmin ? projects : studentProjects)
+                .filter((project) => project.courseId === courseId)
+                .map((project, index) => {
+                  const studentProject = studentProjects.find(sp => sp.projectId === project.id);
+                  return (
+                    <div key={project.id} className={styles.projectItem} onClick={() => handleEditProject(project)}>
+                      <span>{project.title}</span>
+                      {!isAdmin && (
+                        <span>{studentProject ? studentProject.score : 'No score'}</span>
+                      )}
+                      {isAdmin && (
+                        <div className={styles.projectActions}>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation(); // Evitar que el evento se propague
+                              moveProject(project.id, index, -1);
+                            }}
+                            disabled={index === 0}
+                            className={styles.projectAction}
+                          >
+                            <FaArrowUp />
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation(); // Evitar que el evento se propague
+                              moveProject(project.id, index, 1);
+                            }}
+                            disabled={index === projects.length - 1}
+                            className={styles.projectAction}
+                          >
+                            <FaArrowDown />
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation(); // Evitar que el evento se propague
+                              deleteProject(project.id);
+                            }}
+                            className={styles.projectAction}
+                            title="Eliminar Proyecto"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               <div>
                 {!isAdmin && (
                   <>
