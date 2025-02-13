@@ -189,8 +189,8 @@ const CourseDetail = ({ params }) => {
 
   const fetchModules = async () => {
     try {
-      const modulesRef = collection(db, "liveCourses", courseId, "modules");
-      const modulesSnapshot = await getDocs(modulesRef);
+      setModules([]); // Reinicia el estado antes de cargar los datos.
+      console.log("Cargando datos del curso...");
 
       let userCompletedClasses = [];
       if (currentUser) {
@@ -198,35 +198,46 @@ const CourseDetail = ({ params }) => {
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           userCompletedClasses = userSnap.data().completedClasses || [];
+
         }
       }
+
+      const modulesSnapshot = await getDocs(
+        collection(db, "liveCourses", courseId, "modules")
+      );
 
       const fetchedModules = await Promise.all(
         modulesSnapshot.docs.map(async (moduleDoc) => {
           const moduleData = moduleDoc.data();
+          const classesSnapshot = await getDocs(
+            collection(
+              db,
+              "liveCourses",
+              courseId,
+              "modules",
+              moduleDoc.id,
+              "classes"
+            )
+          );
 
-          // Obtener clases de cada módulo
-          const classesRef = collection(db, "liveCourses", courseId, "modules", moduleDoc.id, "classes");
-          const classesSnapshot = await getDocs(classesRef);
+          const classes = classesSnapshot.docs.map((classDoc) => ({
+            id: classDoc.id,
+            ...classDoc.data(),
+          }));
 
-          const classes = classesSnapshot.docs.map((classDoc) => {
-            const classData = classDoc.data();
-            const isCompleted = userCompletedClasses.includes(classDoc.id);
-            return {
-              id: classDoc.id,
-              ...classData,
-              completed: isCompleted,
-            };
-          });
+          classes.sort((a, b) => a.order - b.order); // Ordena las clases por `order`.
 
           return {
             id: moduleDoc.id,
             ...moduleData,
-            classes: classes.sort((a, b) => (a.order || 0) - (b.order || 0)),
+            classes,
           };
         })
       );
 
+      fetchedModules.sort((a, b) => a.order - b.order); // Ordena los módulos por `order`.
+
+      // Encuentra la primera clase incompleta globalmente.
       let firstHighlightFound = false;
 
       const updatedModules = fetchedModules.map((classModule) => {
@@ -241,12 +252,15 @@ const CourseDetail = ({ params }) => {
           return { ...cls, completed: isCompleted, highlight: false };
         });
 
-        return { ...classModule, classes: updatedClasses };
+        return {
+          ...classModule,
+          classes: updatedClasses,
+        };
       });
 
-      setModules(updatedModules.sort((a, b) => (a.order || 0) - (b.order || 0)));
+      setModules(updatedModules);
     } catch (error) {
-      console.error("Error fetching modules and classes:", error);
+      console.error("Error loading course data:", error);
     }
   };
 
