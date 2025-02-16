@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" media="(prefers-color-scheme: dark)" />
         <link rel="icon" type="image/png" sizes="32x32" href="/faviconBlk.jpg" media="(prefers-color-scheme: light)" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/faviconGenW.ico" />
 
         <meta property="og:title" content="ZETA Academia" />
         <meta property="og:description" content="ZETA Plataforma Educativa" />
