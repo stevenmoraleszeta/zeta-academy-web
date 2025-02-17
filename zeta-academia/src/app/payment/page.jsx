@@ -106,8 +106,7 @@ const PaymentPage = () => {
         receiptNumber,
       };
 
-      const paymentRef = doc(db, "payments", details.id);
-      await setDoc(paymentRef, paymentData);
+      const paymentRef = await addDoc(collection(db, "payments"), paymentData);
 
       setPaymentReceipt(paymentData);
 
