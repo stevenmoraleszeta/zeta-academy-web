@@ -825,7 +825,6 @@ const CourseDetail = ({ params }) => {
       const [movedProject] = newProjects.splice(projectIndex, 1);
       newProjects.splice(projectIndex + direction, 0, movedProject);
 
-      // Update the order in the database
       newProjects.forEach(async (project, newIndex) => {
         try {
           const projectRef = doc(db, "projects", project.id);
