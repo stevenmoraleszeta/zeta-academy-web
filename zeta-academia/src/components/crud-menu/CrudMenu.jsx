@@ -66,7 +66,8 @@ const CrudMenu = ({
         });
         setSelectOptions(options);
     };
-
+   
+     
     const handleSearchChange = (e) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);

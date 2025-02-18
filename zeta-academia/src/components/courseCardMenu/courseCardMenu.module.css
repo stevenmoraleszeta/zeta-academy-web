@@ -12,6 +12,23 @@
     color: var(--text-color);
     cursor: pointer;
 }
+ 
+@media(max-width: 430px ) { 
+    .courseCard {
+    position: relative;
+    background-image: linear-gradient(var(--color-primary), var(--color-dark));
+    /* Gradiente de azul oscuro a negro */
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+    width: 80%;
+    padding: 0;
+    color: var(--text-color);
+    cursor: pointer;
+}
+}
 
 
 .courseCard:hover {

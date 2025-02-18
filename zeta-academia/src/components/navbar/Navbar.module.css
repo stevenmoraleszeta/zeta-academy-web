@@ -25,6 +25,7 @@
 }
 
 .navbarLink {
+  
   color: white;
   text-decoration: none;
   font-weight: bold;
@@ -115,6 +116,20 @@
 }
 
 @media (max-width: 768px) {
+  .navbarLink {
+    font-size: clamp(2vw, 20px, 2vw);
+  }
+
+  .navbarLinkSelected {
+  color: #8CB7C0;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+  margin: 1.6vw;
+  font-size: clamp(2vw, 16px, 1.6vw);
+}
+
+
   .navLinks {
     display: none;
     flex-direction: column;
@@ -126,7 +141,7 @@
     right: 0;
 
     background: linear-gradient(80deg, var(--color-dark) 60%, var(--color-black) 100%);
-    padding: 0px 20px;
+    padding: 30px 20px;
     gap: 8px;
 
     height: 100px;
@@ -149,6 +164,33 @@
 
 @media (max-width: 500px) {
   .navbarLink {
-    font-size: clamp(1vw, 20px, 2vw);
+    font-size: clamp(3vw, 20px, 2vw);
   }
+
+  .navbarLinkSelected {
+  color: #8CB7C0;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+  margin: 1.6vw;
+  font-size: clamp(3vw, 16px, 1.6vw);
+}
+
+
+  .accessLink {
+  background-color: #FF6B00;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  /* Reducción del 20% */
+  margin-right: 16px;
+  /* Reducción del 20% */
+  font-size: clamp(2vw, 16px, 1.6vw);
+  /* Reducción del 20% */
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
 }

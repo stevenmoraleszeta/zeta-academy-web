@@ -88,7 +88,7 @@
     align-items: center;
     gap: 10px;
     padding: 20px;
-    width: 100%;
+    width: 90%;
 }
 
    
@@ -122,6 +122,19 @@
 }
 
 @media (max-width:500px) {
+
+    .loginContainer {
+        width: 80%;
+        height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background: linear-gradient(#002128, #00758E);
+        margin-top: 3vh;
+        border-radius: 15px;
+    }
+
     .googleBtn {
         width: clamp(35vw, 250px, 40vw);
         height: clamp(3vh, 54px, 5vh);
@@ -147,9 +160,7 @@
         font-size: clamp(2vw, 24px, 3.5vw);
     }
 
-    .loginContainer {
-        width: 70%;
-    }
+    
 }
 
 .smallText {
