@@ -112,7 +112,11 @@ export function AuthProvider({ children }) {
             console.log("Usuario registrado exitosamente con foto de perfil");
         } catch (error) {
             console.error("Error al registrar usuario:", error.message);
-            throw new Error("Error al registrar usuario");
+            if (error.code === "auth/email-already-in-use") {
+                throw new Error("El correo ya está registrado. Intenta con otro.");
+            } else {
+                throw new Error("Error al registrar usuario. Inténtalo de nuevo.");
+            }
         }
     };
 

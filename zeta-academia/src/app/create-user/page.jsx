@@ -38,7 +38,7 @@ function CreateUser() {
     }
 
     try {
-      await registerWithEmailAndPassword(email, password, name, profilePicture); // Registrar en Firebase con foto
+      await registerWithEmailAndPassword(email, password, name, profilePicture);
       router.push("/completeInfoPage");
     } catch (err) {
       setError(err.message || "Error al registrarse");
@@ -109,8 +109,8 @@ function CreateUser() {
             </div>
             <p className={styles.loginPrompt}>
               ¿Tienes una cuenta?
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => router.push("/login")}
                 className={styles.backButton}
               >
