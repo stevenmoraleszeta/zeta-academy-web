@@ -10,26 +10,32 @@ import { getAuth } from "firebase/auth";
 
 const StudentsProjects = () => {
     const [projects, setProjects] = useState([]);
-    const collectionName = "projects";
+    const collectionName = "liveCourses";
 
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const projectsRef = collection(db, "projects");
-                const projectsSnapshot = await getDocs(projectsRef);
+                const liveCoursesRef = collection(db, "liveCourses");
+                const liveCoursesSnapshot = await getDocs(liveCoursesRef);
                 const fetchedProjects = [];
 
-                for (const projectDoc of projectsSnapshot.docs) {
-                    const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
-                    const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+                for (const courseDoc of liveCoursesSnapshot.docs) {
+                    const projectsRef = collection(db, "liveCourses", courseDoc.id, "projects");
+                    const projectsSnapshot = await getDocs(projectsRef);
 
-                    studentProjectsSnapshot.forEach(doc => {
-                        fetchedProjects.push({
-                            id: doc.id,
-                            projectId: projectDoc.id,
-                            ...doc.data(),
+                    for (const projectDoc of projectsSnapshot.docs) {
+                        const studentProjectsRef = collection(db, "liveCourses", courseDoc.id, "projects", projectDoc.id, "studentsProjects");
+                        const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+
+                        studentProjectsSnapshot.forEach(doc => {
+                            fetchedProjects.push({
+                                id: doc.id,
+                                projectId: projectDoc.id,
+                                courseId: courseDoc.id,
+                                ...doc.data(),
+                            });
                         });
-                    });
+                    }
                 }
 
                 setProjects(fetchedProjects);
@@ -80,7 +86,7 @@ const StudentsProjects = () => {
     };
 
     const saveStudentProject = async (item, isEditMode) => {
-        const { id, projectId, courseName, ...data } = item;
+        const { id, projectId, courseId, courseName, ...data } = item;
 
         try {
             const auth = getAuth();
@@ -90,36 +96,21 @@ const StudentsProjects = () => {
                 alert("Usuario no autenticado. Por favor, inicia sesión.");
                 return;
             }
-            const liveCoursesRef = collection(db, "liveCourses");
-            const liveCoursesSnapshot = await getDocs(liveCoursesRef);
-            const matchingCourse = liveCoursesSnapshot.docs.find(
-                (doc) => doc.data().title === courseName
-            );
-
-            if (!matchingCourse) {
-                alert(`El curso "${courseName}" no existe. Por favor, verifica el nombre.`);
-                return;
-            }
 
             if (!isEditMode) {
-                const courseData = matchingCourse.data();
-                const courseId = matchingCourse.id;
-                const mentor = courseData.mentor;
-
                 const projectData = {
                     courseId: courseId,
                     dueDate: data.dueDate,
                     fileUrl: data.fileUrl,
-                    mentor: mentor,
                     title: courseName,
                     userId: user.uid,
                 };
 
-                alert("El proyecto ha sido creados exitosamente.");
+                alert("El proyecto ha sido creado exitosamente.");
                 return;
             }
 
-            const subCollectionPath = `projects/${projectId}/studentsProjects`;
+            const subCollectionPath = `liveCourses/${courseId}/projects/${projectId}/studentsProjects`;
 
             if (isEditMode && id) {
                 const subDocRef = doc(db, subCollectionPath, id);
@@ -138,11 +129,11 @@ const StudentsProjects = () => {
     };
 
     const deleteStudentProject = async (item) => {
-        const { projectId, id } = item;
+        const { projectId, courseId, id } = item;
         const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este proyecto?");
 
         if (confirmDelete) {
-            const docPath = `${collectionName}/${projectId}/studentsProjects/${id}`;
+            const docPath = `liveCourses/${courseId}/projects/${projectId}/studentsProjects/${id}`;
             try {
                 const docRef = doc(db, docPath);
                 await deleteDoc(docRef);
@@ -154,32 +145,37 @@ const StudentsProjects = () => {
 
     const handleCheckStatus = async () => {
         try {
-            const projectsRef = collection(db, "projects");
-            const projectsSnapshot = await getDocs(projectsRef);
+            const liveCoursesRef = collection(db, "liveCourses");
+            const liveCoursesSnapshot = await getDocs(liveCoursesRef);
 
-            if (projectsSnapshot.empty) {
+            if (liveCoursesSnapshot.empty) {
                 console.log("No student projects found.");
                 return;
             }
 
             const batch = writeBatch(db);
 
-            for (const projectDoc of projectsSnapshot.docs) {
-                const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
-                const studentProjectsSnapshot = await getDocs(studentProjectsRef);
+            for (const courseDoc of liveCoursesSnapshot.docs) {
+                const projectsRef = collection(db, "liveCourses", courseDoc.id, "projects");
+                const projectsSnapshot = await getDocs(projectsRef);
 
-                for (const studentDocSnap of studentProjectsSnapshot.docs) {
-                    const studentData = studentDocSnap.data();
-                    const { studentFileUrl, deliveredDay, dueDate, score } = studentData;
+                for (const projectDoc of projectsSnapshot.docs) {
+                    const studentProjectsRef = collection(db, "liveCourses", courseDoc.id, "projects", projectDoc.id, "studentsProjects");
+                    const studentProjectsSnapshot = await getDocs(studentProjectsRef);
 
-                    const state = determineState({
-                        studentFileUrl,
-                        deliveredDay,
-                        dueDate,
-                        score,
-                    });
+                    for (const studentDocSnap of studentProjectsSnapshot.docs) {
+                        const studentData = studentDocSnap.data();
+                        const { studentFileUrl, deliveredDay, dueDate, score } = studentData;
 
-                    batch.update(studentDocSnap.ref, { state });
+                        const state = determineState({
+                            studentFileUrl,
+                            deliveredDay,
+                            dueDate,
+                            score,
+                        });
+
+                        batch.update(studentDocSnap.ref, { state });
+                    }
                 }
             }
             await batch.commit();
