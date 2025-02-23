@@ -266,7 +266,7 @@ const CourseDetail = ({ params }) => {
 
   const fetchProjects = async () => {
     if (isAdmin) {
-      const projectsRef = collection(db, "projects");
+      const projectsRef = collection(db, "liveCourses", courseId, "projects");
       const projectsSnapshot = await getDocs(projectsRef);
       const fetchedProjects = projectsSnapshot.docs.map(doc => ({
         id: doc.id,
@@ -278,12 +278,12 @@ const CourseDetail = ({ params }) => {
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const projectsRef = collection(db, "projects");
+        const projectsRef = collection(db, "liveCourses", courseId, "projects");
         const projectsSnapshot = await getDocs(projectsRef);
         const fetchedStudentProjects = [];
 
         for (const projectDoc of projectsSnapshot.docs) {
-          const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+          const studentProjectsRef = collection(db, "liveCourses", courseId, "projects", projectDoc.id, "studentsProjects");
           const q = query(studentProjectsRef, where("userId", "==", user.uid));
           const studentProjectsSnapshot = await getDocs(q);
 
@@ -330,7 +330,6 @@ const CourseDetail = ({ params }) => {
 
   const handleSaveProject = async () => {
     try {
-      // Obtener el usuario autenticado dinámicamente
       const auth = getAuth();
       const user = auth.currentUser;
 
@@ -339,14 +338,12 @@ const CourseDetail = ({ params }) => {
         return;
       }
 
-      const userId = user.uid; // ID del usuario autenticado
-      const projectRef = doc(db, "projects", editedProject.id);
+      const userId = user.uid;
+      const projectRef = doc(db, "liveCourses", courseId, "projects", editedProject.id);
       const updatedProject = { ...editedProject };
 
-      // Obtener el displayName del usuario
       const displayName = user.displayName || "Usuario sin nombre";
 
-      // Manejo del archivo para el proyecto principal
       if (file) {
         const fileRef = ref(storage, `project-files/${file.name}`);
         await uploadBytes(fileRef, file);
@@ -354,11 +351,9 @@ const CourseDetail = ({ params }) => {
         updatedProject.fileUrl = fileUrl;
       }
 
-      // Asignar automáticamente el curso y el usuario al proyecto
       updatedProject.courseId = courseId;
       updatedProject.userId = userId;
 
-      // Obtener el ID del mentor desde el documento del curso
       const courseDocRef = doc(db, "liveCourses", courseId);
       const courseDocSnap = await getDoc(courseDocRef);
 
@@ -369,39 +364,28 @@ const CourseDetail = ({ params }) => {
       const courseData = courseDocSnap.data();
       const mentorId = courseData.mentor;
 
-      // Obtener el nombre del mentor desde la colección users
       const mentorDocRef = doc(db, "users", mentorId);
       const mentorDocSnap = await getDoc(mentorDocRef);
       const mentorData = mentorDocSnap.exists() ? mentorDocSnap.data() : {};
       const mentorName = mentorData.displayName || "Mentor sin nombre";
 
-      // Agregar el nombre del mentor al proyecto principal
       updatedProject.mentor = mentorName;
 
-      // Actualizar el proyecto principal en Firestore
       if (isAdmin) {
         await updateDoc(projectRef, updatedProject);
       }
 
       if (isAdmin) {
-        // Crear documentos en la subcolección si no existen
         await fetchStudentsAndCreateSubcollection(updatedProject, mentorName);
       }
 
-      // Actualizar los documentos en la subcolección `studentsProjects`
-      const studentProjectRef = collection(
-        db,
-        "projects",
-        editedProject.id,
-        "studentsProjects"
-      );
+      const studentProjectRef = collection(db, "liveCourses", courseId, "projects", editedProject.id, "studentsProjects");
       const studentProjectsSnapshot = await getDocs(studentProjectRef);
 
       const batch = writeBatch(db);
       studentProjectsSnapshot.forEach((docSnap) => {
         const studentProjectData = docSnap.data();
 
-        // Determinar el estado del proyecto según los criterios
         const dueDate = new Date(updatedProject.dueDate).getTime();
         const currentDate = new Date().getTime();
         let state;
@@ -417,10 +401,9 @@ const CourseDetail = ({ params }) => {
         } else if (!studentProjectData.fileUrl && currentDate > dueDate) {
           state = "No entregado";
         } else {
-          state = "Sin estado"; // Valor por defecto
+          state = "Sin estado";
         }
 
-        // Actualizar solo los campos necesarios
         batch.update(docSnap.ref, {
           title: updatedProject.title,
           fileUrl: updatedProject.fileUrl || null,
@@ -432,7 +415,6 @@ const CourseDetail = ({ params }) => {
 
       console.log("Project and student projects updated successfully!");
 
-      // Actualizar valores en el estado local
       setProjects((prevProjects) =>
         prevProjects.map((proj) =>
           proj.id === editedProject.id
@@ -441,22 +423,21 @@ const CourseDetail = ({ params }) => {
         )
       );
 
-      // Actualizar valores en el formulario/modal
       setDisplayName(displayName);
-      setIsEditModalOpen(false); // Cerrar el modal aquí
+      setIsEditModalOpen(false);
       setFile(null);
       setScore(null);
     } catch (error) {
       console.error("Error saving project and student projects:", error);
     } finally {
-      setIsEditModalOpen(false); // ✅ Cerrar modal SIEMPRE
+      setIsEditModalOpen(false);
       setFile(null);
     }
   };
 
   const handleDeleteFile = async () => {
     const confirmed = confirm("¿Estás seguro de que deseas eliminar este archivo?");
-    if (!confirmed) return; // Si no se confirma, salir de la función
+    if (!confirmed) return;
 
     try {
       const auth = getAuth();
@@ -467,20 +448,18 @@ const CourseDetail = ({ params }) => {
       const projectId = editedProject.id;
 
       if (isAdmin && editedProject.fileUrl) {
-        // Eliminar archivo del administrador
         const fileRef = ref(storage, editedProject.fileUrl);
         await deleteObject(fileRef);
-        const projectRef = doc(db, "projects", projectId);
+        const projectRef = doc(db, "liveCourses", courseId, "projects", projectId);
         await updateDoc(projectRef, { fileUrl: null });
         setEditedProject((prev) => ({ ...prev, fileUrl: null }));
       } else if (!isAdmin && editedProject.studentFileUrl) {
-        // Eliminar archivo del estudiante
-        const studentProjectRef = collection(db, "projects", projectId, "studentsProjects");
+        const studentProjectRef = collection(db, "liveCourses", courseId, "projects", projectId, "studentsProjects");
         const q = query(studentProjectRef, where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          const studentDocRef = doc(db, "projects", projectId, "studentsProjects", querySnapshot.docs[0].id);
+          const studentDocRef = doc(db, "liveCourses", courseId, "projects", projectId, "studentsProjects", querySnapshot.docs[0].id);
           await updateDoc(studentDocRef, { studentFileUrl: null });
           setEditedProject((prev) => ({ ...prev, studentFileUrl: null }));
         }
@@ -502,7 +481,6 @@ const CourseDetail = ({ params }) => {
       const projectName = editedProject.title.replace(/\s+/g, "_");
       const courseTitle = courseName.replace(/\s+/g, "_");
 
-      // ✅ Se elimina la subcarpeta de userId en studentProjects
       const fileExtension = file.name.split('.').pop();
       const formattedFileName = `${displayName}-${projectName}-${courseTitle}.${fileExtension}`;
       const fileRef = ref(storage, `studentProjects/${formattedFileName}`);
@@ -510,13 +488,12 @@ const CourseDetail = ({ params }) => {
       await uploadBytes(fileRef, file);
       const fileUrl = await getDownloadURL(fileRef);
 
-      // ✅ Guardar URL en Firestore
-      const studentProjectRef = collection(db, "projects", editedProject.id, "studentsProjects");
+      const studentProjectRef = collection(db, "liveCourses", courseId, "projects", editedProject.id, "studentsProjects");
       const q = query(studentProjectRef, where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        const studentDocRef = doc(db, "projects", editedProject.id, "studentsProjects", querySnapshot.docs[0].id);
+        const studentDocRef = doc(db, "liveCourses", courseId, "projects", editedProject.id, "studentsProjects", querySnapshot.docs[0].id);
         await updateDoc(studentDocRef, { studentFileUrl: fileUrl });
         setEditedProject((prev) => ({ ...prev, studentFileUrl: fileUrl }));
       }
@@ -526,7 +503,7 @@ const CourseDetail = ({ params }) => {
     } catch (error) {
       console.error("Error al subir el archivo:", error);
     } finally {
-      setIsEditModalOpen(false); // ✅ Cerrar modal SIEMPRE
+      setIsEditModalOpen(false);
       setFile(null);
     }
   };
@@ -546,9 +523,11 @@ const CourseDetail = ({ params }) => {
       const courseData = courseDocSnap.data();
       const studentsList = courseData.students || [];
 
-      // Referencia a la subcolección studentsProjects
+      // Referencia a la subcolección studentsProjects dentro del curso y proyecto
       const studentProjectRef = collection(
         db,
+        "liveCourses",
+        courseId,
         "projects",
         updatedProject.id,
         "studentsProjects"
@@ -801,7 +780,7 @@ const CourseDetail = ({ params }) => {
       courseId, // Relacionar el proyecto con el curso
       order: projects.length,
     };
-    const projectRef = await addDoc(collection(db, "projects"), newProject);
+    const projectRef = await addDoc(collection(db, "liveCourses", courseId, "projects"), newProject);
     setProjects((prevProjects) => [
       ...prevProjects,
       { id: projectRef.id, ...newProject },
@@ -810,24 +789,22 @@ const CourseDetail = ({ params }) => {
 
   const deleteProject = async (projectId) => {
     if (confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
-      await deleteDoc(doc(db, "projects", projectId));
+      await deleteDoc(doc(db, "liveCourses", courseId, "projects", projectId));
       setProjects(projects.filter((project) => project.id !== projectId));
     }
   };
 
 
   const moveProject = async (projectId, projectIndex, direction) => {
-    console.log(projectId, " Index: ", projectIndex, " Direccion: ", direction);
     setProjects((prevProjects) => {
       if (projectIndex === -1 || projectIndex + direction < 0 || projectIndex + direction >= prevProjects.length) return prevProjects;
-      console.log("Moving project", projectId, "to", projectIndex, "+", direction, "Order: ");
       const newProjects = [...prevProjects];
       const [movedProject] = newProjects.splice(projectIndex, 1);
       newProjects.splice(projectIndex + direction, 0, movedProject);
 
       newProjects.forEach(async (project, newIndex) => {
         try {
-          const projectRef = doc(db, "projects", project.id);
+          const projectRef = doc(db, "liveCourses", courseId, "projects", project.id);
           await updateDoc(projectRef, { order: newIndex });
         } catch (error) {
           console.error("Error updating project order:", error);
