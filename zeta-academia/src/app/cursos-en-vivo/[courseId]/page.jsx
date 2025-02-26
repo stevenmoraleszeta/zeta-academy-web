@@ -314,7 +314,7 @@ const CourseDetail = ({ params }) => {
 
     if (!isAdmin) {
       // Verificar si el estudiante tiene un archivo subido en studentsProjects
-      const studentProjectRef = collection(db, "projects", project.id, "studentsProjects");
+      const studentProjectRef = collection(db, "liveCourses", courseId, "projects", project.id, "studentsProjects");
       const q = query(studentProjectRef, where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
 
@@ -1072,7 +1072,7 @@ const CourseDetail = ({ params }) => {
 
     const batch = writeBatch(db);
     for (const projectDoc of courseProjects) {
-      const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+      const studentProjectsRef = collection(db, "liveCourses", courseId, "projects", projectDoc.id, "studentsProjects");
       const studentProjectsSnapshot = await getDocs(studentProjectsRef);
       studentProjectsSnapshot.forEach((docSnap) => {
         if (docSnap.data().userId === studentId) {
@@ -1108,13 +1108,13 @@ const CourseDetail = ({ params }) => {
 
   const calculateFinalAverage = async (studentId) => {
     try {
-      const projectsRef = collection(db, "projects");
+      const projectsRef = collection(db, "liveCourses", courseId, "projects");
       const projectsSnapshot = await getDocs(projectsRef);
       let totalScore = 0;
       let projectCount = 0;
 
       for (const projectDoc of projectsSnapshot.docs) {
-        const studentProjectsRef = collection(db, "projects", projectDoc.id, "studentsProjects");
+        const studentProjectsRef = collection(db, "liveCourses", courseId, "projects", projectDoc.id, "studentsProjects");
         const q = query(studentProjectsRef, where("userId", "==", studentId));
         const studentProjectsSnapshot = await getDocs(q);
 
