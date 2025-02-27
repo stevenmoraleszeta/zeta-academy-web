@@ -354,31 +354,39 @@
   border-radius: 12px;
   max-width: 650px;
   width: 90%;
-  max-height: 80vh; /* Limita la altura máxima del modal */
-  overflow-y: auto; /* Activa la barra de desplazamiento si es necesario */
+  max-height: 80vh;
+  /* Limita la altura máxima del modal */
+  overflow-y: auto;
+  /* Activa la barra de desplazamiento si es necesario */
   color: var(--text-color);
   display: flex;
   flex-direction: column;
   gap: 15px;
-  animation: fadeIn 0.3s ease; /* Fade-in animation */
+  animation: fadeIn 0.3s ease;
+  /* Fade-in animation */
 }
 
 /* Estilos para la barra de desplazamiento */
 .modalContent::-webkit-scrollbar {
-  width: 8px; /* Ancho de la barra de desplazamiento */
+  width: 8px;
+  /* Ancho de la barra de desplazamiento */
 }
 
 .modalContent::-webkit-scrollbar-track {
-  background: var(--color-dark); /* Color del fondo de la barra de desplazamiento */
+  background: var(--color-dark);
+  /* Color del fondo de la barra de desplazamiento */
 }
 
 .modalContent::-webkit-scrollbar-thumb {
-  background: var(--color-primary); /* Color del "pulgar" de la barra de desplazamiento */
-  border-radius: 10px; /* Bordes redondeados para el "pulgar" */
+  background: var(--color-primary);
+  /* Color del "pulgar" de la barra de desplazamiento */
+  border-radius: 10px;
+  /* Bordes redondeados para el "pulgar" */
 }
 
 .modalContent::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-hover); /* Color del "pulgar" al pasar el mouse */
+  background: var(--color-primary-hover);
+  /* Color del "pulgar" al pasar el mouse */
 }
 
 .modalContent h3 {
@@ -1001,6 +1009,45 @@
 }
 
 
+
+
+
+
+@media (min-height: 1367px) {
+  .courseMainContent {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    flex-direction: column;
+
+    gap: 20px;
+    width: 100%;
+    height: 20vh;
+  }
+
+  .features {
+    height: 100vh;
+  }
+}
+
+@media (min-height: 1400px) {
+  .courseMainContent {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    flex-direction: column;
+
+    gap: 20px;
+    width: 100%;
+    height: 10vh;
+  }
+
+  .features {
+    height: 40vh;
+  }
+}
+
+
 @media (max-width: 768px) {
   .projectItem {
     flex-direction: column;
@@ -1123,42 +1170,58 @@
 .downloadSection {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Alinear a la izquierda */
-  gap: 10px; /* Espacio entre los elementos */
-  margin-top: 15px; /* Espacio superior */
+  align-items: flex-start;
+  /* Alinear a la izquierda */
+  gap: 10px;
+  /* Espacio entre los elementos */
+  margin-top: 15px;
+  /* Espacio superior */
 }
 
 /* Botón de descarga */
 .downloadButton {
   background: var(--color-primary);
   color: var(--text-color);
-  padding: 10px 15px; /* Espaciado interno */
+  padding: 10px 15px;
+  /* Espaciado interno */
   border: none;
-  border-radius: 5px; /* Bordes redondeados */
+  border-radius: 5px;
+  /* Bordes redondeados */
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.3s ease; /* Transición suave */
-  text-decoration: none; /* Eliminar subrayado */
+  transition: background-color 0.3s ease;
+  /* Transición suave */
+  text-decoration: none;
+  /* Eliminar subrayado */
 }
 
 /* Asegúrate de que los enlaces dentro de los botones también tengan el mismo estilo */
 .downloadButton a {
-  text-decoration: none; /* Eliminar subrayado */
-  color: inherit; /* Heredar el color del botón */
+  text-decoration: none;
+  /* Eliminar subrayado */
+  color: inherit;
+  /* Heredar el color del botón */
 }
 
 .downloadButton:hover {
-  background: var(--color-primary-hover); /* Color al pasar el mouse */
+  background: var(--color-primary-hover);
+  /* Color al pasar el mouse */
 }
 
 /* Mensaje de proyecto cargado exitosamente */
 .successMessage {
-  background-color: #38a169; /* Verde */
-  color: #ffffff; /* Texto blanco */
+  background-color: #38a169;
+  /* Verde */
+  color: #ffffff;
+  /* Texto blanco */
   padding: 10px;
-  border-radius: 5px; /* Bordes redondeados */
+  border-radius: 5px;
+  /* Bordes redondeados */
   font-weight: bold;
-  width: 95%; /* Ancho completo */
-  text-align: center; /* Centrar texto */
-  margin-top: 15px; /* Espacio superior */
+  width: 95%;
+  /* Ancho completo */
+  text-align: center;
+  /* Centrar texto */
+  margin-top: 15px;
+  /* Espacio superior */
 }
