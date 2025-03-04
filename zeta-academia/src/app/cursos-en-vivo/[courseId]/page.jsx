@@ -1222,6 +1222,30 @@ const CourseDetail = ({ params }) => {
     }
   };
 
+  const addClass = async (moduleId) => {
+    const newClass = {
+      title: "Nueva Clase",
+      order: modules.find(mod => mod.id === moduleId).classes.length,
+      restricted: false,
+    };
+
+    const classRef = await addDoc(
+      collection(db, "liveCourses", courseId, "modules", moduleId, "classes"),
+      newClass
+    );
+
+    setModules((prevModules) =>
+      prevModules.map((mod) =>
+        mod.id === moduleId
+          ? {
+            ...mod,
+            classes: [...mod.classes, { id: classRef.id, ...newClass }],
+          }
+          : mod
+      )
+    );
+  };
+
   return (
     <div className={styles.container}>
       {isAdmin ? (
