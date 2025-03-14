@@ -164,11 +164,6 @@ ul {
   /* Elimina el margen izquierdo */
 }
 
-li {
-  margin-bottom: 10px;
-  /* Espacio entre los elementos de la lista */
-}
-
 /* App container */
 .app {
   background-color: var(--color-black);
