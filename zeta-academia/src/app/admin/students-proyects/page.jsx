@@ -234,7 +234,7 @@ const StudentsProjects = () => {
                 { label: "Título", field: "title", type: "text" },
                 { label: "Fecha Límite", field: "dueDate", type: "date" },
                 { label: "Puntuación", field: "score", type: "number" },
-                { label: "Fecha de Entregado", field: "deliveredDay", type: "date" },
+                { label: "Fecha de Entregado", field: "deliveredDate", type: "text" },
                 { label: "Archivo del Proyecto", field: "fileUrl", type: "file" },
                 { label: "Curso", field: "courseName", type: "text" },
             ]}

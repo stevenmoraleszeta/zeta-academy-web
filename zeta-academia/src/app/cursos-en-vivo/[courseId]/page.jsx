@@ -492,10 +492,16 @@ const CourseDetail = ({ params }) => {
       const q = query(studentProjectRef, where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
 
+      const now = new Date();
+      const formattedDate = `${now.getFullYear().toString().slice(-2)}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+
       if (!querySnapshot.empty) {
         const studentDocRef = doc(db, "liveCourses", courseId, "projects", editedProject.id, "studentsProjects", querySnapshot.docs[0].id);
-        await updateDoc(studentDocRef, { studentFileUrl: fileUrl });
-        setEditedProject((prev) => ({ ...prev, studentFileUrl: fileUrl }));
+        await updateDoc(studentDocRef, {
+          studentFileUrl: fileUrl,
+          deliveredDate: formattedDate,
+        });
+        setEditedProject((prev) => ({ ...prev, studentFileUrl: fileUrl, deliveredDate: formattedDate }));
       }
 
       setIsEditModalOpen(false);
