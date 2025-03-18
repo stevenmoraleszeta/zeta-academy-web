@@ -51,14 +51,16 @@ const ClassesRecorded = ({ courseId }) => {
 
   // Leer las grabaciones al cargar el componente
   useEffect(() => {
-    if (!courseId) return; // Evita ejecutar si no hay courseId
+    if (!courseId) return;
 
     const fetchRecordings = async () => {
       try {
         const coursesRef = doc(db, `liveCourses/${courseId}`);
         const recordingsRef = collection(coursesRef, "recordings");
         const snapshot = await getDocs(recordingsRef);
-        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)); // Ordenar por "order"
         setRecordings(data);
       } catch (error) {
         console.error("Error al obtener grabaciones:", error);
@@ -75,7 +77,7 @@ const ClassesRecorded = ({ courseId }) => {
     if (newTitle && newUrl) {
       try {
         const recordingsRef = collection(coursesRef, "recordings");
-        const newRecording = { title: newTitle, url: newUrl };
+        const newRecording = { title: newTitle, url: newUrl, order: null };
         const docRef = await addDoc(recordingsRef, newRecording);
 
         setRecordings((prev) => [...prev, { id: docRef.id, ...newRecording }]);
@@ -124,11 +126,23 @@ const ClassesRecorded = ({ courseId }) => {
     }
   };
 
-  const moveRecording = (index, direction) => {
+  const moveRecording = async (index, direction) => {
     const newRecordings = [...recordings];
     const [movedRecording] = newRecordings.splice(index, 1);
     newRecordings.splice(index + direction, 0, movedRecording);
+
     setRecordings(newRecordings);
+
+    try {
+      const recordingsRef = collection(coursesRef, "recordings");
+      await Promise.all(
+        newRecordings.map((rec, newIndex) =>
+          updateDoc(doc(recordingsRef, rec.id), { order: newIndex })
+        )
+      );
+    } catch (error) {
+      console.error("Error al actualizar el orden de las grabaciones:", error);
+    }
   };
 
   return (
