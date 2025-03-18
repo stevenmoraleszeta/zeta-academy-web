@@ -116,6 +116,7 @@ const CourseDetail = ({ params }) => {
   const [adminUsers, setAdminUsers] = useState([]);
   const [studentUsers, setStudentUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchEmail, setSearchEmail] = useState("");
   const [score, setScore] = useState(null);
   const [isStudentInCourse, setIsStudentInCourse] = useState(false);
   const [studentProjects, setStudentProjects] = useState([]);
@@ -1252,6 +1253,13 @@ const CourseDetail = ({ params }) => {
     );
   };
 
+  const filteredStudents = studentUsers.filter(user => {
+    const matchesName = searchTerm === "" || user.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesEmail = searchEmail === "" || user.email.toLowerCase().includes(searchEmail.toLowerCase());
+
+    return matchesName && matchesEmail; // Ambos deben ser true, pero si uno está vacío no afecta
+  });
+
   return (
     <div className={styles.container}>
       {isAdmin ? (
@@ -1870,16 +1878,21 @@ const CourseDetail = ({ params }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
             />
+            <input
+              type="email"
+              placeholder="Buscar estudiante por email"
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              className={styles.searchInput}
+            />
             <div className={styles.buttonContainer}>
               <select id="studentSelect">
                 <option value="">Selecciona un estudiante</option>
-                {studentUsers
-                  .filter(user => user.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map(user => (
-                    <option key={user.id} value={user.id}>
-                      {user.displayName || "Nombre no disponible"}
-                    </option>
-                  ))}
+                {filteredStudents.map(user => (
+                  <option key={user.id} value={user.id}>
+                    {user.displayName || "Nombre no disponible"} - {user.email}
+                  </option>
+                ))}
               </select>
               <button onClick={() => handleAddStudent(document.getElementById('studentSelect').value)}>
                 <FaPlus />
