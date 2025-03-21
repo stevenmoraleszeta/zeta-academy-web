@@ -19,19 +19,20 @@ const AdminUsers = () => {
         { label: 'Nombre', field: 'displayName' },
         { label: 'Email', field: 'email' },
         { label: 'Edad', field: 'edad', type: 'number' },
-        { 
-            label: 'País', 
-            field: 'pais', 
+        {
+            label: 'País',
+            field: 'pais',
         },
-        { 
-            label: 'Rol', 
-            field: 'role', 
-            type: 'select', 
+        {
+            label: 'Rol',
+            field: 'role',
+            type: 'select',
             selectType: 'combobox',
             options: [
                 { label: 'Student', value: 'student' },
                 { label: 'Admin', value: 'admin' }
-            ]
+            ],
+            defaultValue: 'student',
         }
     ];
 

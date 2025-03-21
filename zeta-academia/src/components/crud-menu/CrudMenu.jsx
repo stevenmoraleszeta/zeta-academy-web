@@ -53,6 +53,10 @@ const CrudMenu = ({
         }
     }, [propData, fetchedData]);
 
+    useEffect(() => {
+        initializeSelectOptions();
+    }, [editFields]);
+
     const handleGoToFicha = (item) => {
         router.push(`/admin/students/${item.id}`);
     };
