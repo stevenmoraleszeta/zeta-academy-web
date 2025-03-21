@@ -123,3 +123,13 @@
     font-size: clamp(.5vw, 24px, 1.1vw);
     margin-bottom: 5vh;
 }
+
+.phonesContainerSelectors {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.countrySelector {
+    width: 100px;
+}
