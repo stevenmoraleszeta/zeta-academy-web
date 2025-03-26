@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/faviconV2.ico" />
+        <link rel="icon" href="/favicon.ico" />
 
         <meta property="og:title" content="ZETA Academia" />
         <meta property="og:description" content="ZETA Plataforma Educativa" />
