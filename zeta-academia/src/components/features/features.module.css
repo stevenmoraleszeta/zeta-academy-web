@@ -136,3 +136,31 @@
     display: flex;
     gap: 10px;
 }
+
+/* Remove outline on focus */
+.titleInput:focus,
+.originalPriceInput:focus,
+.discountedPriceInput:focus,
+.featureTitleInput:focus,
+.featureDescriptionInput:focus,
+.descriptionInput:focus,
+.modalInput:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.moveButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .moveButton:hover {
+    color: var(--color-secondary);
+  }
