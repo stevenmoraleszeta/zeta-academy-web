@@ -885,7 +885,7 @@ const CourseDetail = ({ params }) => {
       </div>
 
       {!isEnrolled && (
-        <Features courseId={courseId} course={course} setCourse={setCourse}></Features>
+        <Features collectionName={'onlineCourses'} courseId={courseId} course={course} setCourse={setCourse}></Features>
       )}
 
       {isModalOpen && (

@@ -4,25 +4,25 @@ import { useAuth } from "@/context/AuthContext";
 import styles from "./features.module.css";
 import { useState } from "react";
 import Image from "next/image";
-
 import {
     FaTrash,
     FaPlus,
     FaArrowUp,
     FaArrowDown,
 } from "react-icons/fa";
-import { doc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 const FeaturesProps = {
     course: '',
     setCourse: '',
     courseId: '',
+    collectionName: '',
 }
 
 export default function Features(featuresProps = props) {
 
-    const { course, setCourse, courseId } = featuresProps;
+    const { course, setCourse, courseId, collectionName } = featuresProps;
     const { currentUser, isAdmin } = useAuth();
     const [editingIconIndex, setEditingIconIndex] = useState(null);
     const [newIconUrl, setNewIconUrl] = useState("");
@@ -41,7 +41,7 @@ export default function Features(featuresProps = props) {
         updatedFeatures[index].iconUrl = newIconUrl;
 
         try {
-            const courseRef = doc(db, "onlineCourses", courseId);
+            const courseRef = doc(db, collectionName, courseId);
             await updateDoc(courseRef, { features: updatedFeatures });
             setCourse((prev) => ({ ...prev, features: updatedFeatures }));
             setEditingIconIndex(null);
@@ -53,7 +53,7 @@ export default function Features(featuresProps = props) {
     const handleAddFeature = async () => {
         const newFeature = { title: "test", description: "test", iconUrl: 'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6' };
         try {
-            const courseRef = doc(db, "onlineCourses", courseId);
+            const courseRef = doc(db, collectionName, courseId);
             await updateDoc(courseRef, {
                 features: arrayUnion(newFeature),
             });
@@ -75,7 +75,7 @@ export default function Features(featuresProps = props) {
 
             updatedFeatures.splice(index, 1);
 
-            const courseRef = doc(db, "onlineCourses", courseId);
+            const courseRef = doc(db, collectionName, courseId);
             await updateDoc(courseRef, { features: updatedFeatures });
 
             setCourse((prev) => ({
@@ -98,7 +98,7 @@ export default function Features(featuresProps = props) {
             // Update the order in the database
             newFeatures.forEach(async (feature, newIndex) => {
                 try {
-                    const courseRef = doc(db, "onlineCourses", courseId);
+                    const courseRef = doc(db, collectionName, courseId);
                     await updateDoc(courseRef, { features: newFeatures });
                 } catch (error) {
                     console.error("Error updating feature order:", error);
@@ -112,7 +112,7 @@ export default function Features(featuresProps = props) {
     const handleFieldChange = async (field, value) => {
         const updatedCourse = { ...course, [field]: value };
         setCourse(updatedCourse);
-        const docRef = doc(db, "onlineCourses", courseId);
+        const docRef = doc(db, collectionName, courseId);
         await updateDoc(docRef, { [field]: value });
     };
 
