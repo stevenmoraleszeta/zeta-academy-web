@@ -3,49 +3,76 @@
 import styles from "./modal.module.css";
 import { useEffect, useState } from "react";
 
-export function Modal({ modalType }) {
-
-    const { modal, setModal } = useState("");
+export function Modal({
+    modalType = "alert",
+    title = "",
+    description = "",
+    children,
+    onClose,
+    onSubmit,
+    isOpen = false
+}) {
+    const [modalContent, setModalContent] = useState("");
 
     useEffect(() => {
         switch (modalType) {
             case "alert":
-                setModal("alert")
+                setModalContent("alert");
                 break;
             case "form":
-                setModal("form")
+                setModalContent("form");
                 break;
             case "message":
-                setModal("message")
+                setModalContent("message");
+                break;
+            case "notification":
+                setModalContent("notification");
                 break;
             default:
+                setModalContent("");
                 break;
         }
-    });
+    }, [modalType]);
 
-    return (
-        <>
+    if (!isOpen) return null;
 
-        </>
-    )
-}
-
-export function AlertComponent({ title, description, children }) {
     return (
         <div className={styles.modalContainer}>
             <div className={styles.modalContentContainer}>
-                <p className={styles.title}>{title}</p>
-                <p className={styles.description}>{description}</p>
-                <div className={styles.btnsContainer}>
-                    {children}
-                </div>
+                {title && <h2 className={styles.title}>{title}</h2>}
+                {description && <p className={styles.description}>{description}</p>}
+
+                {modalContent === "form" && (
+                    <form onSubmit={onSubmit}>
+                        {children}
+                        <div className={styles.btnsContainer}>
+                            <button type="submit">Enviar</button>
+                            <button type="button" onClick={onClose}>Cancelar</button>
+                        </div>
+                    </form>
+                )}
+
+                {modalContent === "alert" && (
+                    <div className={styles.btnsContainer}>
+                        {children}
+                        <button onClick={onClose}>Cerrar</button>
+                    </div>
+                )}
+
+                {modalContent === "message" && (
+                    <div className={styles.btnsContainer}>
+                        {children}
+                        <button onClick={onClose}>Cerrar</button>
+                    </div>
+                )}
+
+                {modalContent === "notification" && (
+                    <div className={styles.btnsContainer}>
+                        {children}
+                        <button onClick={onClose}>Entendido</button>
+                    </div>
+                )}
             </div>
         </div>
-    );
-}
-
-export function AlertButton({ text, funct }) {
-    return (
-        <button onClick={funct}>{text}</button>
     );
 }
