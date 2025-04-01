@@ -43,7 +43,7 @@ export function Modal({
                 {description && <p className={styles.description}>{description}</p>}
 
                 {modalContent === "form" && (
-                    <form onSubmit={onSubmit}>
+                    <form className={styles.modalForm} onSubmit={onSubmit}>
                         {children}
                         <div className={styles.btnsContainer}>
                             <button type="submit">Enviar</button>
