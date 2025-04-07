@@ -543,6 +543,12 @@ const CourseDetail = ({ params }) => {
       const batch = writeBatch(db);
 
       for (const studentId of studentsList) {
+        // Verificar si el student es real o no es válido
+        if (!studentId) {
+          console.log(`Se omitió la creación para un usuario con ID inválido: ${studentId}`);
+          continue;
+        }
+
         // Verificar si ya existe un documento con este userId en la subcolección
         const existingDocsQuery = query(
           studentProjectRef,
@@ -552,14 +558,20 @@ const CourseDetail = ({ params }) => {
 
         if (!existingDocsSnapshot.empty) {
           // Si ya existe un documento para este usuario, omitir creación
-          console.log(`Documento ya existe para el usuario, se omite.`);
+          console.log(`Documento ya existe para el usuario con ID: ${studentId}, se omite.`);
           continue;
         }
 
         // Obtener el displayName del usuario
         const userDocRef = doc(db, "users", studentId);
         const userDocSnap = await getDoc(userDocRef);
-        const userData = userDocSnap.exists() ? userDocSnap.data() : {};
+
+        if (!userDocSnap.exists()) {
+          console.log(`Se omitió la creación para un usuario inexistente con ID: ${studentId}`);
+          continue;
+        }
+
+        const userData = userDocSnap.data();
         const displayName = userData.displayName || "Usuario sin nombre";
 
         // Obtener datos del curso
