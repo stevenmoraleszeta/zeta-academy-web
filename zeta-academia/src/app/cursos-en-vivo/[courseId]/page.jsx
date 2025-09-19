@@ -125,6 +125,7 @@ const CourseDetail = ({ params }) => {
   const [editingIconIndex, setEditingIconIndex] = useState(null);
   const [newIconUrl, setNewIconUrl] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [courseName, setCourseName] = useState("");
 
 
@@ -1749,6 +1750,27 @@ const CourseDetail = ({ params }) => {
         </div>
       )}
 
+      {isVideoModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Edit Video URL</h3>
+            <label>
+              Video URL:
+              <input
+                type="text"
+                value={newVideoUrl}
+                onChange={handleVideoUrlChange}
+                placeholder="Enter new video URL"
+                className={styles.modalInput}
+              />
+            </label>
+            <div className={styles.modalActions}>
+              <button onClick={saveVideoUrl}>Save</button>
+              <button onClick={closeVideoModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* //modal de editar proyecto */}
 
