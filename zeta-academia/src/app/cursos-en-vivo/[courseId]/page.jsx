@@ -347,7 +347,7 @@ const CourseDetail = ({ params }) => {
       const displayName = user.displayName || "Usuario sin nombre";
 
       if (file) {
-        const fileRef = ref(storage, `project-files/${file.name}`);
+        const fileRef = ref(storage, `project-files/${file.name || 'project-file'}`);
         await uploadBytes(fileRef, file);
         const fileUrl = await getDownloadURL(fileRef);
         updatedProject.fileUrl = fileUrl;
@@ -483,7 +483,7 @@ const CourseDetail = ({ params }) => {
       const projectName = editedProject.title ? editedProject.title.replace(/\s+/g, "_") : "Proyecto";
       const courseTitle = courseName ? courseName.replace(/\s+/g, "_") : "Curso";
 
-      const fileExtension = file.name.split('.').pop();
+      const fileExtension = file.name ? file.name.split('.').pop() : 'txt';
       const formattedFileName = `${displayName}-${projectName}-${courseTitle}.${fileExtension}`;
       const fileRef = ref(storage, `studentProjects/${formattedFileName}`);
 
@@ -1266,6 +1266,22 @@ const CourseDetail = ({ params }) => {
     );
   };
 
+  const deleteClass = async (moduleId, classId) => {
+    if (confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
+      await deleteDoc(doc(db, "liveCourses", courseId, "modules", moduleId, "classes", classId));
+      setModules((prevModules) =>
+        prevModules.map((mod) =>
+          mod.id === moduleId
+            ? {
+              ...mod,
+              classes: mod.classes.filter((cls) => cls.id !== classId),
+            }
+            : mod
+        )
+      );
+    }
+  };
+
   const filteredStudents = studentUsers.filter(user => {
     const matchesName = searchTerm === "" || user.displayName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesEmail = searchEmail === "" || user.email.toLowerCase().includes(searchEmail.toLowerCase());
@@ -1405,7 +1421,7 @@ const CourseDetail = ({ params }) => {
               <div></div>
             </>
           )}
-          {(course.features || defaultFeatures).map((feature, index) => (
+          {(course.features || []).map((feature, index) => (
             <div key={index} className={styles.feature}>
               <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
                 <Image
