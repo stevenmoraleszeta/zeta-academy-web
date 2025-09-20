@@ -613,7 +613,7 @@ const CourseDetail = ({ params }) => {
   };
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    setFile(event.target.files?.[0] || null);
   };
 
   const fetchUsers = async () => {
@@ -1221,7 +1221,7 @@ const CourseDetail = ({ params }) => {
 
   const handleIconClick = (index) => {
     setEditingIconIndex(index);
-    setNewIconUrl(course.features[index].iconUrl);
+    setNewIconUrl(course.features && course.features[index] ? course.features[index].iconUrl : "");
   };
 
   const handleIconFeatureChange = (e) => {
@@ -1229,8 +1229,10 @@ const CourseDetail = ({ params }) => {
   };
 
   const saveIconUrl = async (index) => {
-    const updatedFeatures = [...course.features];
-    updatedFeatures[index].iconUrl = newIconUrl;
+    const updatedFeatures = [...(course.features || [])];
+    if (updatedFeatures[index]) {
+      updatedFeatures[index].iconUrl = newIconUrl;
+    }
 
     try {
       const courseRef = doc(db, "liveCourses", courseId);
@@ -1245,7 +1247,7 @@ const CourseDetail = ({ params }) => {
   const addClass = async (moduleId) => {
     const newClass = {
       title: "Nueva Clase",
-      order: modules.find(mod => mod.id === moduleId).classes.length,
+      order: modules.find(mod => mod.id === moduleId)?.classes?.length || 0,
       restricted: false,
     };
 
@@ -1283,8 +1285,8 @@ const CourseDetail = ({ params }) => {
   };
 
   const filteredStudents = studentUsers.filter(user => {
-    const matchesName = searchTerm === "" || user.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesEmail = searchEmail === "" || user.email.toLowerCase().includes(searchEmail.toLowerCase());
+    const matchesName = searchTerm === "" || (user.displayName && user.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesEmail = searchEmail === "" || (user.email && user.email.toLowerCase().includes(searchEmail.toLowerCase()));
 
     return matchesName && matchesEmail; // Ambos deben ser true, pero si uno está vacío no afecta
   });
@@ -1451,9 +1453,11 @@ const CourseDetail = ({ params }) => {
                       type="text"
                       value={feature.title}
                       onChange={(e) => {
-                        const updatedFeatures = [...course.features];
-                        updatedFeatures[index].title = e.target.value;
-                        handleFieldChange("features", updatedFeatures);
+                        const updatedFeatures = [...(course.features || [])];
+                        if (updatedFeatures[index]) {
+                          updatedFeatures[index].title = e.target.value;
+                          handleFieldChange("features", updatedFeatures);
+                        }
                       }}
                       className={styles.featureTitleInput}
                     />
@@ -1490,7 +1494,7 @@ const CourseDetail = ({ params }) => {
                         </button>
                         <button
                           onClick={() => moveFeature(index, 1)}
-                          disabled={index === course.features.length - 1}
+                          disabled={index === (course.features?.length || 0) - 1}
                           className={styles.moveButton}
                         >
                           <FaArrowDown />
@@ -1596,7 +1600,7 @@ const CourseDetail = ({ params }) => {
                                 event.stopPropagation();
                                 moveClass(classModule.id, classIndex, 1);
                               }}
-                              disabled={classIndex === classModule.classes.length - 1}
+                              disabled={classIndex === (classModule.classes?.length || 0) - 1}
                               className={styles.moveButton}
                             >
                               <FaArrowDown />
