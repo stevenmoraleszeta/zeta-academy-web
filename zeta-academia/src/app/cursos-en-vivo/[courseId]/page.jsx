@@ -388,7 +388,7 @@ const CourseDetail = ({ params }) => {
       studentProjectsSnapshot.forEach((docSnap) => {
         const studentProjectData = docSnap.data();
 
-        const dueDate = new Date(updatedProject.dueDate).getTime();
+        const dueDate = updatedProject.dueDate ? new Date(updatedProject.dueDate).getTime() : 0;
         const currentDate = new Date().getTime();
         let state;
 
@@ -480,8 +480,8 @@ const CourseDetail = ({ params }) => {
 
       const userId = user.uid;
       const displayName = user.displayName ? user.displayName.replace(/\s+/g, "_") : "Estudiante";
-      const projectName = editedProject.title.replace(/\s+/g, "_");
-      const courseTitle = courseName.replace(/\s+/g, "_");
+      const projectName = editedProject.title ? editedProject.title.replace(/\s+/g, "_") : "Proyecto";
+      const courseTitle = courseName ? courseName.replace(/\s+/g, "_") : "Curso";
 
       const fileExtension = file.name.split('.').pop();
       const formattedFileName = `${displayName}-${projectName}-${courseTitle}.${fileExtension}`;
