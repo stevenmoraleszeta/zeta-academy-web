@@ -1,7 +1,20 @@
 {
   "name": "zeta-academia",
   "version": "0.1.0",
+  "description": "A modern educational platform for online and live courses with integrated payment processing",
+  "author": "Steven Morales Fallas",
   "private": true,
+  "license": "UNLICENSED",
+  "keywords": [
+    "education",
+    "e-learning",
+    "nextjs",
+    "react",
+    "firebase",
+    "paypal",
+    "courses",
+    "online-learning"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
